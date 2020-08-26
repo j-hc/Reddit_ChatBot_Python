@@ -32,7 +32,8 @@ class WebSockClient:
     def add_after_message_hook(self, func):
         self._after_message_hooks.append(func)
 
-    def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True):
+    def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,
+                         must_be_equal=True, quote_parent=False):
         if limited_to_users is not None and type(limited_to_users) == str:
             limited_to_users = [limited_to_users]
 
@@ -40,8 +41,13 @@ class WebSockClient:
             if resp.type_f == "MESG":
                 sent_message = resp.message.lower() if lower_the_input else resp.message
                 if (limited_to_users is None or resp.user_name in limited_to_users) and (exclude_itself and resp.user_name != self.own_name):
-                    if sent_message == input_:
-                        self.send_message(response, resp.channel_url)
+                    if (must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message):
+                        if quote_parent:
+                            response_prepped = f'@{resp.user_name}, {response}'
+                        else:
+                            response_prepped = response
+                        self.send_message(response_prepped, resp.channel_url)
+                        return True
 
         self.add_after_message_hook(respond)
 
@@ -60,7 +66,8 @@ class WebSockClient:
         #     print(message)
 
         for func in self._after_message_hooks:
-            func(resp)
+            if func(resp):
+                break
 
     def send_message(self, text, channel_url):
         payload = f'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'

@@ -12,16 +12,7 @@ add it as a submodule to your project like so
 
 .. code:: bash
 
-  git submodule add https://github.com/scrubjay55/Reddit_ChatBot_Python
-
-
-required packages:
-
-.. code:: bash
-
-  websocket_client>=0.57.0
-  requests>=2.24.0
-
+    git submodule add https://github.com/scrubjay55/Reddit_ChatBot_Python
 
 
 Examples
@@ -53,6 +44,7 @@ Examples
               # a basic roll game
 
               websock.send_message(response_text, resp.channel_url) # and send the message finally
+              return True  # return true if you want to be done with the checking of the other hooks
 
   websock.add_after_message_hook(roll)  # add the hook
   # now everytime someone says "!roll 1 100", the bot will roll and send the result!
