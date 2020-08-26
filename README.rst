@@ -25,7 +25,7 @@ Examples
   channelid_sub_pairs = {"sendbird_group_channel_1560782_a6a04cb8bf4d2044c4344ef2a98d6b03310c6c99": "Turkey"}
   
   # create chatbot instance
-    chatbot = ChatBot(key="*SESSION_KEY*", ai="*AI*", channelid_sub_pairs=channelid_sub_pairs)
+  chatbot = ChatBot(key="*SESSION_KEY*", ai="*AI*", channelid_sub_pairs=channelid_sub_pairs)
 
   websock = chatbot.WebSocketClient
   # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
