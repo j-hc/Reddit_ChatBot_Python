@@ -26,17 +26,17 @@ Usage
 	
 	# create function to hook
 	def roll(resp):  #  resp is a FrameModel object that carries all the data of the received
-    if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages 
-        messg_s = resp.message.split()
-        if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
-            limit_bottom = messg_s[1]
-            limit_top = messg_s[2]
+	    if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages 
+	        messg_s = resp.message.split()
+	        if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
+	            limit_bottom = messg_s[1]
+	            limit_top = messg_s[2]
 
-            rolled_number = random.randint(int(limit_f), int(limit_u))
-            response_text = f"@{resp.user_name} {rolled_number}. Better luck next time!"
-            # a basic roll game
+	            rolled_number = random.randint(int(limit_f), int(limit_u))
+	            response_text = f"@{resp.user_name} {rolled_number}. Better luck next time!"
+	            # a basic roll game
 
-            websock.send_message(response_text, resp.channel_url) # and send the message finally
+	            websock.send_message(response_text, resp.channel_url) # and send the message finally
 
     websock.add_after_message_hook(roll)  # add the hook
     # now everytime someone says "!roll 1 100", the bot will roll and send the result!
