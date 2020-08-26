@@ -12,7 +12,16 @@ add it as a submodule to your project like so
 
 .. code:: bash
 
-    git submodule add https://github.com/scrubjay55/Reddit_ChatBot_Python
+  git submodule add https://github.com/scrubjay55/Reddit_ChatBot_Python
+
+
+required packages:
+
+.. code:: bash
+
+  websocket_client>=0.57.0
+  requests>=2.24.0
+
 
 
 Examples
