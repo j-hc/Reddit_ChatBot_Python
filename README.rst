@@ -19,16 +19,16 @@ Examples
 
 .. code:: python
 
-    from Reddit_ChatBot_Python.ChatBot import ChatBot
+  from Reddit_ChatBot_Python.ChatBot import ChatBot
 
-    # set channel id and subreddit pairs for future use
-    channelid_sub_pairs = {"sendbird_group_channel_1560782_a6a04cb8bf4d2044c4344ef2a98d6b03310c6c99": "Turkey"}
+  # set channel id and subreddit pairs for future use
+  channelid_sub_pairs = {"sendbird_group_channel_1560782_a6a04cb8bf4d2044c4344ef2a98d6b03310c6c99": "Turkey"}
   
   # create chatbot instance
     chatbot = ChatBot(key="*SESSION_KEY*", ai="*AI*", channelid_sub_pairs=channelid_sub_pairs)
 
-    websock = chatbot.WebSocketClient
-    # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
+  websock = chatbot.WebSocketClient
+  # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
   
   # create function to hook
   def roll(resp):  #  resp is a FrameModel object that carries all the data of the received
@@ -44,11 +44,11 @@ Examples
 
               websock.send_message(response_text, resp.channel_url) # and send the message finally
 
-    websock.add_after_message_hook(roll)  # add the hook
-    # now everytime someone says "!roll 1 100", the bot will roll and send the result!
+  websock.add_after_message_hook(roll)  # add the hook
+  # now everytime someone says "!roll 1 100", the bot will roll and send the result!
 
-    # or you can add a basic response hook directly like so:
-    websock.set_respond_hook(input_="Hi", response="Hello and welcome!", lower_the_input=True)
+  # or you can add a basic response hook directly like so:
+  websock.set_respond_hook(input_="Hi", response="Hello and welcome!", lower_the_input=True)
 
-    # and finally, run forever...
-    websock.run_4ever()
+  # and finally, run forever...
+  websock.run_4ever()
