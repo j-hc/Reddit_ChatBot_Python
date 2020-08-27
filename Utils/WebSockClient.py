@@ -4,7 +4,7 @@ from .FrameModel.FrameModel import FrameModel
 
 
 class WebSockClient:
-    def __init__(self, key, ai, enable_trace=False, channelid_sub_pairs=None):
+    def __init__(self, key, ai, enable_trace=False, channelid_sub_pairs=None, print_chat=True):
         if channelid_sub_pairs is None:
             self.channelid_sub_pairs = {}
         else:
@@ -23,6 +23,8 @@ class WebSockClient:
 
         self.req_id = int(time.time() * 1000)
         self.own_name = None
+        self.print_chat = print_chat
+        self._first = True
 
         self._after_message_hooks = []
 
@@ -54,13 +56,20 @@ class WebSockClient:
     def run_4ever(self, ping_interval=15, ping_timeout=5):
         self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
 
-    def on_message(self, ws, message):
-        resp = FrameModel(message)
+    def print_chat_(self, resp):
         if resp.type_f == "MESG":
             print(f"{resp.user_name}@{self.channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
-        elif resp.type_f == "LOGI":
+
+    def on_message(self, ws, message):
+        resp = FrameModel(message)
+
+        if self.print_chat:
+            self.print_chat_(resp)
+
+        if self._first:
             print(message)
             self.own_name = resp.nickname
+            self._first = False
         # else:
         #     print(resp_type, end='')
         #     print(message)
