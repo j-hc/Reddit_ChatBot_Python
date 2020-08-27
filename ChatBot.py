@@ -38,7 +38,10 @@ class ChatBot:
     def _get_sub_user_id(self, sub_name):
         response = requests.get(f'https://oauth.reddit.com/r/{sub_name}/about.json', headers=self.headers)
         response.raise_for_status()
-        return response.json().get('data').get('name')
+        sub_id = response.json().get('data').get('name')
+        if sub_id is None:
+            raise Exception('Wrong subreddit name')
+        return sub_id
 
     def _get_sendbird_channel_url(self, sub_name):
         sub_id = self._get_sub_user_id(sub_name)
