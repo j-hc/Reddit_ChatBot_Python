@@ -14,6 +14,8 @@ add it as a submodule to your project like so
 
   git submodule add https://github.com/scrubjay55/Reddit_ChatBot_Python
 
+or you can just git clone it
+
 
 required packages:
 
@@ -30,17 +32,20 @@ Examples
 
   from Reddit_ChatBot_Python.ChatBot import ChatBot
 
-  # set channel id and subreddit pairs for future use
-  channelid_sub_pairs = {"sendbird_group_channel_1560782_a6a04cb8bf4d2044c4344ef2a98d6b03310c6c99": "Turkey"}
+  # get channels' sendbird channel urls
+  # this is not mandatory at all but useful for seeing which sub the message came from, else u will just see @None in front of names
+  sub_channels = ["Turkey", "AskReddit"]
   
-  # create chatbot instance
-  chatbot = ChatBot(key="*SESSION_KEY*", ai="*AI*", channelid_sub_pairs=channelid_sub_pairs)
+  # instantiate a chatbot and pass in the sub_channels if you want
+  chatbot = ChatBot(reddit_api_token="**YOUR API TOKEN**", sub_channels=sub_channels)
+  # reddit_api_token is the classic Bearer token for reddit api operations
 
+  # grab tje websocket
   websock = chatbot.WebSocketClient
   # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
   
-  # create function to hook
-  def roll(resp):  #  resp is a FrameModel object that carries all the data of the received
+  # create a function to hook
+  def roll(resp):  #  resp is a FrameModel object that carries all the data of the received, you can see other FrameModel props as well
       if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages 
           messg_s = resp.message.split()
           if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
@@ -52,6 +57,7 @@ Examples
               # a basic roll game
 
               websock.send_message(response_text, resp.channel_url) # and send the message finally, always add resp.channel_url as the second argument
+              websock.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not
               return True  # return true if you want to be done with checkingthe other hooks
                            # first added hooks gets executed first
 
@@ -59,7 +65,8 @@ Examples
   # now everytime someone says "!roll 1 100", the bot will roll and send the result!
 
   # or you can add a basic response hook directly like so:
-  websock.set_respond_hook(input_="Hi", response="Hello and welcome!", lower_the_input=True)
+  websock.set_respond_hook(input_="Hi", response="Hello and welcome!", limited_to_users=None, lower_the_input=False,
+                                                                      exclude_itself=True, must_be_equal=True, quote_parent=False)
 
   # and finally, run forever...
   websock.run_4ever()
