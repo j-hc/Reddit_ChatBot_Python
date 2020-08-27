@@ -2,7 +2,7 @@
 Reddit ChatRoom
 =================
 
-a pretty basic websocket wrapper for reddit chatrooms
+a pretty basic websocket wrapper for reddit chatrooms by `u/peroksizom <http://reddit.com/user/peroksizom>`_
 
 
 Installation
