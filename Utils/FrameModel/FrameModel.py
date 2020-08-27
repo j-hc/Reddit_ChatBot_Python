@@ -9,24 +9,24 @@ class FrameModel:
         data_j = json.loads(data_r)
 
         if self.type_f == "LOGI":
-            self.key = data_j['key']
-            self.ekey = data_j['ekey']
-            self.pong_timeout = data_j['pong_timeout']
-            self.login_ts = data_j['login_ts']
-            self.unread_cnt = data_j['unread_cnt']
-            self.user_id = data_j['user_id']
-            self.nickname = data_j['nickname']
+            self.key = data_j.get('key')
+            self.ekey = data_j.get('ekey')
+            self.pong_timeout = data_j.get('pong_timeout')
+            self.login_ts = data_j.get('login_ts')
+            self.unread_cnt = data_j.get('unread_cnt')
+            self.user_id = data_j.get('user_id')
+            self.nickname = data_j.get('nickname')
         elif self.type_f == "MESG":
-            self.unread_cnt = data_j['unread_cnt']
-            self.msg_id = data_j['msg_id']
-            self.is_op_msg = data_j['is_op_msg']
-            self.is_guest_msg = data_j['is_guest_msg']
-            self.message = data_j['message']
-            self.ts = data_j['ts']
-            self.channel_url = data_j['channel_url']
-            self.user_name = data_j['user']['name']
-            self.user_guest_id = data_j['user']['guest_id']
-            self.mentioned_users = data_j['mentioned_users']
+            self.unread_cnt = data_j.get('unread_cnt')
+            self.msg_id = data_j.get('msg_id')
+            self.is_op_msg = data_j.get('is_op_msg')
+            self.is_guest_msg = data_j.get('is_guest_msg')
+            self.message = data_j.get('message')
+            self.ts = data_j.get('ts')
+            self.channel_url = data_j.get('channel_url')
+            self.user_name = data_j.get('user').get('name')
+            self.user_guest_id = data_j.get('user').get('guest_id')
+            self.mentioned_users = data_j.get('mentioned_users')
         else:
             pass
 

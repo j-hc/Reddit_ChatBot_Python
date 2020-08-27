@@ -4,14 +4,16 @@ from .FrameModel.FrameModel import FrameModel
 
 
 class WebSockClient:
-    def __init__(self, key, ai, enable_trace=False, channelid_sub_pairs=None, print_chat=True):
+    def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True):
         if channelid_sub_pairs is None:
             self.channelid_sub_pairs = {}
         else:
             self.channelid_sub_pairs = channelid_sub_pairs
 
         websocket.enableTrace(enable_trace)
-        uri = f"wss://sendbirdproxy.chat.redditmedia.com/?p=_&pv=29&sv=3.0.82&ai={ai}&key={key}"
+        uri = "wss://sendbirdproxy.chat.redditmedia.com" \
+              f"/?p=_&pv=29&sv=3.0.82&ai={ai}&user_id={user_id}&access_token={key}"
+
         self.ws = websocket.WebSocketApp(uri,
                                          on_message=lambda ws, msg: self.on_message(ws, msg),
                                          on_error=lambda ws, msg: self.on_error(ws, msg),

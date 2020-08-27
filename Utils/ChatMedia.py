@@ -2,9 +2,10 @@ import requests
 
 
 class ChatMedia:
-    def __init__(self, ai, key):
+    def __init__(self, ai, key, reddit_api_token):
         self.ai = ai
         self.key = key
+        self.reddit_api_token = reddit_api_token
         self.headers = {
             'Accept': 'application/json',
             'User-Agent': 'Jand/3.0.82',
@@ -41,10 +42,10 @@ class ChatMedia:
 
         return response.json()  # just return whole thing for now
 
-    def join_channel(self, channel_url, sub_full_name, reddit_api_token):
+    def join_channel(self, channel_url, sub_full_name):
         headers = {
             'User-Agent': 'Firefox/79.0',
-            'Authorization': f'Bearer {reddit_api_token}', #u will need ur api token for this
+            'Authorization': f'Bearer {self.reddit_api_token}'
         }
 
         data = f'{{"channel_url":"{channel_url}","subreddit":"{sub_full_name}"}}'
