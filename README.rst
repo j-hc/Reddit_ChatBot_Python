@@ -25,7 +25,7 @@ required packages:
   requests>=2.24.0
 
 
-Examples
+Usage
 ========
 
 .. code:: python
@@ -39,8 +39,9 @@ Examples
   # instantiate a chatbot and pass in the sub_channels if you want
   chatbot = ChatBot(reddit_api_token="**YOUR API TOKEN**", sub_channels=sub_channels)
   # reddit_api_token is the classic Bearer token for reddit api operations
+  # keep in mind that atm the bot only fetches a 7-day limited sendbird key
 
-  # grab tje websocket
+  # grab the websocket
   websock = chatbot.WebSocketClient
   # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
   
