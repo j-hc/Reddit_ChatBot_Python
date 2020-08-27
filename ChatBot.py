@@ -16,7 +16,6 @@ class ChatBot:
             for sub_channel in sub_channels:
                 channel_url = self._get_sendbird_channel_url(sub_channel)
                 self.channelid_sub_pairs.update({channel_url: sub_channel})
-
         sb_access_token = self._get_sendbird_access_token()
         user_id = self._get_user_id()
 

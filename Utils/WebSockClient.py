@@ -1,10 +1,15 @@
 import websocket
 import time
 from .FrameModel.FrameModel import FrameModel
+import logging
 
 
 class WebSockClient:
-    def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True):
+    def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True, other_logging=True):
+        logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
+        self.logger = logging.getLogger("websocket")
+        self.logger.propagate = other_logging
+
         if channelid_sub_pairs is None:
             self.channelid_sub_pairs = {}
         else:
@@ -31,7 +36,7 @@ class WebSockClient:
         self._after_message_hooks = []
 
     def on_open(self, ws):
-        print("### successfully connected to the websocket ###")
+        self.logger.info("### successfully connected to the websocket ###")
 
     def add_after_message_hook(self, func):
         self._after_message_hooks.append(func)
@@ -70,11 +75,11 @@ class WebSockClient:
             self.print_chat_(resp)
 
         if self._first:
-            print(message)
+            self.logger.info(message)
             self.own_name = resp.nickname
             self._first = False
             if not resp.is_error:
-                print('Everything is: OK')
+                self.logger.info("Everything is: OK")
         # else:
         #     print(resp_type, end='')
         #     print(message)
@@ -94,10 +99,10 @@ class WebSockClient:
         self.req_id += 1
 
     def on_error(self, ws, error):
-        print(error)
+        self.logger.error(error)
 
     def on_close(self, ws):
-        print("### websock closed ###")
+        self.logger.warning("### websocket closed ###")
 
     # def on_ping(self, ws, r):
     #     print("ping")
