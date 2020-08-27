@@ -73,6 +73,8 @@ class WebSockClient:
             print(message)
             self.own_name = resp.nickname
             self._first = False
+            if not resp.is_error:
+                print('Everything is: OK')
         # else:
         #     print(resp_type, end='')
         #     print(message)

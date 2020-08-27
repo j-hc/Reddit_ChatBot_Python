@@ -16,6 +16,7 @@ class FrameModel:
             self.unread_cnt = data_j.get('unread_cnt')
             self.user_id = data_j.get('user_id')
             self.nickname = data_j.get('nickname')
+            self.is_error = data_j.get('error')
         elif self.type_f == "MESG":
             self.unread_cnt = data_j.get('unread_cnt')
             self.msg_id = data_j.get('msg_id')
