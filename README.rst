@@ -51,8 +51,8 @@ Examples
               response_text = f"@{resp.user_name} {rolled_number}. Better luck next time!"
               # a basic roll game
 
-              websock.send_message(response_text, resp.channel_url) # and send the message finally
-              return True  # return true if you want to be done with the checking of the other hooks
+              websock.send_message(response_text, resp.channel_url) # and send the message finally, always add resp.channel_url as the second argument
+              return True  # return true if you want to be done with checkingthe other hooks
                            # first added hooks gets executed first
 
   websock.add_after_message_hook(roll)  # add the hook

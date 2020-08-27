@@ -36,6 +36,7 @@ class WebSockClient:
 
     def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,
                          must_be_equal=True, quote_parent=False):
+
         if limited_to_users is not None and type(limited_to_users) == str:
             limited_to_users = [limited_to_users]
 
