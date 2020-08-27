@@ -39,7 +39,8 @@ Usage
   # instantiate a chatbot and pass in the sub_channels if you want
   chatbot = ChatBot(reddit_api_token="**YOUR API TOKEN**", sub_channels=sub_channels, print_chat=True, enable_trace=False)
   # reddit_api_token is the classic Bearer token for reddit api operations
-  # keep in mind that atm the bot only fetches a 7-day limited sendbird key and bearer tokens only last one hour
+  # keep in mind that atm the bot only fetches a 7-day-limited sendbird key and bearer tokens only last one hour
+  # which mean bot will needed to be restarted every 7 day
 
   # grab the websocket
   websock = chatbot.WebSocketClient
@@ -59,8 +60,8 @@ Usage
 
               websock.send_message(response_text, resp.channel_url) # and send the message finally, always add resp.channel_url as the second argument
               websock.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not
-              return True  # return true if you want to be done with checkingthe other hooks
-                           # first added hooks gets executed first
+              return True  # return true if you want to be done with checking the other hooks, otherwise return None
+                           # keep in mind that first added hooks gets executed first
 
   websock.add_after_message_hook(roll)  # add the hook
   # now everytime someone says "!roll 1 100", the bot will roll and send the result!
