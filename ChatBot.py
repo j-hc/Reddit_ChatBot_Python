@@ -14,8 +14,9 @@ class ChatBot:
             if type(sub_channels) != list:
                 sub_channels = [sub_channels]
             for sub_channel in sub_channels:
-                channel_url = self._get_sendbird_channel_url(sub_channel)
-                self.channelid_sub_pairs.update({channel_url: sub_channel})
+                channel_urls = self._get_sendbird_channel_urls(sub_channel)
+                for channel_url in channel_urls:
+                    self.channelid_sub_pairs.update({channel_url: sub_channel})
         sb_access_token = self._get_sendbird_access_token()
         user_id = self._get_user_id()
 
@@ -42,11 +43,13 @@ class ChatBot:
             raise Exception('Wrong subreddit name')
         return sub_id
 
-    def _get_sendbird_channel_url(self, sub_name):
+    def _get_sendbird_channel_urls(self, sub_name):
         sub_id = self._get_sub_user_id(sub_name)
         response = requests.get(f'https://s.reddit.com/api/v1/subreddit/{sub_id}/channels', headers=self.headers)
         response.raise_for_status()
         try:
-            return response.json().get('rooms')[0].get('url')
+            rooms = response.json().get('rooms')
+            for room in rooms:
+                yield room.get('url')
         except (KeyError, IndexError):
             raise Exception('This sub doesnt have any rooms')

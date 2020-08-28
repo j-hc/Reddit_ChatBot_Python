@@ -23,6 +23,8 @@ class FrameModel:
             self.is_op_msg = data_j.get('is_op_msg')
             self.is_guest_msg = data_j.get('is_guest_msg')
             self.message = data_j.get('message')
+            if self.message == "":
+                self.message = "[snoomoji]"
             self.ts = data_j.get('ts')
             self.channel_url = data_j.get('channel_url')
             self.user_name = data_j.get('user').get('name')

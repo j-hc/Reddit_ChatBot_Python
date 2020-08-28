@@ -8,7 +8,7 @@ class WebSockClient:
     def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True, other_logging=True):
         logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
         self.logger = logging.getLogger("websocket")
-        self.logger.propagate = other_logging
+        self.logger.disabled = not other_logging
 
         if channelid_sub_pairs is None:
             self.channelid_sub_pairs = {}
