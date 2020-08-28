@@ -9,17 +9,12 @@ class WebSockClient:
         logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
         self.logger = logging.getLogger("websocket")
         self.logger.disabled = not other_logging
-
-        if channelid_sub_pairs is None:
-            self.channelid_sub_pairs = {}
-        else:
-            self.channelid_sub_pairs = channelid_sub_pairs
-
+        self.channelid_sub_pairs = channelid_sub_pairs
         websocket.enableTrace(enable_trace)
-        uri = "wss://sendbirdproxy.chat.redditmedia.com" \
-              f"/?p=_&pv=29&sv=3.0.82&ai={ai}&user_id={user_id}&access_token={key}"
+        socket_base = "wss://sendbirdproxy.chat.redditmedia.com"
+        params = f"/?p=_&pv=29&sv=3.0.82&ai={ai}&user_id={user_id}&access_token={key}"
 
-        self.ws = websocket.WebSocketApp(uri,
+        self.ws = websocket.WebSocketApp(socket_base + params,
                                          on_message=lambda ws, msg: self.on_message(ws, msg),
                                          on_error=lambda ws, msg: self.on_error(ws, msg),
                                          on_close=lambda ws: self.on_close(ws),
