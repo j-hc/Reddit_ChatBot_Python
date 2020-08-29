@@ -39,8 +39,8 @@ Usage
   # instantiate a chatbot and pass in the sub_channels if you want
   chatbot = ChatBot(reddit_api_token="**YOUR API TOKEN**", sub_channels=sub_channels, print_chat=True, store_session=True)
   # reddit_api_token is the classic Bearer token for reddit api operations
-  # keep in mind that atm the bot only fetches a 7-day-limited sendbird key and bearer tokens only last one hour
-  # which mean bot will needed to be restarted every 7 day
+  # keep in mind that atm the bot only fetches a 7-days-limited sendbird key and bearer tokens only last one hour
+  # which mean bot will needed to be restarted every 7 days
 
   # grab the websocket
   websock = chatbot.WebSocketClient
@@ -48,14 +48,14 @@ Usage
   
   # create a function to hook
   def roll(resp):  #  resp is a FrameModel object that carries all the data of the received, you can see other FrameModel props as well
-      if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages 
+      if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages. you can see other fields here: https://github.com/scrubjay55/Reddit_ChatBot_Python/blob/master/Utils/FrameModel/FrameModel.py
           messg_s = resp.message.split()
           if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
               limit_bottom = messg_s[1]
               limit_top = messg_s[2]
 
               rolled_number = random.randint(int(limit_f), int(limit_u))
-              response_text = f"@{resp.user_name} {rolled_number}. Better luck next time!"
+              response_text = f"@{resp.user.name} {rolled_number}. Better luck next time!"
               # a basic roll game
 
               websock.send_message(response_text, resp.channel_url) # and send the message finally, always add resp.channel_url as the second argument

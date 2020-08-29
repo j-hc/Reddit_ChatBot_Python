@@ -62,7 +62,7 @@ class WebSockClient:
                         and (resp.user.name not in self.global_blacklist_users) \
                         and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)):
                     if quote_parent:
-                        response_prepped = f'@{resp.user_name}, {response}'
+                        response_prepped = f'@{resp.user.name}, {response}'
                     else:
                         response_prepped = response
                     self.send_message(response_prepped, resp.channel_url)
