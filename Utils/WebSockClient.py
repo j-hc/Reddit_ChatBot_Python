@@ -5,7 +5,17 @@ import logging
 
 
 class WebSockClient:
-    def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True, other_logging=True):
+    def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True,
+                 other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
+        if global_blacklist_users is None:
+            self.global_blacklist_users = []
+        else:
+            self.global_blacklist_users = global_blacklist_users
+        if global_blacklist_words is None:
+            self.global_blacklist_words = []
+        else:
+            self.global_blacklist_words = global_blacklist_words
+
         logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
         self.logger = logging.getLogger("websocket")
         self.logger.disabled = not other_logging
@@ -41,18 +51,22 @@ class WebSockClient:
 
         if limited_to_users is not None and type(limited_to_users) == str:
             limited_to_users = [limited_to_users]
+        elif limited_to_users is None:
+            limited_to_users = []
 
         def respond(resp):
             if resp.type_f == "MESG":
                 sent_message = resp.message.lower() if lower_the_input else resp.message
-                if (limited_to_users is None or resp.user_name in limited_to_users) and (exclude_itself and resp.user_name != self.own_name):
-                    if (must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message):
-                        if quote_parent:
-                            response_prepped = f'@{resp.user_name}, {response}'
-                        else:
-                            response_prepped = response
-                        self.send_message(response_prepped, resp.channel_url)
-                        return True
+                if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
+                        and (exclude_itself and resp.user.name != self.own_name) \
+                        and (resp.user.name not in self.global_blacklist_users) \
+                        and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)):
+                    if quote_parent:
+                        response_prepped = f'@{resp.user_name}, {response}'
+                    else:
+                        response_prepped = response
+                    self.send_message(response_prepped, resp.channel_url)
+                    return True
 
         self.add_after_message_hook(respond)
 
@@ -61,20 +75,21 @@ class WebSockClient:
 
     def print_chat_(self, resp):
         if resp.type_f == "MESG":
-            print(f"{resp.user_name}@{self.channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
+            print(f"{resp.user.name}@{self.channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
 
     def on_message(self, ws, message):
-        resp = FrameModel(message)
-
+        resp = FrameModel.get_frame_data(message)
         if self.print_chat:
             self.print_chat_(resp)
 
         if self._first:
             self.logger.info(message)
-            self.own_name = resp.nickname
-            self._first = False
-            if not resp.is_error:
+            if not resp.error:
                 self.logger.info("Everything is: OK")
+                self.own_name = resp.nickname
+                self._first = False
+            else:
+                self.logger.error(f"err: {resp.message}")
         # else:
         #     print(resp_type, end='')
         #     print(message)
@@ -84,6 +99,8 @@ class WebSockClient:
                 break
 
     def send_message(self, text, channel_url):
+        if text.lower() in self.global_blacklist_words:
+            return
         payload = f'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
         self.ws.send(payload)
         self.req_id += 1

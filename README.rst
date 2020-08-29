@@ -37,7 +37,7 @@ Usage
   sub_channels = ["Turkey", "AskReddit"]
   
   # instantiate a chatbot and pass in the sub_channels if you want
-  chatbot = ChatBot(reddit_api_token="**YOUR API TOKEN**", sub_channels=sub_channels, print_chat=True, enable_trace=False)
+  chatbot = ChatBot(reddit_api_token="**YOUR API TOKEN**", sub_channels=sub_channels, print_chat=True, store_session=True)
   # reddit_api_token is the classic Bearer token for reddit api operations
   # keep in mind that atm the bot only fetches a 7-day-limited sendbird key and bearer tokens only last one hour
   # which mean bot will needed to be restarted every 7 day
