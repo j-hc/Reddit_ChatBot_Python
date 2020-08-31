@@ -9,6 +9,7 @@ class ChatBot:
 
     def __init__(self, reddit_api_token, with_chat_media=False, sub_channels=None, store_session=True, **kwargs):
         self.sub_channels = sub_channels
+        self.sub_channel_list = {}
         self.headers = {'user-agent': "test v2", 'authorization': f'Bearer {reddit_api_token}'}
 
         if store_session:
@@ -20,6 +21,17 @@ class ChatBot:
                                              channelid_sub_pairs=channelid_sub_pairs, **kwargs)
         if with_chat_media:
             self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
+
+    def join_channel(self, sub, channel_url_):
+        if channel_url_.startswith("sendbird_group_channel_"):
+            channel_url = channel_url_
+        else:
+            channel_url = "sendbird_group_channel_" + channel_url_
+        sub_id = self._get_sub_id(sub)
+        data = f'{{"channel_url":"{channel_url}","subreddit":"{sub_id}"}}'
+        resp = requests.post('https://s.reddit.com/api/v1/sendbird/join', headers=self.headers, data=data)
+
+        return resp.text
 
     def _load_session(self, pkl_name):
         try:
