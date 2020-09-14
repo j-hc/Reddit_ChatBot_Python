@@ -93,6 +93,8 @@ class WebSockClient:
         #     print(resp_type, end='')
         #     print(message)
 
+        if resp.user.name in self.global_blacklist_users:
+            return
         for func in self._after_message_hooks:
             if func(resp):
                 break
