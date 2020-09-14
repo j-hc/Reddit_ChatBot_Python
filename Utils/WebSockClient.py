@@ -36,7 +36,6 @@ class WebSockClient:
         self.req_id = int(time.time() * 1000)
         self.own_name = None
         self.print_chat = print_chat
-        self._first = True
 
         self._after_message_hooks = []
 
@@ -81,19 +80,18 @@ class WebSockClient:
         if self.print_chat:
             self.print_chat_(resp)
 
-        if self._first:
+        if resp.type_f == "LOGI":
             self.logger.info(message)
             if not resp.error:
                 self.logger.info("Everything is: OK")
                 self.own_name = resp.nickname
-                self._first = False
             else:
                 self.logger.error(f"err: {resp.message}")
         # else:
         #     print(resp_type, end='')
         #     print(message)
 
-        if resp.user.name in self.global_blacklist_users:
+        if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users:
             return
         for func in self._after_message_hooks:
             if func(resp):
