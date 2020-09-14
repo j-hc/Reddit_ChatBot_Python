@@ -91,8 +91,8 @@ class WebSockClient:
 
         if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users:
             return
-        else:
-            thread.start_new_thread(self.response_loop, (resp,))
+
+        thread.start_new_thread(self.response_loop, (resp,))
 
     def response_loop(self, resp):
         for func in self._after_message_hooks:
