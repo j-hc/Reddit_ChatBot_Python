@@ -2,6 +2,7 @@ import websocket
 import time
 from .FrameModel.FrameModel import FrameModel
 import logging
+import _thread as thread
 
 
 class WebSockClient:
@@ -87,12 +88,13 @@ class WebSockClient:
                 self.own_name = resp.nickname
             else:
                 self.logger.error(f"err: {resp.message}")
-        # else:
-        #     print(resp_type, end='')
-        #     print(message)
 
         if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users:
             return
+        else:
+            thread.start_new_thread(self.response_loop, (resp,))
+
+    def response_loop(self, resp):
         for func in self._after_message_hooks:
             if func(resp):
                 break
