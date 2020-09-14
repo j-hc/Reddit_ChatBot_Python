@@ -59,7 +59,6 @@ class WebSockClient:
                 sent_message = resp.message.lower() if lower_the_input else resp.message
                 if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
                         and (exclude_itself and resp.user.name != self.own_name) \
-                        and (resp.user.name not in self.global_blacklist_users) \
                         and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)):
                     if quote_parent:
                         response_prepped = f'@{resp.user.name}, {response}'
@@ -99,7 +98,7 @@ class WebSockClient:
                 break
 
     def send_message(self, text, channel_url):
-        if text.lower() in self.global_blacklist_words:
+        if any(blacklist_word in text.lower() for blacklist_word in self.global_blacklist_words):
             return
         payload = f'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
         self.ws.send(payload)
