@@ -128,7 +128,6 @@ class WebSockClient:
                 break
 
     def send_message(self, text, channel_url):
-        print(WebSockClient.RateLimiter._msg_counter)
         if WebSockClient.RateLimiter.is_enabled and WebSockClient.RateLimiter._check():
             return
 
