@@ -18,11 +18,11 @@ class WebSockClient:
             if WebSockClient.RateLimiter._period_end_ts < WebSockClient.RateLimiter._get_current_ts():
                 WebSockClient.RateLimiter._msg_counter = 0
                 WebSockClient.RateLimiter._create_new_period()
-            else:
-                WebSockClient.RateLimiter._msg_counter += 1
+
             if WebSockClient.RateLimiter._msg_counter > WebSockClient.RateLimiter.max_calls:
                 return True
             else:
+                WebSockClient.RateLimiter._msg_counter += 1
                 return False
 
         @staticmethod
@@ -128,6 +128,7 @@ class WebSockClient:
                 break
 
     def send_message(self, text, channel_url):
+        print(WebSockClient.RateLimiter._msg_counter)
         if WebSockClient.RateLimiter.is_enabled and WebSockClient.RateLimiter._check():
             return
 
