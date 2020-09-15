@@ -6,6 +6,34 @@ import _thread as thread
 
 
 class WebSockClient:
+    class RateLimiter:
+        is_enabled = False
+        max_calls = 0
+        period = 0
+        _msg_counter = 0
+        _period_end_ts = 0
+
+        @staticmethod
+        def _check():
+            if WebSockClient.RateLimiter._period_end_ts < WebSockClient.RateLimiter._get_current_ts():
+                WebSockClient.RateLimiter._msg_counter = 0
+                WebSockClient.RateLimiter._create_new_period()
+            else:
+                WebSockClient.RateLimiter._msg_counter += 1
+            if WebSockClient.RateLimiter._msg_counter >= WebSockClient.RateLimiter.max_calls:
+                return True
+            else:
+                return False
+
+        @staticmethod
+        def _create_new_period():
+            WebSockClient.RateLimiter._period_end_ts = WebSockClient.RateLimiter._get_current_ts() +\
+                                                       WebSockClient.RateLimiter.period * 60
+
+        @staticmethod
+        def _get_current_ts():
+            return int(time.time())
+
     def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True,
                  other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
         if global_blacklist_users is None:
@@ -100,6 +128,9 @@ class WebSockClient:
                 break
 
     def send_message(self, text, channel_url):
+        if WebSockClient.RateLimiter.is_enabled and WebSockClient.RateLimiter._check():
+            return
+
         if any(blacklist_word in text.lower() for blacklist_word in self.global_blacklist_words):
             return
         payload = f'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
