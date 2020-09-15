@@ -37,13 +37,22 @@ Usage
   sub_channels = ["Turkey", "AskReddit"]
   
   # instantiate a chatbot and pass in the sub_channels if you want
-  chatbot = ChatBot(reddit_api_token="**YOUR API TOKEN**", sub_channels=sub_channels, print_chat=True, store_session=True)
+  chatbot = ChatBot(global_blacklist_words=[],  # you can define words that shouldnt be sent (this migth be handy for slurs)
+                    global_blacklist_users=[],  # hooks never get executed for users in this list
+                    sub_channels=sub_channels, print_chat=True, store_session=True  # some parameters u might wanna use
+                    reddit_api_token="**YOUR API TOKEN**")
   # reddit_api_token is the classic Bearer token for reddit api operations
   # keep in mind that atm the bot only fetches a 7-days-limited sendbird key and bearer tokens only last one hour
-  # which mean bot will needed to be restarted every 7 days
+  # which mean bot will needed to be restarted every 7 days with a new api key
 
   # grab the websocket
   websock = chatbot.WebSocketClient
+
+  # you can add a rate limit like so:
+  websock.RateLimiter.is_enabled = True
+  websock.RateLimiter.max_calls = 23  # how many messages will be sent by the bot
+  websock.RateLimiter.period = 1.5  # in what period(in minutes)
+
   # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
   
   # create a function to hook
