@@ -20,7 +20,7 @@ class WebSockClient:
                 WebSockClient.RateLimiter._create_new_period()
             else:
                 WebSockClient.RateLimiter._msg_counter += 1
-            if WebSockClient.RateLimiter._msg_counter >= WebSockClient.RateLimiter.max_calls:
+            if WebSockClient.RateLimiter._msg_counter > WebSockClient.RateLimiter.max_calls:
                 return True
             else:
                 return False
