@@ -41,6 +41,7 @@ class WebSockClient:
         self.req_id = int(time.time() * 1000)
         self.own_name = None
         self.print_chat = print_chat
+        self._last_err = None
 
         self._after_message_hooks = []
 
@@ -119,12 +120,13 @@ class WebSockClient:
 
     def on_error(self, ws, error):
         self.logger.error(error)
-        if self._auto_reconnect and error == "Connection is already closed.":
-            self.logger.info("Auto re-connecting")
-            self.run_4ever()
+        self._last_err = error
 
     def on_close(self, ws):
         self.logger.warning("### websocket closed ###")
+        if self._auto_reconnect and self._last_err == "Connection is already closed.":
+            self.logger.info("Auto re-connecting")
+            self.run_4ever()
 
     def run_4ever(self, auto_reconnect=True, ping_interval=15, ping_timeout=5):
         self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
