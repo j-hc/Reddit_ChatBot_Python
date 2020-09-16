@@ -80,4 +80,4 @@ Usage
                                                                       exclude_itself=True, must_be_equal=True, quote_parent=False)
 
   # and finally, run forever...
-  websock.run_4ever()
+  websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
