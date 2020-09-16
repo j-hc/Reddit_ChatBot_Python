@@ -10,9 +10,10 @@ class RateLimiter:
 
     @staticmethod
     def _check():
-        if RateLimiter._period_end_ts < RateLimiter._get_current_ts():
+        current_ts = RateLimiter._get_current_ts()
+        if RateLimiter._period_end_ts < current_ts:
             RateLimiter._msg_counter = 0
-            RateLimiter._create_new_period()
+            RateLimiter._create_new_period(current_ts)
 
         if RateLimiter._msg_counter > RateLimiter.max_calls:
             return True
@@ -21,8 +22,8 @@ class RateLimiter:
             return False
 
     @staticmethod
-    def _create_new_period():
-        RateLimiter._period_end_ts = RateLimiter._get_current_ts() + RateLimiter.period * 60
+    def _create_new_period(current_ts):
+        RateLimiter._period_end_ts = current_ts + RateLimiter.period * 60
 
     @staticmethod
     def _get_current_ts():

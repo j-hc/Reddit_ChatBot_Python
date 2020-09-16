@@ -112,6 +112,11 @@ class WebSockClient:
         self.ws.send(payload)
         self.req_id += 1
 
+    # def send_typing_indicator(self, channel_url):  # not working for some reason
+    #     payload = f'TPST{{"channel_url":"{channel_url}","time":{int(time.time() * 1000)},"req_id":""}}\n'
+    #     print(payload)
+    #     self.ws.send(payload)
+
     def on_error(self, ws, error):
         self.logger.error(error)
         if self._auto_reconnect and error == "Connection is already closed.":
