@@ -1,4 +1,5 @@
 import websocket
+from .RateLimiter import RateLimiter
 import time
 from .FrameModel.FrameModel import FrameModel
 import logging
@@ -6,36 +7,11 @@ import _thread as thread
 
 
 class WebSockClient:
-    class RateLimiter:
-        is_enabled = False
-        max_calls = 0
-        period = 0
-        _msg_counter = 0
-        _period_end_ts = 0
-
-        @staticmethod
-        def _check():
-            if WebSockClient.RateLimiter._period_end_ts < WebSockClient.RateLimiter._get_current_ts():
-                WebSockClient.RateLimiter._msg_counter = 0
-                WebSockClient.RateLimiter._create_new_period()
-
-            if WebSockClient.RateLimiter._msg_counter > WebSockClient.RateLimiter.max_calls:
-                return True
-            else:
-                WebSockClient.RateLimiter._msg_counter += 1
-                return False
-
-        @staticmethod
-        def _create_new_period():
-            WebSockClient.RateLimiter._period_end_ts = WebSockClient.RateLimiter._get_current_ts() +\
-                                                       WebSockClient.RateLimiter.period * 60
-
-        @staticmethod
-        def _get_current_ts():
-            return int(time.time())
-
     def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True,
                  other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
+        self._auto_reconnect = True
+        self.RateLimiter = RateLimiter()
+
         if global_blacklist_users is None:
             self.global_blacklist_users = []
         else:
@@ -88,17 +64,11 @@ class WebSockClient:
                 if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
                         and (exclude_itself and resp.user.name != self.own_name) \
                         and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)):
-                    if quote_parent:
-                        response_prepped = f'@{resp.user.name}, {response}'
-                    else:
-                        response_prepped = response
+                    response_prepped = f'@{resp.user.name}, {response}' if quote_parent else response
                     self.send_message(response_prepped, resp.channel_url)
                     return True
 
         self.add_after_message_hook(respond)
-
-    def run_4ever(self, ping_interval=15, ping_timeout=5):
-        self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
 
     def print_chat_(self, resp):
         if resp.type_f == "MESG":
@@ -120,19 +90,19 @@ class WebSockClient:
         if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users:
             return
 
-        thread.start_new_thread(self.response_loop, (resp,))
+        thread.start_new_thread(self._response_loop, (resp,))
 
-    def response_loop(self, resp):
+    def _response_loop(self, resp):
         for func in self._after_message_hooks:
             if func(resp):
                 break
 
     def send_message(self, text, channel_url):
-        if WebSockClient.RateLimiter.is_enabled and WebSockClient.RateLimiter._check():
+        if self.RateLimiter.is_enabled and self.RateLimiter._check():
             return
-
         if any(blacklist_word in text.lower() for blacklist_word in self.global_blacklist_words):
             return
+
         payload = f'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
         self.ws.send(payload)
         self.req_id += 1
@@ -144,10 +114,16 @@ class WebSockClient:
 
     def on_error(self, ws, error):
         self.logger.error(error)
-        raise Exception("WEBSOCKET ERROR")
+        if self._auto_reconnect and error == "Connection is already closed.":
+            self.logger.info("Auto re-connecting")
+            self.run_4ever()
 
     def on_close(self, ws):
         self.logger.warning("### websocket closed ###")
+
+    def run_4ever(self, auto_reconnect=True, ping_interval=15, ping_timeout=5):
+        self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
+        self._auto_reconnect = auto_reconnect
 
     # def on_ping(self, ws, r):
     #     print("ping")

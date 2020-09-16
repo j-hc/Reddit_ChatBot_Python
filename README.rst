@@ -67,7 +67,7 @@ Usage
               response_text = f"@{resp.user.name} {rolled_number}. Better luck next time!"
               # a basic roll game
 
-              websock.send_message(response_text, resp.channel_url) # and send the message finally, always add resp.channel_url as the second argument
+              websock.send_message(response_text, resp.channel_url) # and send the message, always add resp.channel_url as the second argument
               websock.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not
               return True  # return true if you want to be done with checking the other hooks, otherwise return None
                            # keep in mind that first added hooks gets executed first

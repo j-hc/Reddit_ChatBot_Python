@@ -21,16 +21,16 @@ class ChatBot:
                                              channelid_sub_pairs=channelid_sub_pairs, **kwargs)
         if with_chat_media:
             self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
+            # this is untested
 
-    def join_channel(self, sub, channel_url_):
-        if channel_url_.startswith("sendbird_group_channel_"):
-            channel_url = channel_url_
+    def join_channel(self, sub, channel_url):
+        if channel_url.startswith("sendbird_group_channel_"):
+            channel_url_ = channel_url
         else:
-            channel_url = "sendbird_group_channel_" + channel_url_
+            channel_url_ = "sendbird_group_channel_" + channel_url
         sub_id = self._get_sub_id(sub)
-        data = f'{{"channel_url":"{channel_url}","subreddit":"{sub_id}"}}'
+        data = f'{{"channel_url":"{channel_url_}","subreddit":"{sub_id}"}}'
         resp = requests.post('https://s.reddit.com/api/v1/sendbird/join', headers=self.headers, data=data)
-
         return resp.text
 
     def _load_session(self, pkl_name):
