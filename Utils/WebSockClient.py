@@ -10,7 +10,7 @@ class WebSockClient:
     def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True,
                  other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
         self._auto_reconnect = True
-        self.RateLimiter = RateLimiter()
+        self.RateLimiter = RateLimiter
 
         if global_blacklist_users is None:
             self.global_blacklist_users = []
@@ -103,19 +103,19 @@ class WebSockClient:
             return
         if any(blacklist_word in text.lower() for blacklist_word in self.global_blacklist_words):
             return
-
         payload = f'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
         self.ws.send(payload)
         self.req_id += 1
 
     def send_snoomoji(self, snoomoji, channel_url):
+        if self.RateLimiter.is_enabled and self.RateLimiter._check():
+            return
         payload = f'MESG{{"channel_url":"{channel_url}","message":"","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{\\"site_name\\":\\"Reddit\\"}},\\"hidden\\":false,\\"snoomoji\\":\\"{snoomoji}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
         self.ws.send(payload)
         self.req_id += 1
 
     # def send_typing_indicator(self, channel_url):  # not working for some reason
     #     payload = f'TPST{{"channel_url":"{channel_url}","time":{int(time.time() * 1000)},"req_id":""}}\n'
-    #     print(payload)
     #     self.ws.send(payload)
 
     def on_error(self, ws, error):

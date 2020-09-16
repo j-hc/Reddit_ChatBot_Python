@@ -14,7 +14,6 @@ class RateLimiter:
         if RateLimiter._period_end_ts < current_ts:
             RateLimiter._msg_counter = 0
             RateLimiter._create_new_period(current_ts)
-
         if RateLimiter._msg_counter > RateLimiter.max_calls:
             return True
         else:
