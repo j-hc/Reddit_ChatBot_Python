@@ -12,7 +12,7 @@ class FrameModel:
     message
     ts
     channel_url
-    user -> name, guest_id
+    user -> name, guest_id, is_blocked_by_me
     mentioned_users
     """
 

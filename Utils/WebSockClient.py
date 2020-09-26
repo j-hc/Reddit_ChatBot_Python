@@ -9,17 +9,16 @@ import _thread as thread
 class WebSockClient:
     def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True,
                  other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
+        if global_blacklist_words is None:
+            global_blacklist_words = set()
+        if global_blacklist_users is None:
+            global_blacklist_users = set()
+
+        self.global_blacklist_words = global_blacklist_words
+        self.global_blacklist_users = global_blacklist_users
+
         self._auto_reconnect = True
         self.RateLimiter = RateLimiter
-
-        if global_blacklist_users is None:
-            self.global_blacklist_users = []
-        else:
-            self.global_blacklist_users = global_blacklist_users
-        if global_blacklist_words is None:
-            self.global_blacklist_words = []
-        else:
-            self.global_blacklist_words = global_blacklist_words
 
         logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
         self.logger = logging.getLogger("websocket")
