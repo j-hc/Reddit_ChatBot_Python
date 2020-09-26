@@ -5,7 +5,7 @@ from collections.abc import Mapping
 
 class FrameModel:
     """
-    mostly important fields:
+    mostly important fields of MESG:
     msg_id
     is_op_msg
     is_guest_msg

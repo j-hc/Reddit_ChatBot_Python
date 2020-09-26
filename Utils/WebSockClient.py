@@ -52,7 +52,7 @@ class WebSockClient:
         self._after_message_hooks.append(func)
 
     def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,
-                         must_be_equal=True, quote_parent=False):
+                         must_be_equal=True):
 
         if limited_to_users is not None and type(limited_to_users) == str:
             limited_to_users = [limited_to_users]
@@ -65,10 +65,28 @@ class WebSockClient:
                 if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
                         and (exclude_itself and resp.user.name != self.own_name) \
                         and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)):
-                    response_prepped = f'@{resp.user.name}, {response}' if quote_parent else response
+                    response_prepped = response.format(nickname=f"u/{resp.user.name}")
                     self.send_message(response_prepped, resp.channel_url)
                     return True
 
+        self.add_after_message_hook(respond)
+
+    def set_welcome_message(self, message):
+        try:
+            message.format(nickname="")
+        except KeyError:
+            self.logger.error("You need to set a {nickname} key in welcome message!")
+            raise
+
+        def respond(resp):
+            if resp.type_f == "SYEV":
+                try:
+                    nickname = resp.data.inviter.nickname
+                except AttributeError:
+                    return
+                response_prepped = message.format(nickname=f"u/{nickname}")
+                self.send_message(response_prepped, resp.channel_url)
+                return True
         self.add_after_message_hook(respond)
 
     def print_chat_(self, resp):
