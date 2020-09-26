@@ -81,6 +81,7 @@ class WebSockClient:
         def respond(resp):
             if resp.type_f == "SYEV":
                 try:
+                    invtr = resp.data.inviter.nickname
                     nickname = resp.data.nickname
                 except AttributeError:
                     return
