@@ -4,13 +4,16 @@ Reddit ChatRoom
 
 a pretty basic websocket wrapper for reddit chatrooms by `u/peroksizom <http://reddit.com/user/peroksizom>`_
 
+no selenium no bullsh*t, just directly websocket
+
+works with the api key, so you wont have to expose your pass
+
 
 Installation
 ============
 
 add it as a submodule to your project like so
-
-.. code:: bash
+g
 
   git submodule add https://github.com/scrubjay55/Reddit_ChatBot_Python
 
