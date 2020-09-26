@@ -40,8 +40,8 @@ Usage
   sub_channels = ["Turkey", "AskReddit"]
   
   # instantiate a chatbot and pass in the sub_channels if you want
-  chatbot = ChatBot(global_blacklist_words=[],  # you can define words that shouldnt be sent (this migth be handy for slurs)
-                    global_blacklist_users=[],  # hooks never get executed for users in this list
+  chatbot = ChatBot(global_blacklist_words={'a', 'b'},  # you can define words that shouldnt be sent (this migth be handy for slurs)
+                    global_blacklist_users={'a', 'b'},  # hooks never get executed for users in this list
                     sub_channels=sub_channels, print_chat=True, store_session=True  # some parameters u might wanna use
                     reddit_api_token="**YOUR API TOKEN**")
   # reddit_api_token is the classic Bearer token for reddit api operations
@@ -79,8 +79,11 @@ Usage
   # now everytime someone says "!roll 1 100", the bot will roll and send the result!
 
   # or you can add a basic response hook directly like so:
-  websock.set_respond_hook(input_="Hi", response="Hello and welcome!", limited_to_users=None, lower_the_input=False,
-                                                                      exclude_itself=True, must_be_equal=True, quote_parent=False)
+  websock.set_respond_hook(input_="Hi", response="Hello and welcome {username}!", limited_to_users=None, lower_the_input=False,
+                                                                      exclude_itself=True, must_be_equal=True)
+  # you can add a welcome message for newly joined users too:
+  websock.set_welcome_message("welcome to the chat! u/{nickname}!")
+	
 
   # and finally, run forever...
   websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
