@@ -42,7 +42,7 @@ Usage
   # instantiate a chatbot and pass in the sub_channels if you want
   chatbot = ChatBot(global_blacklist_words={'a', 'b'},  # you can define words that shouldnt be sent (this migth be handy for slurs)
                     global_blacklist_users={'a', 'b'},  # hooks never get executed for users in this list
-                    sub_channels=sub_channels, print_chat=True, store_session=True  # some parameters u might wanna use
+                    sub_channels=sub_channels, print_chat=True, store_session=True, dont_answer_blocked=True,  # some parameters u might wanna use
                     reddit_api_token="**YOUR API TOKEN**")
   # reddit_api_token is the classic Bearer token for reddit api operations
   # keep in mind that atm the bot only fetches a 7-days-limited sendbird key and bearer tokens only last one hour
@@ -79,7 +79,7 @@ Usage
   # now everytime someone says "!roll 1 100", the bot will roll and send the result!
 
   # or you can add a basic response hook directly like so:
-  websock.set_respond_hook(input_="Hi", response="Hello and welcome {username}!", limited_to_users=None, lower_the_input=False,
+  websock.set_respond_hook(input_="Hi", response="Hello and welcome {nickname}!", limited_to_users=None, lower_the_input=False,
                                                                       exclude_itself=True, must_be_equal=True)
   # you can add a welcome message for newly joined users too:
   websock.set_welcome_message("welcome to the chat! u/{nickname}!")

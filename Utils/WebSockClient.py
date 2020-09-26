@@ -73,12 +73,6 @@ class WebSockClient:
         self.add_after_message_hook(respond)
 
     def set_welcome_message(self, message):
-        try:
-            message.format(nickname="")
-        except KeyError:
-            self.logger.error("You need to set a {nickname} key in welcome message!")
-            raise
-
         def respond(resp):
             if resp.type_f == "SYEV":
                 try:
@@ -86,7 +80,11 @@ class WebSockClient:
                     nickname = resp.data.nickname
                 except AttributeError:
                     return
-                response_prepped = message.format(nickname=nickname)
+                try:
+                    response_prepped = message.format(nickname=nickname)
+                except KeyError:
+                    self.logger.error("You need to set a {nickname} key in welcome message!")
+                    raise
                 self.send_message(response_prepped, resp.channel_url)
                 return True
         self.add_after_message_hook(respond)
