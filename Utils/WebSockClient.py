@@ -8,12 +8,14 @@ import _thread as thread
 
 class WebSockClient:
     def __init__(self, key, ai, user_id, enable_trace=False, channelid_sub_pairs=None, print_chat=True,
-                 other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
+                 other_logging=True, dont_hook_blocked=False, global_blacklist_users=None, global_blacklist_words=None):
+        self.dont_hook_blocked = dont_hook_blocked
         if global_blacklist_words is None:
             global_blacklist_words = set()
         if global_blacklist_users is None:
             global_blacklist_users = set()
-
+        assert type(global_blacklist_words) == set, "blacklists must be set()s"
+        assert type(global_blacklist_users) == set, "blacklists must be set()s"
         self.global_blacklist_words = global_blacklist_words
         self.global_blacklist_users = global_blacklist_users
 
@@ -106,7 +108,8 @@ class WebSockClient:
             else:
                 self.logger.error(f"err: {resp.message}")
 
-        if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users:
+        if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users \
+                or (self.dont_hook_blocked and resp.user.is_blocked_by_me):
             return
 
         thread.start_new_thread(self._response_loop, (resp,))
