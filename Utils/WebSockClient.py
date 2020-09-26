@@ -65,7 +65,7 @@ class WebSockClient:
                 if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
                         and (exclude_itself and resp.user.name != self.own_name) \
                         and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)):
-                    response_prepped = response.format(nickname=f"u/{resp.user.name}")
+                    response_prepped = response.format(nickname=f"{resp.user.name}")
                     self.send_message(response_prepped, resp.channel_url)
                     return True
 
@@ -81,10 +81,10 @@ class WebSockClient:
         def respond(resp):
             if resp.type_f == "SYEV":
                 try:
-                    nickname = resp.data.inviter.nickname
+                    nickname = resp.data.nickname
                 except AttributeError:
                     return
-                response_prepped = message.format(nickname=f"u/{nickname}")
+                response_prepped = message.format(nickname=nickname)
                 self.send_message(response_prepped, resp.channel_url)
                 return True
         self.add_after_message_hook(respond)
