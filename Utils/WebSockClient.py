@@ -4,6 +4,7 @@ import time
 from .FrameModel.FrameModel import FrameModel
 import logging
 import _thread as thread
+from websocket import WebSocketConnectionClosedException
 
 
 class WebSockClient:
@@ -19,7 +20,6 @@ class WebSockClient:
         self.global_blacklist_words = global_blacklist_words
         self.global_blacklist_users = global_blacklist_users
 
-        self._auto_reconnect = True
         self.RateLimiter = RateLimiter
 
         logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
@@ -133,7 +133,8 @@ class WebSockClient:
         self.ws.send(payload)
         self.req_id += 1
 
-    # def send_typing_indicator(self, channel_url):  # not working for some reason
+    # not working for some reason
+    # def send_typing_indicator(self, channel_url):
     #     payload = f'TPST{{"channel_url":"{channel_url}","time":{int(time.time() * 1000)},"req_id":""}}\n'
     #     self.ws.send(payload)
 
@@ -143,13 +144,16 @@ class WebSockClient:
 
     def on_close(self, ws):
         self.logger.warning("### websocket closed ###")
-        if self._auto_reconnect and self._last_err == "Connection is already closed.":
-            self.logger.info("Auto re-connecting")
-            self.run_4ever()
 
     def run_4ever(self, auto_reconnect=True, ping_interval=15, ping_timeout=5):
-        self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
-        self._auto_reconnect = auto_reconnect
+        while auto_reconnect:
+            self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
+            if self._last_err is WebSocketConnectionClosedException:
+                continue
+            else:
+                break
+        if not auto_reconnect:
+            self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
 
     # def on_ping(self, ws, r):
     #     print("ping")
