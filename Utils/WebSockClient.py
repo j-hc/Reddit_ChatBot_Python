@@ -4,7 +4,6 @@ import time
 from .FrameModel.FrameModel import FrameModel
 import logging
 import _thread as thread
-from websocket import WebSocketConnectionClosedException
 
 
 class WebSockClient:
@@ -66,7 +65,11 @@ class WebSockClient:
                 if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
                         and (exclude_itself and resp.user.name != self.own_name) \
                         and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)):
-                    response_prepped = response.format(nickname=f"{resp.user.name}")
+                    try:
+                        response_prepped = response.format(nickname=resp.user.name)
+                    except KeyError:
+                        self.logger.error("You need to set a {nickname} key in welcome message!")
+                        raise
                     self.send_message(response_prepped, resp.channel_url)
                     return True
 
@@ -148,12 +151,11 @@ class WebSockClient:
     def run_4ever(self, auto_reconnect=True, ping_interval=15, ping_timeout=5):
         while auto_reconnect:
             self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
-            if self._last_err is WebSocketConnectionClosedException:
+            if self._last_err is websocket.WebSocketConnectionClosedException:
                 continue
             else:
-                break
-        if not auto_reconnect:
-            self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
+                return 0
+        self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
 
     # def on_ping(self, ws, r):
     #     print("ping")
