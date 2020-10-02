@@ -41,8 +41,8 @@ class ChatBot:
             user_id = pickle.load(session_store_f)
             print("loading from session goes brrr")
         except FileNotFoundError:
-            channelid_sub_pairs, sb_access_token, user_id = self._get_new_session()
             session_store_f = open(f'{pkl_name}.pkl', 'wb+')
+            channelid_sub_pairs, sb_access_token, user_id = self._get_new_session()
             pickle.dump(channelid_sub_pairs, session_store_f)
             pickle.dump(sb_access_token, session_store_f)
             pickle.dump(user_id, session_store_f)
