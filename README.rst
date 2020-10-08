@@ -7,7 +7,7 @@ a pretty basic websocket wrapper for reddit chatrooms by `u/peroksizom <http://r
 no selenium no bullsh*t, just directly websocket
 
 works with the api key (you cant get the sendbird access scoped token from your registered app), so you wont have to expose your pass
-there is a script to dump sendbird access scoped token available `here <http://reddit.com/>`_
+there is a script to dump sendbird access scoped token available `here <https://github.com/scrubjay55/Reddit_ChatBot_Python/blob/master/dump_access_token/dump_access_token.py>`_
 
 
 Installation

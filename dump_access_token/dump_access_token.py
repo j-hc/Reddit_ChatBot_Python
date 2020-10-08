@@ -1,6 +1,9 @@
 import re
-import requests
 import sys
+try:
+    import requests
+except ModuleNotFoundError:
+    raise ModuleNotFoundError("install the requests module lol")
 
 
 reddit_username = ""
