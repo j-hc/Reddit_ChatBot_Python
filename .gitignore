@@ -1,4 +1,2 @@
-venv
-__pycache__
-.idea
-*.pkl
+Reddit_ChatBot_Python.egg-info
+build
