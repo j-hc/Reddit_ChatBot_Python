@@ -6,19 +6,11 @@ a pretty basic websocket wrapper for reddit chatrooms by `u/peroksizom <http://r
 
 no selenium no bullsh*t, just directly websocket
 
-works with the api key, so you wont have to expose your pass
+works with the api key (you cant get the sendbird access scoped token from your registered app), so you wont have to expose your pass
 
 
 Installation
 ============
-
-add it as a submodule to your project like so
-g
-
-  git submodule add https://github.com/scrubjay55/Reddit_ChatBot_Python
-
-or you can just git clone it
-
 
 required packages:
 
@@ -44,7 +36,7 @@ Usage
                     global_blacklist_users={'a', 'b'},  # hooks never get executed for users in this list
                     sub_channels=sub_channels, print_chat=True, store_session=True, dont_answer_blocked=True,  # some parameters u might wanna use
                     reddit_api_token="**YOUR API TOKEN**")
-  # reddit_api_token is the classic Bearer token for reddit api operations
+  # reddit_api_token is a sendbird access scoped token. there is a dump script available.
   # keep in mind that atm the bot only fetches a 7-days-limited sendbird key and bearer tokens only last one hour
   # which mean bot will needed to be restarted every 7 days with a new api key
 
