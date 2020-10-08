@@ -13,12 +13,16 @@ there is a script to dump sendbird access scoped token available `here <https://
 Installation
 ============
 
+.. code:: bash
+
+    pip install Reddit-ChatBot-Python
+
 required packages:
 
 .. code:: bash
 
-  websocket_client>=0.57.0
-  requests>=2.24.0
+    websocket_client>=0.57.0
+    requests>=2.24.0
 
 
 Usage
