@@ -4,3 +4,6 @@ Reddit_ChatBot_Python.egg-info
 build
 dist
 a.txt
+test.py
+__pycache__
+*.pkl
