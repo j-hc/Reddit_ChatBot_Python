@@ -84,7 +84,7 @@ class WebSockClient:
                     self.send_message(response_prepped, resp.channel_url)
                     return True
 
-        self.add_after_message_hook(respond)
+        self.after_message_hook(respond)
 
     def set_welcome_message(self, message, limited_to_channels=None):
         try:
@@ -109,7 +109,7 @@ class WebSockClient:
                 self.send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.add_after_message_hook(respond)
+        self.after_message_hook(respond)
 
     def print_chat_(self, resp):
         if resp.type_f == "MESG":
