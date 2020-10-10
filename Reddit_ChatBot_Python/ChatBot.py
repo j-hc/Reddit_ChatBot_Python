@@ -8,7 +8,6 @@ class ChatBot:
     _SB_ai = '2515BDA8-9D3A-47CF-9325-330BC37ADA13'
 
     def __init__(self, reddit_api_token, with_chat_media=False, store_session=True, **kwargs):
-        self.sub_channel_list = {}
         self.headers = {'user-agent': "test v2", 'authorization': f'Bearer {reddit_api_token}'}
 
         if store_session:
