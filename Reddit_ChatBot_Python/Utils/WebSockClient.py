@@ -52,7 +52,7 @@ class WebSockClient:
     def on_open(self, ws):
         self.logger.info("### successfully connected to the websocket ###")
 
-    def add_after_message_hook(self, func):
+    def after_message_hook(self, func):
         self._after_message_hooks.append(func)
 
     def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,

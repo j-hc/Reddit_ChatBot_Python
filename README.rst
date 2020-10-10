@@ -52,9 +52,12 @@ Usage
 
   # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
   
-  # create a function to hook
-  def roll(resp):  #  resp is a FrameModel object that carries all the data of the received, you can see other FrameModel props as well
-      if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages. you can see other fields here: https://github.com/scrubjay55/Reddit_ChatBot_Python/blob/master/Utils/FrameModel/FrameModel.py
+  # create a function and hook
+
+  @websock.after_message_hook
+  def roll(resp):  #  resp is a namedtuple that carries all the data of the received frame
+      if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages. you can see others here: https://github.com/scrubjay55/Reddit_ChatBot_Python/blob/master/Utils/FrameModel/FrameModel.py
+                                #  Dont forget to perform this check if you are just gonna do stuff with regular chat messages
           messg_s = resp.message.split()
           if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
               limit_bottom = messg_s[1]
@@ -69,14 +72,13 @@ Usage
               return True  # return true if you want to be done with checking the other hooks, otherwise return None
                            # keep in mind that first added hooks gets executed first
 
-  websock.add_after_message_hook(roll)  # add the hook
   # now everytime someone says "!roll 1 100", the bot will roll and send the result!
 
   # or you can add a basic response hook directly like so:
   websock.set_respond_hook(input_="Hi", response="Hello {nickname}! enjoy your time in r/askreddit chatroom", limited_to_users=None, lower_the_input=False,
                                                                       exclude_itself=True, must_be_equal=True, limited_to_channels=["AskReddit"])
   # you can add a welcome message for newly joined users too:
-  websock.set_welcome_message("welcome to the chat! u/{nickname} to the r/askreddit chatroom", limited_to_channels=["AskReddit"])
+  websock.set_welcome_message("welcome to the r/askreddit chatroom u/{nickname}!", limited_to_channels=["AskReddit"])  # you can limit by indicating chatroom's name
 
   # and finally, run forever...
   websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
