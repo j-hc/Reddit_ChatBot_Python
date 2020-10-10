@@ -202,7 +202,7 @@ class WebSockClient:
         response = requests.get(f'https://sendbirdproxy.chat.redditmedia.com/v3/users/{self._user_id}/my_group_channels',
                                 headers=headers, params=params).json()
         channelid_sub_pairs = {}
-        for channel in response.get('channels'):
+        for channel in response.get('channels', {}):
             channelid_sub_pairs.update({channel['channel']['channel_url']: channel['channel']['name']})
         return channelid_sub_pairs
 
