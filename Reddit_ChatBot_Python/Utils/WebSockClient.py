@@ -205,13 +205,7 @@ class WebSockClient:
 
     def _get_current_channels(self, session_key):
         headers = {
-            'Host': 'sendbirdproxy.chat.redditmedia.com',
-            'accept': 'application/json',
-            'user-agent': 'Jand/3.0.144',
-            'sb-user-agent': 'Android/c3.0.144',
-            'sendbird': f'Android,30,3.0.144,{self._ai}',
             'session-key': session_key,
-            'request-sent-timestamp': str(int(time.time() * 1000)),
         }
         params = {
             'show_member': 'true',
@@ -229,6 +223,7 @@ class WebSockClient:
         channelid_sub_pairs = {}
         for channel in response.get('channels', {}):
             channelid_sub_pairs.update({channel['channel']['channel_url']: channel['channel']['name']})
+        print(channelid_sub_pairs)
         return channelid_sub_pairs
 
     # def on_ping(self, ws, r):
