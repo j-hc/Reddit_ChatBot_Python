@@ -223,7 +223,6 @@ class WebSockClient:
         channelid_sub_pairs = {}
         for channel in response.get('channels', {}):
             channelid_sub_pairs.update({channel['channel']['channel_url']: channel['channel']['name']})
-        print(channelid_sub_pairs)
         return channelid_sub_pairs
 
     # def on_ping(self, ws, r):

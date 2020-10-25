@@ -6,6 +6,8 @@ import pickle
 
 class ChatBot:
     _SB_ai = '2515BDA8-9D3A-47CF-9325-330BC37ADA13'
+    REDDIT_OAUTH_HOST = "https://oauth.reddit.com"
+    REDDIT_SENDBIRD_HOST = "https://s.reddit.com"
 
     def __init__(self, reddit_api_token, with_chat_media=False, store_session=True, **kwargs):
         self.headers = {'user-agent': "test v2", 'authorization': f'Bearer {reddit_api_token}'}
@@ -26,12 +28,12 @@ class ChatBot:
             channel_url_ = "sendbird_group_channel_" + channel_url
         sub_id = self._get_sub_id(sub)
         data = f'{{"channel_url":"{channel_url_}","subreddit":"{sub_id}"}}'
-        resp = requests.post('https://s.reddit.com/api/v1/sendbird/join', headers=self.headers, data=data)
+        resp = requests.post(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/join', headers=self.headers, data=data)
         return resp.text
 
     def get_sendbird_channel_urls(self, sub_name):
         sub_id = self._get_sub_id(sub_name)
-        response = requests.get(f'https://s.reddit.com/api/v1/subreddit/{sub_id}/channels', headers=self.headers)
+        response = requests.get(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/subreddit/{sub_id}/channels', headers=self.headers)
         response.raise_for_status()
         try:
             rooms = response.json().get('rooms')
@@ -63,17 +65,17 @@ class ChatBot:
         return sb_access_token, user_id
 
     def _get_sendbird_access_token(self):
-        response = requests.get('https://s.reddit.com/api/v1/sendbird/me', headers=self.headers)
+        response = requests.get(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/me', headers=self.headers)
         response.raise_for_status()
         return response.json()['sb_access_token']
 
     def _get_user_id(self):
-        response = requests.get('https://oauth.reddit.com/api/v1/me.json', headers=self.headers)
+        response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/api/v1/me.json', headers=self.headers)
         response.raise_for_status()
         return 't2_' + response.json().get('id')
 
     def _get_sub_id(self, sub_name):
-        response = requests.get(f'https://oauth.reddit.com/r/{sub_name}/about.json', headers=self.headers)
+        response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/r/{sub_name}/about.json', headers=self.headers)
         response.raise_for_status()
         sub_id = response.json().get('data').get('name')
         if sub_id is None:
