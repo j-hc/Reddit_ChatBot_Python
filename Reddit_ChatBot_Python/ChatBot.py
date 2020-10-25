@@ -16,9 +16,8 @@ class ChatBot:
             sb_access_token, user_id = self._get_new_session()
 
         self.WebSocketClient = WebSockClient(key=sb_access_token, ai=self._SB_ai, user_id=user_id, **kwargs)
-        if with_chat_media:
+        if with_chat_media:  # this is untested
             self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
-            # this is untested
 
     def join_channel(self, sub, channel_url):
         if channel_url.startswith("sendbird_group_channel_"):
@@ -29,6 +28,17 @@ class ChatBot:
         data = f'{{"channel_url":"{channel_url_}","subreddit":"{sub_id}"}}'
         resp = requests.post('https://s.reddit.com/api/v1/sendbird/join', headers=self.headers, data=data)
         return resp.text
+
+    def get_sendbird_channel_urls(self, sub_name):
+        sub_id = self._get_sub_id(sub_name)
+        response = requests.get(f'https://s.reddit.com/api/v1/subreddit/{sub_id}/channels', headers=self.headers)
+        response.raise_for_status()
+        try:
+            rooms = response.json().get('rooms')
+            for room in rooms:
+                yield room.get('url')
+        except (KeyError, IndexError):
+            raise Exception('Sub doesnt have any rooms')
 
     def _load_session(self, pkl_name):
         try:
@@ -69,14 +79,3 @@ class ChatBot:
         if sub_id is None:
             raise Exception('Wrong subreddit name')
         return sub_id
-
-    def _get_sendbird_channel_urls(self, sub_name):
-        sub_id = self._get_sub_id(sub_name)
-        response = requests.get(f'https://s.reddit.com/api/v1/subreddit/{sub_id}/channels', headers=self.headers)
-        response.raise_for_status()
-        try:
-            rooms = response.json().get('rooms')
-            for room in rooms:
-                yield room.get('url')
-        except (KeyError, IndexError):
-            raise Exception('Sub doesnt have any rooms')

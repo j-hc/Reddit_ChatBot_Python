@@ -90,7 +90,7 @@ class WebSockClient:
         try:
             message.format(nickname="")
         except KeyError:
-            self.logger.error("You need to set a {nickname} key in welcome message!")
+            self.logger.error("You need to set a {nickname} key in the welcome message!")
             raise
 
         if limited_to_channels is not None and type(limited_to_channels) == str:
@@ -102,6 +102,31 @@ class WebSockClient:
             if resp.type_f == "SYEV" and (self.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                 try:
                     invtr = resp.data.inviter.nickname
+                    nickname = resp.data.nickname
+                except AttributeError:
+                    return
+                response_prepped = message.format(nickname=nickname)
+                self.send_message(response_prepped, resp.channel_url)
+                return True
+
+        self.after_message_hook(respond)
+
+    def set_byebye_message(self, message, limited_to_channels=None):
+        try:
+            message.format(nickname="")
+        except KeyError:
+            self.logger.error("You need to set a {nickname} key in the byebye message!")
+            raise
+
+        if limited_to_channels is not None and type(limited_to_channels) == str:
+            limited_to_channels = [limited_to_channels]
+        elif limited_to_channels is None:
+            limited_to_channels = []
+
+        def respond(resp):
+            if resp.type_f == "SYEV" and (self.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
+                try:
+                    dispm = resp.channel.disappearing_message
                     nickname = resp.data.nickname
                 except AttributeError:
                     return

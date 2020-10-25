@@ -10,7 +10,7 @@ reddit_username = ""
 reddit_password = ""
 
 
-def get_args():
+def _get_args():
     try:
         reddit_username_ = sys.argv[1]
     except IndexError:
@@ -22,8 +22,7 @@ def get_args():
     return reddit_username_, reddit_password_
 
 
-if __name__ == "__main__":
-    redditusername, redditpassword = get_args()
+def get_token(redditusername, redditpassword):
     headers = {'User-Agent': 'Firefox'}
     data = {
         'op': 'login',
@@ -34,5 +33,10 @@ if __name__ == "__main__":
     redditsession = response.cookies.get("reddit_session")
     chat_r = requests.get("https://www.reddit.com/chat/", headers=headers, cookies={"reddit_session": redditsession})
     sendbird_scoped_token = re.search(b'"accessToken":"(.*?)"', chat_r.content).group(1).decode()
+    return sendbird_scoped_token
+
+
+if __name__ == "__main__":
+    sendbird_scoped_token = get_token(*_get_args())
     print(f"sendbird scoped token ->")
     print(sendbird_scoped_token)
