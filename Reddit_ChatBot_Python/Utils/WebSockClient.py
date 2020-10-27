@@ -197,7 +197,7 @@ class WebSockClient:
     def run_4ever(self, auto_reconnect=True, ping_interval=15, ping_timeout=5):
         while auto_reconnect:
             self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
-            if self._last_err is websocket.WebSocketConnectionClosedException:
+            if isinstance(self._last_err, websocket.WebSocketConnectionClosedException):
                 continue
             else:
                 return 0
