@@ -194,14 +194,14 @@ class WebSockClient:
     def on_close(self, ws):
         self.logger.warning("### websocket closed ###")
 
-    def run_4ever(self, auto_reconnect=True, ping_interval=15, ping_timeout=5):
+    def run_4ever(self, auto_reconnect=True):
         while auto_reconnect:
-            self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
+            self.ws.run_forever(ping_interval=15, ping_timeout=5)
             if isinstance(self._last_err, websocket.WebSocketConnectionClosedException):
                 continue
             else:
                 return 0
-        self.ws.run_forever(ping_interval=ping_interval, ping_timeout=ping_timeout)
+        self.ws.run_forever(ping_interval=15, ping_timeout=5)
 
     def _get_current_channels(self, session_key):
         headers = {
