@@ -33,11 +33,7 @@ class WebSockClient:
         socket_base = "wss://sendbirdproxy.chat.redditmedia.com"
         params = f"/?p=Android&pv=29&sv=3.0.82&ai={self._ai}&SB-User-Agent=Android%2Fc3.0.144&user_id={self._user_id}&access_token={key}&active=1"
 
-        self.ws = websocket.WebSocketApp(socket_base + params,
-                                         on_message=lambda ws, msg: self.on_message(ws, msg),
-                                         on_error=lambda ws, msg: self.on_error(ws, msg),
-                                         on_close=lambda ws: self.on_close(ws),
-                                         )
+        self.ws = self._get_ws_app(socket_base, params)
         self.ws.on_open = lambda ws: self.on_open(ws)
         # self.ws.on_ping = lambda ws, r: self.on_ping(ws, r)
         # self.ws.on_pong = lambda ws, r: self.on_pong(ws, r)
@@ -48,6 +44,14 @@ class WebSockClient:
         self._last_err = None
 
         self._after_message_hooks = []
+
+    def _get_ws_app(self, socket_base, params):
+        ws = websocket.WebSocketApp(socket_base + params,
+                                    on_message=lambda ws, msg: self.on_message(ws, msg),
+                                    on_error=lambda ws, msg: self.on_error(ws, msg),
+                                    on_close=lambda ws: self.on_close(ws),
+                                    )
+        return ws
 
     def on_open(self, ws):
         self.logger.info("### successfully connected to the websocket ###")
