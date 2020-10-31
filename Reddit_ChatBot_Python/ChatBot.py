@@ -10,7 +10,7 @@ class ChatBot:
     REDDIT_SENDBIRD_HOST = "https://s.reddit.com"
 
     def __init__(self, reddit_api_token, with_chat_media=False, store_session=True, **kwargs):
-        self.headers = {'user-agent': "test v2", 'authorization': f'Bearer {reddit_api_token}'}
+        self.headers = {'user-agent': "Reddit/Version 2020.41.1/Build 296539/Android 11", 'authorization': f'Bearer {reddit_api_token}'}
 
         if store_session:
             sb_access_token, user_id = self._load_session(reddit_api_token)
