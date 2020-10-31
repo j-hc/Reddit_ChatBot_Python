@@ -31,7 +31,7 @@ class WebSockClient:
 
         websocket.enableTrace(enable_trace)
         socket_base = "wss://sendbirdproxy.chat.redditmedia.com"
-        params = f"/?p=_&pv=29&sv=3.0.82&ai={self._ai}&user_id={self._user_id}&access_token={key}"
+        params = f"/?p=Android&pv=29&sv=3.0.82&ai={self._ai}&SB-User-Agent=Android%2Fc3.0.144&user_id={self._user_id}&access_token={key}&active=1"
 
         self.ws = websocket.WebSocketApp(socket_base + params,
                                          on_message=lambda ws, msg: self.on_message(ws, msg),

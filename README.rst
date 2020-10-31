@@ -11,7 +11,7 @@ YOU HAVE BEEN WARNED
 Reddit ChatRoom
 =================
 
-a pretty basic websocket wrapper for reddit chatrooms by `u/peroksizom <http://reddit.com/user/peroksizom>`_
+a pretty basic websocket wrapper for reddit chatrooms by `u/perokisded <http://reddit.com/user/perokisded>`_ (formerly `u/peroksizom <http://reddit.com/user/peroksizom>`_ :( )
 
 no selenium no bullsh*t, just directly websocket
 
