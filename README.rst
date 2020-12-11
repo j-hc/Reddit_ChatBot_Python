@@ -38,12 +38,15 @@ Usage
 
     from Reddit_ChatBot_Python.ChatBot import ChatBot, RedditAuthentication
 
-    reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="")  # create authentication with username and pass
-    reddit_authentication = RedditAuthentication.TokenAuth(token="")  # or you can directly authenticate with the self-obtained api token
+
+    # create authentication with username and pass
+    reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="")
+
+    # or you can directly authenticate with the self-obtained api token
+    reddit_authentication = RedditAuthentication.TokenAuth(token="")
     # either of them is OK
 
-
-    # instantiate a chatbot and pass in the sub_channels if you want
+    # instantiate the chatbot
     chatbot = ChatBot(global_blacklist_words={'a', 'b'},  # you can define words that shouldnt be sent (this migth be handy for slurs)
                     global_blacklist_users={'a', 'b'},  # hooks never get executed for users in this list
                     print_chat=True, store_session=True, dont_answer_blocked=True,  # some parameters u might wanna know
