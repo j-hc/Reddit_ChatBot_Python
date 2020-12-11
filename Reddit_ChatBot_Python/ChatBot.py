@@ -2,6 +2,8 @@ from .Utils.WebSockClient import WebSockClient
 from .Utils.ChatMedia import ChatMedia
 import requests
 import pickle
+import re
+from .RedditAuthentication import TokenAuth, PasswordAuth
 
 
 class ChatBot:
@@ -9,7 +11,10 @@ class ChatBot:
     REDDIT_OAUTH_HOST = "https://oauth.reddit.com"
     REDDIT_SENDBIRD_HOST = "https://s.reddit.com"
 
-    def __init__(self, reddit_api_token, with_chat_media=False, store_session=True, **kwargs):
+    def __init__(self, authentication, with_chat_media=False, store_session=True, **kwargs):
+        assert isinstance(authentication, (TokenAuth, PasswordAuth)), "Wrong Authentication type"
+        reddit_api_token = authentication.authenticate()
+
         self.headers = {'user-agent': "Reddit/Version 2020.41.1/Build 296539/Android 11", 'authorization': f'Bearer {reddit_api_token}'}
 
         if store_session:
@@ -20,6 +25,20 @@ class ChatBot:
         self.WebSocketClient = WebSockClient(key=sb_access_token, ai=self._SB_ai, user_id=user_id, **kwargs)
         if with_chat_media:  # this is untested
             self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
+
+    @staticmethod
+    def authenticate_with_password(username, password):
+        headers = {'User-Agent': 'Firefox'}
+        data = {
+            'op': 'login',
+            'user': username,
+            'passwd': password
+        }
+        response = requests.post(f'{ChatBot.REDDIT_NORMAL}/post/login', headers=headers, data=data, allow_redirects=False)
+        redditsession = response.cookies.get("reddit_session")
+        chat_r = requests.get(f'{ChatBot.REDDIT_NORMAL}/chat/', headers=headers, cookies={"reddit_session": redditsession})
+        sendbird_scoped_token = re.search(b'"accessToken":"(.*?)"', chat_r.content).group(1).decode()
+        return sendbird_scoped_token
 
     def join_channel(self, sub, channel_url):
         if channel_url.startswith("sendbird_group_channel_"):

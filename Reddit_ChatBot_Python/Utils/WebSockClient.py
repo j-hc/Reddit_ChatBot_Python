@@ -17,8 +17,8 @@ class WebSockClient:
             global_blacklist_words = set()
         if global_blacklist_users is None:
             global_blacklist_users = set()
-        assert type(global_blacklist_words) == set, "blacklists must be set()s"
-        assert type(global_blacklist_users) == set, "blacklists must be set()s"
+        assert isinstance(global_blacklist_words, set), "blacklists must be set()s"
+        assert isinstance(global_blacklist_users, set), "blacklists must be set()s"
         self.global_blacklist_words = global_blacklist_words
         self.global_blacklist_users = global_blacklist_users
 
@@ -186,7 +186,6 @@ class WebSockClient:
         self.ws.send(payload)
         self.req_id += 1
 
-    # not working for some reason
     # def send_typing_indicator(self, channel_url):
     #     payload = f'TPST{{"channel_url":"{channel_url}","time":{int(time.time() * 1000)},"req_id":""}}\n'
     #     self.ws.send(payload)
