@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
 name='Reddit_ChatBot_Python',
-version='1.1.4',
+version='1.1.5',
 project_urls={"Source": "https://github.com/scrubjay55/Reddit_ChatBot_Python.git"},
 url="https://github.com/scrubjay55/Reddit_ChatBot_Python.git",
 author='scrubjay55',
