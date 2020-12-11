@@ -36,31 +36,33 @@ Usage
 
 .. code:: python
 
-  from Reddit_ChatBot_Python.ChatBot import ChatBot
-  
-  # instantiate a chatbot and pass in the sub_channels if you want
-  chatbot = ChatBot(global_blacklist_words={'a', 'b'},  # you can define words that shouldnt be sent (this migth be handy for slurs)
+    from Reddit_ChatBot_Python.ChatBot import ChatBot, RedditAuthentication
+
+    reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="")  # create authentication with username and pass
+    reddit_authentication = RedditAuthentication.TokenAuth(token="")  # or you can directly authenticate with the self-obtained api token
+    # either of them is OK
+
+
+    # instantiate a chatbot and pass in the sub_channels if you want
+    chatbot = ChatBot(global_blacklist_words={'a', 'b'},  # you can define words that shouldnt be sent (this migth be handy for slurs)
                     global_blacklist_users={'a', 'b'},  # hooks never get executed for users in this list
                     print_chat=True, store_session=True, dont_answer_blocked=True,  # some parameters u might wanna know
-                    reddit_api_token="**YOUR API TOKEN**")
-  # reddit_api_token is a sendbird access scoped token. there is a dump script available.
-  # keep in mind that atm the bot only fetches a 7-days-limited sendbird access key and api tokens only last one hour
-  # which means the bot will needed to be restarted every 7 days with a new api key
+                    authentication=reddit_authentication)
 
-  # grab the websocket
-  websock = chatbot.WebSocketClient
+    # grab the websocket
+    websock = chatbot.WebSocketClient
 
-  # you can add a rate limit like so:
-  websock.RateLimiter.is_enabled = True
-  websock.RateLimiter.max_calls = 23  # how many messages will be sent by the bot
-  websock.RateLimiter.period = 1.5  # in what period(in minutes)
+    # you can add a rate limit like so:
+    websock.RateLimiter.is_enabled = True
+    websock.RateLimiter.max_calls = 23  # how many messages will be sent by the bot
+    websock.RateLimiter.period = 1.5  # in what period(in minutes)
 
-  # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
-  
-  # create a function and hook
+    # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
 
-  @websock.after_message_hook
-  def roll(resp):  #  resp is a namedtuple that carries all the data of the received frame
+    # create a function and hook
+
+    @websock.after_message_hook
+    def roll(resp):  #  resp is a namedtuple that carries all the data of the received frame
       if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages. you can see others here: https://github.com/scrubjay55/Reddit_ChatBot_Python/blob/master/Utils/FrameModel/FrameModel.py
                                 #  Dont forget to perform this check if you are just gonna do stuff with regular chat messages
           messg_s = resp.message.split()
@@ -77,13 +79,13 @@ Usage
               return True  # return true if you want to be done with checking the other hooks, otherwise return None
                            # keep in mind that first added hooks gets executed first
 
-  # now everytime someone says "!roll 1 100", the bot will roll and send the result!
+    # now everytime someone says "!roll 1 100", the bot will roll and send the result!
 
-  # or you can add a basic response hook directly like so:
-  websock.set_respond_hook(input_="Hi", response="Hello {nickname}! enjoy your time in r/askreddit chatroom", limited_to_users=None, lower_the_input=False,
+    # or you can add a basic response hook directly like so:
+    websock.set_respond_hook(input_="Hi", response="Hello {nickname}! enjoy your time in r/askreddit chatroom", limited_to_users=None, lower_the_input=False,
                                                                       exclude_itself=True, must_be_equal=True, limited_to_channels=["AskReddit"])
-  # you can add a welcome message for newly joined users too:
-  websock.set_welcome_message("welcome to the r/askreddit chatroom u/{nickname}!", limited_to_channels=["AskReddit"])  # you can limit by indicating chatroom's name
+    # you can add a welcome message for newly joined users too:
+    websock.set_welcome_message("welcome to the r/askreddit chatroom u/{nickname}!", limited_to_channels=["AskReddit"])  # you can limit by indicating chatroom's name
 
-  # and finally, run forever...
-  websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
+    # and finally, run forever...
+    websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
