@@ -1,19 +1,19 @@
 import re
 import requests
+from dataclasses import dataclass
 
-
+@dataclass
 class TokenAuth:
-    def __init__(self, token: str):
-        self._token = token
+    token: str
 
     def authenticate(self):
-        return self._token
+        return self.token
 
 
+@dataclass
 class PasswordAuth:
-    def __init__(self, reddit_username: str, reddit_password: str):
-        self.reddit_username = reddit_username
-        self.reddit_password = reddit_password
+    reddit_username: str
+    reddit_password: str
 
     def authenticate(self):
         headers = {'User-Agent': 'Firefox'}
