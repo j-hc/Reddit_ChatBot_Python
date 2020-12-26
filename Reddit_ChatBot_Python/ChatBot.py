@@ -25,26 +25,26 @@ class ChatBot:
         if with_chat_media:  # this is untested
             self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
 
-    def join_channel(self, sub, channel_url):
-        if channel_url.startswith("sendbird_group_channel_"):
-            channel_url_ = channel_url
-        else:
-            channel_url_ = "sendbird_group_channel_" + channel_url
-        sub_id = self._get_sub_id(sub)
-        data = f'{{"channel_url":"{channel_url_}","subreddit":"{sub_id}"}}'
-        resp = requests.post(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/join', headers=self.headers, data=data)
-        return resp.text
+    # def join_channel(self, sub, channel_url):
+    #     if channel_url.startswith("sendbird_group_channel_"):
+    #         channel_url_ = channel_url
+    #     else:
+    #         channel_url_ = "sendbird_group_channel_" + channel_url
+    #     sub_id = self._get_sub_id(sub)
+    #     data = f'{{"channel_url":"{channel_url_}","subreddit":"{sub_id}"}}'
+    #     resp = requests.post(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/join', headers=self.headers, data=data)
+    #     return resp.text
 
-    def get_sendbird_channel_urls(self, sub_name):
-        sub_id = self._get_sub_id(sub_name)
-        response = requests.get(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/subreddit/{sub_id}/channels', headers=self.headers)
-        response.raise_for_status()
-        try:
-            rooms = response.json().get('rooms')
-            for room in rooms:
-                yield room.get('url')
-        except (KeyError, IndexError):
-            raise Exception('Sub doesnt have any rooms')
+    # def get_sendbird_channel_urls(self, sub_name):
+    #     sub_id = self._get_sub_id(sub_name)
+    #     response = requests.get(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/subreddit/{sub_id}/channels', headers=self.headers)
+    #     response.raise_for_status()
+    #     try:
+    #         rooms = response.json().get('rooms')
+    #         for room in rooms:
+    #             yield room.get('url')
+    #     except (KeyError, IndexError):
+    #         raise Exception('Sub doesnt have any rooms')
 
     def _load_session(self, pkl_name):
         try:
@@ -65,7 +65,6 @@ class ChatBot:
     def _get_new_session(self):
         sb_access_token = self._get_sendbird_access_token()
         user_id = self._get_user_id()
-
         return sb_access_token, user_id
 
     def _get_sendbird_access_token(self):
@@ -78,10 +77,10 @@ class ChatBot:
         response.raise_for_status()
         return 't2_' + response.json().get('id')
 
-    def _get_sub_id(self, sub_name):
-        response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/r/{sub_name}/about.json', headers=self.headers)
-        response.raise_for_status()
-        sub_id = response.json().get('data').get('name')
-        if sub_id is None:
-            raise Exception('Wrong subreddit name')
-        return sub_id
+    # def _get_sub_id(self, sub_name):
+    #     response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/r/{sub_name}/about.json', headers=self.headers)
+    #     response.raise_for_status()
+    #     sub_id = response.json().get('data').get('name')
+    #     if sub_id is None:
+    #         raise Exception('Wrong subreddit name')
+    #     return sub_id
