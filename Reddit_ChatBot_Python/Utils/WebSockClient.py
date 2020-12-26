@@ -73,9 +73,8 @@ class WebSockClient:
 
         try:
             response.format(nickname="")
-        except KeyError:
-            self.logger.error("You need to set a {nickname} key in welcome message!")
-            raise
+        except KeyError as e:
+            raise Exception("You need to set a {nickname} key in welcome message!") from e
 
         def respond(resp):
             if resp.type_f == "MESG":
@@ -93,9 +92,8 @@ class WebSockClient:
     def set_welcome_message(self, message, limited_to_channels=None):
         try:
             message.format(nickname="")
-        except KeyError:
-            self.logger.error("You need to set a {nickname} key in the welcome message!")
-            raise
+        except KeyError as e:
+            raise Exception("You need to set a {nickname} key in the welcome message!") from e
 
         if limited_to_channels is not None and type(limited_to_channels) == str:
             limited_to_channels = [limited_to_channels]
@@ -118,9 +116,8 @@ class WebSockClient:
     def set_byebye_message(self, message, limited_to_channels=None):
         try:
             message.format(nickname="")
-        except KeyError:
-            self.logger.error("You need to set a {nickname} key in the byebye message!")
-            raise
+        except KeyError as e:
+            raise Exception("You need to set a {nickname} key in the byebye message!") from e
 
         if limited_to_channels is not None and type(limited_to_channels) == str:
             limited_to_channels = [limited_to_channels]
