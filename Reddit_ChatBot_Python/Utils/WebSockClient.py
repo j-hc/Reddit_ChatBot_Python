@@ -209,14 +209,14 @@ class WebSockClient:
     def _get_current_channels(self, session_key):
         headers = {
             'session-key': session_key,
+            'SB-User-Agent': 'Android%2Fc3.0.144'
         }
         params = {
             'show_member': 'true',
             'show_frozen': 'true',
             'public_mode': 'all',
             'member_state_filter': 'joined_only',
-            'token': '',
-            'super_mode': 'super',
+            'super_mode': 'all',
             'limit': '40',
             'show_empty': 'true'
         }
