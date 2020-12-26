@@ -1,6 +1,5 @@
 import json
-from collections import namedtuple
-from collections.abc import Mapping
+from types import SimpleNamespace
 
 
 class FrameModel:
@@ -20,24 +19,12 @@ class FrameModel:
     def get_frame_data(data):
         first_curly = data.find('{')
         data_r = data[first_curly:]
-        data_j = json.loads(data_r)
+        data_j = json.loads(data_r, object_hook=lambda d: SimpleNamespace(**d))
         type_f = data[:first_curly]
 
         # some presets
-        if data_j.get('error') is None:
-            data_j['error'] = False
-        if data_j.get('message') == "":
-            data_j['message'] = "[snoomoji]"
+        if type_f == "MESG" and data_j.message == "":
+            data_j.message = "[snoomoji]"
+        data_j.type_f = type_f
 
-        data_j['type_f'] = type_f
-        return FrameModel._mapping_to_named_tuple(data_j)
-
-    @staticmethod
-    def _mapping_to_named_tuple(mapping, name="framedata"):
-        if isinstance(mapping, Mapping):
-            mapping = {key: FrameModel._mapping_to_named_tuple(value, key) for key, value in mapping.items()}
-            return namedtuple(name, mapping.keys())(**mapping)
-        elif isinstance(mapping, list):
-            return tuple([FrameModel._mapping_to_named_tuple(item, name) for item in mapping])
-        else:
-            return mapping
+        return data_j

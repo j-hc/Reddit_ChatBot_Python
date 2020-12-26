@@ -8,7 +8,7 @@ import requests
 
 
 class WebSockClient:
-    def __init__(self, key, ai, user_id, enable_trace=False, print_chat=True,
+    def __init__(self, key, ai, user_id, enable_trace=False, print_chat=True, print_websocket_frames=False,
                  other_logging=True, dont_hook_blocked=False, global_blacklist_users=None, global_blacklist_words=None):
         self._ai = ai
         self._user_id = user_id
@@ -41,6 +41,7 @@ class WebSockClient:
         self.req_id = int(time.time() * 1000)
         self.own_name = None
         self.print_chat = print_chat
+        self.print_websocket_frames = print_websocket_frames
         self._last_err = None
 
         self._after_message_hooks = []
@@ -145,12 +146,17 @@ class WebSockClient:
         resp = FrameModel.get_frame_data(message)
         if self.print_chat:
             self.print_chat_(resp)
+        if self.print_websocket_frames:
+            print(message)
 
         if resp.type_f == "LOGI":
+            try:
+                logi_err = resp.error
+            except:
+                logi_err = False
             self.logger.info(message)
-            if not resp.error:
+            if not logi_err:
                 self.logger.info("Everything is: OK")
-
                 self.channelid_sub_pairs = self._get_current_channels(resp.key)
                 self.own_name = resp.nickname
             else:
