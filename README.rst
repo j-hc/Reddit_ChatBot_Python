@@ -38,7 +38,8 @@ Usage
 
 
     # create authentication with username and pass
-    reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="")
+    reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="",
+                                                              twofa="" # if exists)
 
     # or you can directly authenticate with the self-obtained api token
     reddit_authentication = RedditAuthentication.TokenAuth(token="")
