@@ -71,7 +71,7 @@ Usage
               limit_bottom = messg_s[1]
               limit_top = messg_s[2]
 
-              rolled_number = random.randint(int(limit_f), int(limit_u))
+              rolled_number = random.randint(int(limit_bottom), int(limit_top))
               response_text = f"@{resp.user.name} {rolled_number}. Better luck next time!"
               # a basic roll game
 
@@ -83,10 +83,10 @@ Usage
     # now everytime someone says "!roll 1 100", the bot will roll and send the result!
 
     # or you can add a basic response hook directly like so:
-    websock.set_respond_hook(input_="Hi", response="Hello {nickname}! enjoy your time in r/askreddit chatroom", limited_to_users=None, lower_the_input=False,
-                                                                      exclude_itself=True, must_be_equal=True, limited_to_channels=["AskReddit"])
+    websock.set_respond_hook(input_="Hi", response="Hello {nickname}! enjoy your time in my cozy chat group", limited_to_users=None, lower_the_input=False,
+                                                                      exclude_itself=True, must_be_equal=True, limited_to_channels=["my cozy chat group"])
     # you can add a welcome message for newly joined users too:
-    websock.set_welcome_message("welcome to the r/askreddit chatroom u/{nickname}!", limited_to_channels=["AskReddit"])  # you can limit by indicating chatroom's name
+    websock.set_welcome_message("welcome to the my cozy chat group u/{nickname}!", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name
 
     # and finally, run forever...
     websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
