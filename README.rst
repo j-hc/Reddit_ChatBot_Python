@@ -64,8 +64,9 @@ Usage
 
     @websock.after_message_hook
     def roll(resp):  #  resp is a namedtuple that carries all the data of the received frame
-      if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages. you can see others here: https://github.com/scrubjay55/Reddit_ChatBot_Python/blob/master/Utils/FrameModel/FrameModel.py
+      if resp.type_f == "MESG": #  MESG is the type of the ordinary chat messages
                                 #  Dont forget to perform this check if you are just gonna do stuff with regular chat messages
+                                #  You can further investigate other types by setting print_websocket_frames to True and do some fun stuff
           messg_s = resp.message.split()
           if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
               limit_bottom = messg_s[1]
