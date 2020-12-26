@@ -14,7 +14,7 @@ class ChatBot:
         assert isinstance(authentication, (TokenAuth, PasswordAuth)), "Wrong Authentication type"
         reddit_api_token = authentication.authenticate()
 
-        self.headers = {'user-agent': "Reddit/Version 2020.41.1/Build 296539/Android 11", 'authorization': f'Bearer {reddit_api_token}'}
+        self.headers = {'user-agent': "Reddit/Version 2020.41.1/Build 296539/Android 11", 'Authorization': f'Bearer {reddit_api_token}'}
 
         if store_session:
             sb_access_token, user_id = self._load_session(reddit_api_token)

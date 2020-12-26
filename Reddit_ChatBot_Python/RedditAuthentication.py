@@ -2,7 +2,8 @@ import re
 import requests
 from dataclasses import dataclass
 
-@dataclass
+
+@dataclass(frozen=True)
 class TokenAuth:
     token: str
 
@@ -10,18 +11,17 @@ class TokenAuth:
         return self.token
 
 
-@dataclass
+@dataclass(frozen=True)
 class PasswordAuth:
     reddit_username: str
     reddit_password: str
+    twofa: str = None
 
     def authenticate(self):
         headers = {'User-Agent': 'Firefox'}
-        data = {
-            'op': 'login',
-            'user': self.reddit_username,
-            'passwd': self.reddit_password
-        }
+        data = {"op": "login",
+                "user": self.reddit_username,
+                "passwd": "%s%s" % (self.reddit_password, ":%s" % self.twofa if self.twofa else "")}
         response = requests.post('https://www.reddit.com/post/login', headers=headers, data=data, allow_redirects=False)
         try:
             redditsession = response.cookies["reddit_session"]
