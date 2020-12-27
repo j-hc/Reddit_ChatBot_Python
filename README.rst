@@ -64,7 +64,7 @@ Usage
     # create a function and hook
 
     @websock.after_message_hook
-    def roll(resp):  #  resp is a namedtuple that carries all the data of the received frame
+    def roll(resp):  #  resp is a SimpleNamespace that carries all the data of the received frame
       messg_s = resp.message.split()
       if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
           limit_bottom = int(messg_s[1])
