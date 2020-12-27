@@ -5,10 +5,11 @@ from .FrameModel.FrameModel import FrameModel
 import logging
 import _thread as thread
 import requests
+from urllib.parse import urlencode
 
 
 class WebSockClient:
-    def __init__(self, key, ai, user_id, enable_trace=False, print_chat=True, print_websocket_frames=False,
+    def __init__(self, access_token, ai, user_id, enable_trace=False, print_chat=True, print_websocket_frames=False,
                  other_logging=True, dont_hook_blocked=False, global_blacklist_users=None, global_blacklist_words=None):
         self._ai = ai
         self._user_id = user_id
@@ -30,29 +31,40 @@ class WebSockClient:
         self.logger.disabled = not other_logging
 
         websocket.enableTrace(enable_trace)
-        socket_base = "wss://sendbirdproxy.chat.redditmedia.com"
-        params = f"/?p=Android&pv=29&sv=3.0.82&ai={self._ai}&SB-User-Agent=Android%2Fc3.0.144&user_id={self._user_id}&access_token={key}&active=1"
+        self.socket_base = "wss://sendbirdproxyk8s.chat.redditmedia.com"
+        self.ws_params = {
+            "p": "Android&pv=30",
+            "sv": "3.0.144",
+            "ai": self._ai,
+            "SB-User-Agent": "Android%2Fc3.0.144",
+            "user_id": self._user_id,
+            "access_token": access_token,
+            "active": "1"
+        }
 
-        self.ws = self._get_ws_app(socket_base, params)
+        self.ws = self._get_ws_app(self._get_ws_url(self.socket_base, self.ws_params))
         self.ws.on_open = lambda ws: self.on_open(ws)
         # self.ws.on_ping = lambda ws, r: self.on_ping(ws, r)
         # self.ws.on_pong = lambda ws, r: self.on_pong(ws, r)
 
         self.req_id = int(time.time() * 1000)
         self.own_name = None
+        self.logi_key = None
         self.print_chat = print_chat
         self.print_websocket_frames = print_websocket_frames
         self._last_err = None
 
         self._after_message_hooks = []
 
-    def _get_ws_app(self, socket_base, params):
-        ws = websocket.WebSocketApp(socket_base + params,
+    def _get_ws_app(self, ws_url):
+        ws = websocket.WebSocketApp(ws_url,
                                     on_message=lambda ws, msg: self.on_message(ws, msg),
                                     on_error=lambda ws, msg: self.on_error(ws, msg),
-                                    on_close=lambda ws: self.on_close(ws),
-                                    )
+                                    on_close=lambda ws: self.on_close(ws))
         return ws
+
+    def _get_ws_url(self, socket_base, params):
+        return f"{socket_base}/?{urlencode(params)}"
 
     def on_open(self, ws):
         self.logger.info("### successfully connected to the websocket ###")
@@ -156,23 +168,31 @@ class WebSockClient:
             print(message)
 
         if resp.type_f == "LOGI":
-            try:
-                logi_err = resp.error
-            except:
-                logi_err = False
             self.logger.info(message)
-            if not logi_err:
-                self.logger.info("Everything is: OK")
-                self.channelid_sub_pairs = self._get_current_channels(resp.key)
-                self.own_name = resp.nickname
-            else:
-                self.logger.error(f"err: {resp.message}")
+            self._logi(resp)
 
         if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users \
                 or (self.dont_hook_blocked and resp.user.is_blocked_by_me):
             return
 
         thread.start_new_thread(self._response_loop, (resp,))
+
+    def _logi(self, resp):
+        try:
+            logi_err = resp.error
+        except:
+            logi_err = False
+        if not logi_err:
+            self.channelid_sub_pairs = self._get_current_channels(resp.key)
+            self.own_name = resp.nickname
+            if self.ws_params.get('access_token') is not None:
+                del self.ws_params['access_token']
+                del self.ws_params['user_id']
+            self.ws_params.update({'key': resp.key})
+
+            self.ws.url = self._get_ws_url(self.socket_base, self.ws_params)
+        else:
+            self.logger.error(f"err: {resp.message}")
 
     def _response_loop(self, resp):
         for func in self._after_message_hooks:
@@ -212,12 +232,12 @@ class WebSockClient:
             if isinstance(self._last_err, websocket.WebSocketConnectionClosedException):
                 continue
             else:
-                return 0
+                return
         self.ws.run_forever(ping_interval=15, ping_timeout=5)
 
-    def _get_current_channels(self, session_key):
+    def _get_current_channels(self, logi_key):
         headers = {
-            'session-key': session_key,
+            'session-key': logi_key,
             'SB-User-Agent': 'Android%2Fc3.0.144'
         }
         params = {

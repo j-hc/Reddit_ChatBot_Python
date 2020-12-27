@@ -21,7 +21,7 @@ class ChatBot:
         else:
             sb_access_token, user_id = self._get_new_session()
 
-        self.WebSocketClient = WebSockClient(key=sb_access_token, ai=self._SB_ai, user_id=user_id, **kwargs)
+        self.WebSocketClient = WebSockClient(access_token=sb_access_token, ai=self._SB_ai, user_id=user_id, **kwargs)
         if with_chat_media:  # this is untested
             self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
 
