@@ -23,14 +23,11 @@ class PasswordAuth:
                 "user": self.reddit_username,
                 "passwd": "%s%s" % (self.reddit_password, ":%s" % self.twofa if self.twofa else "")}
         response = requests.post('https://www.reddit.com/post/login', headers=headers, data=data, allow_redirects=False)
-        try:
-            redditsession = response.cookies["reddit_session"]
-        except KeyError:
+        redditsession = response.cookies.get("reddit_session")
+        if redditsession is None:
             raise Exception("Wrong username or password")
         chat_r = requests.get('https://www.reddit.com/chat/', headers=headers, cookies={"reddit_session": redditsession})
         token_r = re.search(b'"accessToken":"(.*?)"', chat_r.content)
         if token_r is None:
             raise Exception("Can't get token because of an unknown reason")
-        else:
-            sendbird_scoped_token = token_r.group(1).decode()
-        return sendbird_scoped_token
+        return token_r.group(1).decode()

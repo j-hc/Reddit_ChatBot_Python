@@ -46,7 +46,7 @@ Usage
     # either of them is OK
 
     # instantiate the chatbot
-    chatbot = ChatBot(global_blacklist_words={'a', 'b'},  # you can define words that shouldnt be sent (this migth be handy for slurs)
+    chatbot = ChatBot(global_blacklist_words={'a', 'b'},  # you can define words that shouldnt be sent by the bot (this migth be handy for slurs)
                     global_blacklist_users={'a', 'b'},  # hooks never get executed for users in this list
                     print_chat=True, store_session=True, dont_answer_blocked=True, print_websocket_frames=False,  # some parameters u might wanna know
                     authentication=reddit_authentication)

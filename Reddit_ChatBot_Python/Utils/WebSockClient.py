@@ -58,6 +58,12 @@ class WebSockClient:
         self.logger.info("### successfully connected to the websocket ###")
 
     def after_message_hook(self, func):
+        def hook(resp):
+            if resp.type_f == "MESG":
+                func(resp)
+        self._after_message_hooks.append(hook)
+
+    def after_frame_hook(self, func):
         self._after_message_hooks.append(func)
 
     def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,
