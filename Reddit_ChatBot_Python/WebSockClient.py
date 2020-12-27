@@ -1,7 +1,7 @@
 import websocket
-from .RateLimiter import RateLimiter
+from Reddit_ChatBot_Python.Utils.RateLimiter import RateLimiter
 import time
-from .FrameModel.FrameModel import FrameModel
+from Reddit_ChatBot_Python.Utils.FrameModel.FrameModel import FrameModel
 import logging
 import _thread as thread
 import requests

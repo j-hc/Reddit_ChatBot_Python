@@ -1,4 +1,4 @@
-from .Utils.WebSockClient import WebSockClient
+from .WebSockClient import WebSockClient
 from .Utils.ChatMedia import ChatMedia
 import requests
 import pickle
