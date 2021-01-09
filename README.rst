@@ -41,9 +41,7 @@ Usage
     reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="", twofa="")  # 2FA supported although not necessary obv..
 
     # instantiate the chatbot
-    chatbot = ChatBot(global_blacklist_words={},  # you can define words that shouldn't be sent by the bot (this migth be handy for slurs)
-                      global_blacklist_users={},  # hooks never get executed for users in this list
-                      print_chat=True, store_session=True, dont_hook_blocked=True, print_websocket_frames=False,  # some parameters u might wanna know
+    chatbot = ChatBot(print_chat=True, store_session=True, print_websocket_frames=False,  # some parameters u might wanna know
                       authentication=reddit_authentication)
 
     # grab the websocket
