@@ -165,8 +165,8 @@ class WebSockClient:
             self.logger.info(message)
             self._logi(resp)
 
-        if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users \
-                or (self.dont_hook_blocked and resp.user.is_blocked_by_me):
+        if resp.type_f == "MESG" and (resp.user.name in self.global_blacklist_users
+                                      or (self.dont_hook_blocked and resp.user.is_blocked_by_me)):
             return
 
         thread.start_new_thread(self._response_loop, (resp,))
