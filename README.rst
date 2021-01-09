@@ -34,12 +34,12 @@ Usage
 
 .. code:: python
 
-    from Reddit_ChatBot_Python.ChatBot import ChatBot, RedditAuthentication
+    from Reddit_ChatBot_Python import ChatBot, RedditAuthentication
+    import random  # for a basic dice rolling game
 
 
     # create authentication with username and pass
-    reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="",
-                                                              twofa="" # if exists)
+    reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="", twofa="")  # 2FA supported
 
     # or you can directly authenticate with the self-obtained api token
     reddit_authentication = RedditAuthentication.TokenAuth(token="")
@@ -48,7 +48,7 @@ Usage
     # instantiate the chatbot
     chatbot = ChatBot(global_blacklist_words={'a', 'b'},  # you can define words that shouldnt be sent by the bot (this migth be handy for slurs)
                     global_blacklist_users={'a', 'b'},  # hooks never get executed for users in this list
-                    print_chat=True, store_session=True, dont_answer_blocked=True, print_websocket_frames=False,  # some parameters u might wanna know
+                    print_chat=True, store_session=True, dont_hook_blocked=True, print_websocket_frames=False,  # some parameters u might wanna know
                     authentication=reddit_authentication)
 
     # grab the websocket

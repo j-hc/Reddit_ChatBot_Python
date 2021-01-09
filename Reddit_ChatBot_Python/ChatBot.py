@@ -12,14 +12,16 @@ class ChatBot:
 
     def __init__(self, authentication, with_chat_media=False, store_session=True, **kwargs):
         assert isinstance(authentication, (TokenAuth, PasswordAuth)), "Wrong Authentication type"
-        reddit_api_token = authentication.authenticate()
-
-        self.headers = {'user-agent': "Reddit/Version 2020.41.1/Build 296539/Android 11", 'Authorization': f'Bearer {reddit_api_token}'}
 
         if store_session:
             sb_access_token, user_id = self._load_session(reddit_api_token)
         else:
             sb_access_token, user_id = self._get_new_session()
+
+        reddit_api_token = authentication.authenticate()
+        self.headers = {'user-agent': "Reddit/Version 2020.41.1/Build 296539/Android 11", 'Authorization': f'Bearer {reddit_api_token}'}
+
+
 
         self.WebSocketClient = WebSockClient(access_token=sb_access_token, ai=self._SB_ai, user_id=user_id, **kwargs)
         if with_chat_media:  # this is untested
