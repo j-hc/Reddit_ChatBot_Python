@@ -14,7 +14,8 @@ def print_chat_(resp, channelid_sub_pairs):
 def _get_current_channels(user_id, logi_key):
     headers = {
         'session-key': logi_key,
-        'SB-User-Agent': 'Android%2Fc3.0.144'
+        'SB-User-Agent': 'Android%2Fc3.0.144',
+        'User-Agent': None
     }
     params = {
         'show_member': 'true',
