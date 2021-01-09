@@ -11,9 +11,8 @@ class WebSockClient:
     _SB_ai = '2515BDA8-9D3A-47CF-9325-330BC37ADA13'
 
     def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, print_websocket_frames=False,
-                 other_logging=True, dont_hook_blocked=False, global_blacklist_users=None, global_blacklist_words=None):
+                 other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
         self._user_id = user_id
-        self.dont_hook_blocked = dont_hook_blocked
         if global_blacklist_words is None:
             global_blacklist_words = set()
         if global_blacklist_users is None:
@@ -165,8 +164,7 @@ class WebSockClient:
             self.logger.info(message)
             self._logi(resp)
 
-        if resp.type_f == "MESG" and (resp.user.name in self.global_blacklist_users
-                                      or (self.dont_hook_blocked and resp.user.is_blocked_by_me)):
+        if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users:
             return
 
         thread.start_new_thread(self._response_loop, (resp,))
