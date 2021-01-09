@@ -17,10 +17,9 @@ class FrameModel:
 
     @staticmethod
     def get_frame_data(data):
-        first_curly = data.find('{')
-        data_r = data[first_curly:]
+        data_r = data[4:]
         data_j = json.loads(data_r, object_hook=lambda d: SimpleNamespace(**d))
-        type_f = data[:first_curly]
+        type_f = data[:4]
 
         # some presets
         if type_f == "MESG" and data_j.message == "":
