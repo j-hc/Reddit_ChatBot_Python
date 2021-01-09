@@ -179,6 +179,7 @@ class WebSockClient:
             self.own_name = resp.nickname
         else:
             self.logger.error(f"err: {resp.message}")
+            self._auto_reconnect = False
 
     def _response_loop(self, resp):
         for func in self._after_message_hooks:
@@ -213,9 +214,11 @@ class WebSockClient:
         self.logger.warning("### websocket closed ###")
 
     def run_4ever(self, auto_reconnect=True):
-        while auto_reconnect:
+        self._auto_reconnect = auto_reconnect
+        while self._auto_reconnect:
             self.ws.run_forever(ping_interval=15, ping_timeout=5)
             if isinstance(self._last_err, websocket.WebSocketConnectionClosedException):
+                self.logger.info('Auto Reconnecting...')
                 continue
             else:
                 return

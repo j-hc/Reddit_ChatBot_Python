@@ -1,9 +1,8 @@
 from .WebSockClient import WebSockClient
-from .Utils.ChatMedia import ChatMedia
+# from .Utils.ChatMedia import ChatMedia
 import requests
 import pickle
 from .RedditAuthentication import TokenAuth, PasswordAuth
-from .Utils import WebSocketUtils
 
 
 class ChatBot:
