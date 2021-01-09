@@ -4,15 +4,14 @@ import time
 from .Utils.FrameModel.FrameModel import FrameModel
 import logging
 import _thread as thread
-# import requests
-# from urllib.parse import urlencode
 from .Utils import WebSocketUtils
 
 
 class WebSockClient:
-    def __init__(self, access_token, ai, user_id, enable_trace=False, print_chat=True, print_websocket_frames=False,
+    _SB_ai = '2515BDA8-9D3A-47CF-9325-330BC37ADA13'
+
+    def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, print_websocket_frames=False,
                  other_logging=True, dont_hook_blocked=False, global_blacklist_users=None, global_blacklist_words=None):
-        self._ai = ai
         self._user_id = user_id
         self.dont_hook_blocked = dont_hook_blocked
         if global_blacklist_words is None:
@@ -32,18 +31,19 @@ class WebSockClient:
         self.logger.disabled = not other_logging
 
         websocket.enableTrace(enable_trace)
-        self.socket_base = "wss://sendbirdproxyk8s.chat.redditmedia.com"
-        self.ws_params = {
+        socket_base = "wss://sendbirdproxyk8s.chat.redditmedia.com"
+        ws_params = {
+            "user_id": self._user_id,
+            "access_token": access_token,
             "p": "Android",
             "pv": 30,
             "sv": "3.0.144",
-            "ai": self._ai,
+            "ai": self._SB_ai,
             "SB-User-Agent": "Android%2Fc3.0.144",
-            "user_id": self._user_id,
-            "access_token": access_token,
             "active": "1"
         }
-        self.ws = self._get_ws_app(WebSocketUtils._get_ws_url(self.socket_base, self.ws_params))
+
+        self.ws = self._get_ws_app(WebSocketUtils._get_ws_url(socket_base, ws_params))
 
         self.ws.on_open = lambda ws: self.on_open(ws)
         # self.ws.on_ping = lambda ws, r: self.on_ping(ws, r)
@@ -51,7 +51,6 @@ class WebSockClient:
 
         self.req_id = int(time.time() * 1000)
         self.own_name = None
-        self.logi_key = None
         self.print_chat = print_chat
         self.print_websocket_frames = print_websocket_frames
         self._last_err = None
@@ -64,9 +63,6 @@ class WebSockClient:
                                     on_error=lambda ws, msg: self.on_error(ws, msg),
                                     on_close=lambda ws: self.on_close(ws))
         return ws
-
-    # def _get_ws_url(self, socket_base, params):
-    #     return f"{socket_base}/?{urlencode(params)}"
 
     def on_open(self, ws):
         self.logger.info("### successfully connected to the websocket ###")
@@ -83,11 +79,11 @@ class WebSockClient:
     def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,
                          must_be_equal=True, limited_to_channels=None):
 
-        if limited_to_users is not None and type(limited_to_users) == str:
+        if limited_to_users is not None and isinstance(limited_to_channels, str):
             limited_to_users = [limited_to_users]
         elif limited_to_users is None:
             limited_to_users = []
-        if limited_to_channels is not None and type(limited_to_channels) == str:
+        if limited_to_channels is not None and isinstance(limited_to_channels, str):
             limited_to_channels = [limited_to_channels]
         elif limited_to_channels is None:
             limited_to_channels = []
@@ -116,7 +112,7 @@ class WebSockClient:
         except KeyError as e:
             raise Exception("You need to set a {nickname} key in the welcome message!") from e
 
-        if limited_to_channels is not None and type(limited_to_channels) == str:
+        if limited_to_channels is not None and isinstance(limited_to_channels, str):
             limited_to_channels = [limited_to_channels]
         elif limited_to_channels is None:
             limited_to_channels = []
@@ -140,7 +136,7 @@ class WebSockClient:
         except KeyError as e:
             raise Exception("You need to set a {nickname} key in the byebye message!") from e
 
-        if limited_to_channels is not None and type(limited_to_channels) == str:
+        if limited_to_channels is not None and isinstance(limited_to_channels, str):
             limited_to_channels = [limited_to_channels]
         elif limited_to_channels is None:
             limited_to_channels = []
@@ -157,10 +153,6 @@ class WebSockClient:
                 return True
 
         self.after_message_hook(respond)
-
-    # def print_chat_(self, resp):
-    #     if resp.type_f == "MESG":
-    #         print(f"{resp.user.name}@{self.channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
 
     def on_message(self, ws, message):
         resp = FrameModel.get_frame_data(message)
@@ -187,12 +179,6 @@ class WebSockClient:
         if not logi_err:
             self.channelid_sub_pairs = WebSocketUtils._get_current_channels(self._user_id, resp.key)
             self.own_name = resp.nickname
-            if self.ws_params.get('access_token') is not None:
-                del self.ws_params['access_token']
-                del self.ws_params['user_id']
-            self.ws_params.update({'key': resp.key})
-
-            self.ws.url = WebSocketUtils._get_ws_url(self.socket_base, self.ws_params)
         else:
             self.logger.error(f"err: {resp.message}")
 
@@ -236,28 +222,6 @@ class WebSockClient:
             else:
                 return
         self.ws.run_forever(ping_interval=15, ping_timeout=5)
-
-    # def _get_current_channels(self, logi_key):
-    #     headers = {
-    #         'session-key': logi_key,
-    #         'SB-User-Agent': 'Android%2Fc3.0.144'
-    #     }
-    #     params = {
-    #         'show_member': 'true',
-    #         'show_frozen': 'true',
-    #         'public_mode': 'all',
-    #         'member_state_filter': 'joined_only',
-    #         'super_mode': 'all',
-    #         'limit': '40',
-    #         'show_empty': 'true'
-    #     }
-    #
-    #     response = requests.get(f'https://sendbirdproxy.chat.redditmedia.com/v3/users/{self._user_id}/my_group_channels',
-    #                             headers=headers, params=params).json()
-    #     channelid_sub_pairs = {}
-    #     for channel in response.get('channels', {}):
-    #         channelid_sub_pairs.update({channel['channel']['channel_url']: channel['channel']['name']})
-    #     return channelid_sub_pairs
 
     # def on_ping(self, ws, r):
     #     print("ping")

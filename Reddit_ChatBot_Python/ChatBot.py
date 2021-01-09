@@ -3,30 +3,64 @@ from .Utils.ChatMedia import ChatMedia
 import requests
 import pickle
 from .RedditAuthentication import TokenAuth, PasswordAuth
+from .Utils import WebSocketUtils
 
 
 class ChatBot:
-    _SB_ai = '2515BDA8-9D3A-47CF-9325-330BC37ADA13'
     REDDIT_OAUTH_HOST = "https://oauth.reddit.com"
     REDDIT_SENDBIRD_HOST = "https://s.reddit.com"
 
     def __init__(self, authentication, with_chat_media=False, store_session=True, **kwargs):
         assert isinstance(authentication, (TokenAuth, PasswordAuth)), "Wrong Authentication type"
-
+        self.authentication = authentication
         if store_session:
-            sb_access_token, user_id = self._load_session(reddit_api_token)
+            pkl_n = authentication.token if isinstance(authentication, TokenAuth) else authentication.reddit_username
+            sb_access_token, user_id = self._load_session(pkl_n)
         else:
             sb_access_token, user_id = self._get_new_session()
 
-        reddit_api_token = authentication.authenticate()
+        self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
+
+        # if with_chat_media:  # this is untested
+        #     self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
+
+    def _load_session(self, pkl_name):
+        try:
+            session_store_f = open(f'{pkl_name}-stored.pkl', 'rb')
+            sb_access_token = pickle.load(session_store_f)
+            user_id = pickle.load(session_store_f)
+            print("loading from session goes brrr")
+        except FileNotFoundError:
+            session_store_f = open(f'{pkl_name}-stored.pkl', 'wb+')
+            sb_access_token, user_id = self._get_new_session()
+            pickle.dump(sb_access_token, session_store_f)
+            pickle.dump(user_id, session_store_f)
+        finally:
+            session_store_f.close()
+
+        return sb_access_token, user_id
+
+    def _get_new_session(self):
+        reddit_api_token = self.authentication.authenticate()
         self.headers = {'user-agent': "Reddit/Version 2020.41.1/Build 296539/Android 11", 'Authorization': f'Bearer {reddit_api_token}'}
 
+        sb_access_token = self._get_sendbird_access_token()
+        user_id = self._get_user_id()
+        return sb_access_token, user_id
+
+    def _get_sendbird_access_token(self):
+        response = requests.get(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/me', headers=self.headers)
+        response.raise_for_status()
+        return response.json()['sb_access_token']
+
+    def _get_user_id(self):
+        response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/api/v1/me.json', headers=self.headers)
+        response.raise_for_status()
+        return 't2_' + response.json()['id']
 
 
-        self.WebSocketClient = WebSockClient(access_token=sb_access_token, ai=self._SB_ai, user_id=user_id, **kwargs)
-        if with_chat_media:  # this is untested
-            self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
 
+    #  LEGACY STUFF
     # def join_channel(self, sub, channel_url):
     #     if channel_url.startswith("sendbird_group_channel_"):
     #         channel_url_ = channel_url
@@ -47,37 +81,6 @@ class ChatBot:
     #             yield room.get('url')
     #     except (KeyError, IndexError):
     #         raise Exception('Sub doesnt have any rooms')
-
-    def _load_session(self, pkl_name):
-        try:
-            session_store_f = open(f'{pkl_name}.pkl', 'rb')
-            sb_access_token = pickle.load(session_store_f)
-            user_id = pickle.load(session_store_f)
-            print("loading from session goes brrr")
-        except FileNotFoundError:
-            session_store_f = open(f'{pkl_name}.pkl', 'wb+')
-            sb_access_token, user_id = self._get_new_session()
-            pickle.dump(sb_access_token, session_store_f)
-            pickle.dump(user_id, session_store_f)
-        finally:
-            session_store_f.close()
-
-        return sb_access_token, user_id
-
-    def _get_new_session(self):
-        sb_access_token = self._get_sendbird_access_token()
-        user_id = self._get_user_id()
-        return sb_access_token, user_id
-
-    def _get_sendbird_access_token(self):
-        response = requests.get(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/me', headers=self.headers)
-        response.raise_for_status()
-        return response.json()['sb_access_token']
-
-    def _get_user_id(self):
-        response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/api/v1/me.json', headers=self.headers)
-        response.raise_for_status()
-        return 't2_' + response.json().get('id')
 
     # def _get_sub_id(self, sub_name):
     #     response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/r/{sub_name}/about.json', headers=self.headers)
