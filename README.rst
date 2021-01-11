@@ -87,17 +87,18 @@ Example
     websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
 
 
+
 Showcase of some other fun stuff you can do with this..
 ========
 
 .. code:: python
 
-    # @websock.after_message_hook(frame_type='DELM')
+    @websock.after_message_hook(frame_type='DELM')
     def catch_deleted_messages(resp):
         catched_deleted_message_id = resp.msg_id
 
 
-    # @websock.after_message_hook(frame_type='SYEV')
+    @websock.after_message_hook(frame_type='SYEV')
     def catch_invitees_and_inviters(resp):
         try:
             inviter = resp.data.inviter.nickname
