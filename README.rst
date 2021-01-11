@@ -89,7 +89,7 @@ Example
 
 
 Showcase of some other fun stuff you can do with this..
-========
+=======================================================
 
 .. code:: python
 
