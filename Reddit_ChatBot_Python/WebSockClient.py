@@ -132,7 +132,7 @@ class WebSockClient:
         try:
             message.format(nickname="")
         except KeyError as e:
-            raise Exception("You need to set a {nickname} key in the byebye message!") from e
+            raise Exception("Key should be {nickname}") from e
 
         if limited_to_channels is not None and isinstance(limited_to_channels, str):
             limited_to_channels = [limited_to_channels]
@@ -174,6 +174,7 @@ class WebSockClient:
         except AttributeError:
             logi_err = False
         if not logi_err:
+            self.session_key = resp.key
             self.channelid_sub_pairs = WebSocketUtils._get_current_channels(self._user_id, resp.key)
             self.own_name = resp.nickname
         else:

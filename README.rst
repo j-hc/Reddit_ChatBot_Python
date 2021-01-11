@@ -29,7 +29,7 @@ required packages:
     requests>=2.24.0
 
 
-Usage
+Example
 ========
 
 .. code:: python
@@ -79,8 +79,28 @@ Usage
     # or you can add a basic response hook directly like so:
     websock.set_respond_hook(input_="Hi", response="Hello {nickname}! enjoy your time in my cozy chat group", limited_to_users=None, lower_the_input=False,
                              exclude_itself=True, must_be_equal=True, limited_to_channels=["my cozy chat group"])
+
     # you can add a welcome message for newly joined users too:
     websock.set_welcome_message("welcome to the my cozy chat group u/{nickname}!", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name
 
     # and finally, run forever...
     websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
+
+
+Showcase of some other fun stuff you can do with this..
+========
+
+.. code:: python
+
+    # @websock.after_message_hook(frame_type='DELM')
+    def catch_deleted_messages(resp):
+        catched_deleted_message_id = resp.msg_id
+
+
+    # @websock.after_message_hook(frame_type='SYEV')
+    def catch_invitees_and_inviters(resp):
+        try:
+            inviter = resp.data.inviter.nickname
+            invitees = [invitee.nickname for invitee in resp.data.invitees]
+        except AttributeError:
+            return

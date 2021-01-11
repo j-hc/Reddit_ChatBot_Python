@@ -58,7 +58,6 @@ class ChatBot:
         return 't2_' + response.json()['id']
 
 
-
     #  LEGACY STUFF
     # def join_channel(self, sub, channel_url):
     #     if channel_url.startswith("sendbird_group_channel_"):
