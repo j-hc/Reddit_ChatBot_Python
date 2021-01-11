@@ -103,7 +103,7 @@ class WebSockClient:
                     self.send_message(response_prepped, resp.channel_url)
                     return True
 
-        self.after_message_hook(respond)
+        self.after_frame_hook(respond)
 
     def set_welcome_message(self, message, limited_to_channels=None):
         try:
@@ -127,7 +127,7 @@ class WebSockClient:
                 self.send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.after_message_hook(respond)
+        self.after_frame_hook(respond)
 
     def set_byebye_message(self, message, limited_to_channels=None):
         try:
@@ -151,7 +151,7 @@ class WebSockClient:
                 self.send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.after_message_hook(respond)
+        self.after_frame_hook(respond)
 
     def on_message(self, ws, message):
         resp = FrameModel.get_frame_data(message)
@@ -172,7 +172,7 @@ class WebSockClient:
     def _logi(self, resp):
         try:
             logi_err = resp.error
-        except:
+        except AttributeError:
             logi_err = False
         if not logi_err:
             self.channelid_sub_pairs = WebSocketUtils._get_current_channels(self._user_id, resp.key)
