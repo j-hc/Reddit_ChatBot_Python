@@ -106,9 +106,9 @@ class WebSockClient:
 
     def set_welcome_message(self, message, limited_to_channels=None):
         try:
-            message.format(nickname="")
+            message.format(nickname="", inviter="")
         except KeyError as e:
-            raise Exception("You need to set a {nickname} key in the welcome message!") from e
+            raise Exception("Keys should be {nickname} and {inviter}") from e
 
         if limited_to_channels is not None and isinstance(limited_to_channels, str):
             limited_to_channels = [limited_to_channels]
@@ -118,11 +118,11 @@ class WebSockClient:
         def hook(resp):
             if resp.type_f == "SYEV" and (self.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                 try:
-                    invtr = resp.data.inviter.nickname
-                    nickname = resp.data.nickname
-                except AttributeError:
+                    nickname = resp.data.users[0].nickname
+                    inviter = resp.data.users[0].inviter.nickname
+                except (AttributeError, IndexError):
                     return
-                response_prepped = message.format(nickname=nickname)
+                response_prepped = message.format(nickname=nickname, inviter=inviter)
                 self.send_message(response_prepped, resp.channel_url)
                 return True
 
