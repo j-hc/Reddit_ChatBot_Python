@@ -11,6 +11,7 @@ class ChatBot:
 
     def __init__(self, authentication, with_chat_media=False, store_session=True, **kwargs):
         assert isinstance(authentication, (TokenAuth, PasswordAuth)), "Wrong Authentication type"
+        self.headers = {'User-Agent': "Reddit/Version 2020.41.1/Build 296539/Android 11"}
         self.authentication = authentication
         if store_session:
             pkl_n = authentication.token if isinstance(authentication, TokenAuth) else authentication.reddit_username
@@ -41,8 +42,7 @@ class ChatBot:
 
     def _get_new_session(self):
         reddit_api_token = self.authentication.authenticate()
-        self.headers = {'user-agent': "Reddit/Version 2020.41.1/Build 296539/Android 11", 'Authorization': f'Bearer {reddit_api_token}'}
-
+        self.headers.update({'Authorization': f'Bearer {reddit_api_token}'})
         sb_access_token = self._get_sendbird_access_token()
         user_id = self._get_user_id()
         return sb_access_token, user_id

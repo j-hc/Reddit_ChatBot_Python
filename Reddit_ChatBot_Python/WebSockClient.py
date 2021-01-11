@@ -66,14 +66,13 @@ class WebSockClient:
     def on_open(self, ws):
         self.logger.info("### successfully connected to the websocket ###")
 
-    def after_message_hook(self, func):
-        def hook(resp):
-            if resp.type_f == "MESG":
-                func(resp)
-        self._after_message_hooks.append(hook)
-
-    def after_frame_hook(self, func):
-        self._after_message_hooks.append(func)
+    def after_message_hook(self, frame_type='MESG'):
+        def after_frame_hook(func):
+            def hook(resp):
+                if resp.type_f == frame_type:
+                    func(resp)
+            self._after_message_hooks.append(hook)
+        return after_frame_hook
 
     def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,
                          must_be_equal=True, limited_to_channels=None):
@@ -92,7 +91,7 @@ class WebSockClient:
         except KeyError as e:
             raise Exception("You need to set a {nickname} key in welcome message!") from e
 
-        def respond(resp):
+        def hook(resp):
             if resp.type_f == "MESG":
                 sent_message = resp.message.lower() if lower_the_input else resp.message
                 if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
@@ -103,7 +102,7 @@ class WebSockClient:
                     self.send_message(response_prepped, resp.channel_url)
                     return True
 
-        self.after_frame_hook(respond)
+        self._after_message_hooks.append(hook)
 
     def set_welcome_message(self, message, limited_to_channels=None):
         try:
@@ -116,7 +115,7 @@ class WebSockClient:
         elif limited_to_channels is None:
             limited_to_channels = []
 
-        def respond(resp):
+        def hook(resp):
             if resp.type_f == "SYEV" and (self.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                 try:
                     invtr = resp.data.inviter.nickname
@@ -127,7 +126,7 @@ class WebSockClient:
                 self.send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.after_frame_hook(respond)
+        self._after_message_hooks.append(hook)
 
     def set_byebye_message(self, message, limited_to_channels=None):
         try:
@@ -140,7 +139,7 @@ class WebSockClient:
         elif limited_to_channels is None:
             limited_to_channels = []
 
-        def respond(resp):
+        def hook(resp):
             if resp.type_f == "SYEV" and (self.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                 try:
                     dispm = resp.channel.disappearing_message
@@ -151,7 +150,7 @@ class WebSockClient:
                 self.send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.after_frame_hook(respond)
+        self._after_message_hooks.append(hook)
 
     def on_message(self, ws, message):
         resp = FrameModel.get_frame_data(message)
