@@ -56,6 +56,9 @@ class WebSockClient:
 
         self._after_message_hooks = []
 
+    def get_chatroom_name_id_pairs(self):
+        return self.channelid_sub_pairs
+
     def _get_ws_app(self, ws_url):
         ws = websocket.WebSocketApp(ws_url,
                                     on_message=lambda ws, msg: self.on_message(ws, msg),
