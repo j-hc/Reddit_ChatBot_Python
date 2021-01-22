@@ -177,7 +177,6 @@ class WebSockClient:
         except AttributeError:
             logi_err = False
         if not logi_err:
-            self.session_key = resp.key
             self.channelid_sub_pairs = WebSocketUtils._get_current_channels(self._user_id, resp.key)
             self.own_name = resp.nickname
         else:
