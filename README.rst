@@ -45,20 +45,15 @@ Example
     chatbot = ChatBot(print_chat=True, store_session=True, print_websocket_frames=False,  # some parameters u might wanna know
                       authentication=reddit_authentication)
 
-    # grab the websocket
-    websock = chatbot.WebSocketClient
-
     # you can add a rate limit like so:
-    websock.RateLimiter.is_enabled = True
-    websock.RateLimiter.max_calls = 23  # how many messages will be sent by the bot
-    websock.RateLimiter.period = 1.5  # in what period(in minutes)
-
+    chatbot.enable_rate_limiter(max_calls=23, # how many messages will be sent by the bot
+                                period=1.5  # in what period (minutes)
+                                )
 
     # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
 
-    # create a function and hook
-
-    @websock.after_message_hook
+    # create a function and hook:
+    @chatbot.after_message_hook
     def roll(resp):  # resp is a SimpleNamespace that carries all the data of the received frame
         messg_s = resp.message.split()
         if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
@@ -69,27 +64,29 @@ Example
             response_text = f"@{resp.user.name} {rolled_number}. Better luck next time!"
             # a basic roll game
 
-            websock.send_message(response_text, resp.channel_url)  # and send the message, always add resp.channel_url as the second argument
-            websock.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not
+            # send typing indicator cuz why not? maybe they think you are a real person
+            chatbot.send_typing_indicator(resp.channel_url)
+            chatbot.send_message(response_text, resp.channel_url)  # and send the message, always add resp.channel_url as the second argument
+            chatbot.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not??
             return True  # return true if you want to be done with checking the other hooks, otherwise return None or False
             # keep in mind that first added hooks gets executed first
 
 
-    # now everytime someone says "!roll 1 100", the bot will roll and send the result!
+    # now everytime someone says "!roll 1 100", the bot will roll a dice between 1 and 100 and send the result!
 
     # or you can add a basic response hook directly like so:
-    websock.set_respond_hook(input_="Hi", response="Hello {nickname}! sup?", limited_to_users=None, lower_the_input=False,
-                             exclude_itself=True, must_be_equal=True, limited_to_channels=["my cozy chat group"])
+    chatbot.set_respond_hook(input_="Hi", response="Hello {nickname}! sup?", limited_to_users=None, lower_the_input=False,
+                             exclude_itself=True, must_be_equal=True, limited_to_channels=["my cozy chat group"]) # you can limit by indicating chatroom's name
 
     # you can add a welcome message for newly joined users:
-    websock.set_welcome_message("welcome to the my cozy chat group u/{nickname}!)", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name
+    chatbot.set_welcome_message("welcome to the my cozy chat group u/{nickname}!)", limited_to_channels=["my cozy chat group"])
 
     # and a farewell message too:
-    websock.set_farewell_message("Too bad u/{nickname} left us :()", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name the same way
+    chatbot.set_farewell_message("Too bad u/{nickname} left us :()", limited_to_channels=["my cozy chat group"])
 
 
     # and finally, run forever...
-    websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
+    chatbot.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
 
 
 

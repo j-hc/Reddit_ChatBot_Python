@@ -124,7 +124,7 @@ class ChatBot:
     def send_snoomoji(self, snoomoji, channel_url):
         self.WebSocketClient.ws_send_snoomoji(snoomoji, channel_url)
 
-    def ws_send_typing_indicator(self, channel_url):
+    def send_typing_indicator(self, channel_url):
         self.WebSocketClient.ws_send_typing_indicator(channel_url)
 
     def run_4ever(self, auto_reconnect=True, max_retries=100):
@@ -139,6 +139,11 @@ class ChatBot:
             else:
                 break
             self.WebSocketClient.logger.info('Auto Reconnecting...')
+
+    def enable_rate_limiter(self, max_calls, period):
+        self.WebSocketClient.RateLimiter.is_enabled = True
+        self.WebSocketClient.RateLimiter.max_calls = max_calls
+        self.WebSocketClient.RateLimiter.period = period
 
     def _load_session(self, pkl_name, force_reauth=False):
         def get_store_file_handle(pkl_name_, mode_):
