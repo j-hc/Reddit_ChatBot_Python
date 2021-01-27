@@ -81,8 +81,12 @@ Example
     websock.set_respond_hook(input_="Hi", response="Hello {nickname}! sup?", limited_to_users=None, lower_the_input=False,
                              exclude_itself=True, must_be_equal=True, limited_to_channels=["my cozy chat group"])
 
-    # you can add a welcome message for newly joined users too:
-    websock.set_welcome_message("welcome to the my cozy chat group u/{nickname}! (invited by {inviter})", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name
+    # you can add a welcome message for newly joined users:
+    websock.set_welcome_message("welcome to the my cozy chat group u/{nickname}!)", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name
+
+    # and a farewell message too:
+    websock.set_byebye_message("Too bad u/{nickname} left us :()", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name the same way
+
 
     # and finally, run forever...
     websock.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
