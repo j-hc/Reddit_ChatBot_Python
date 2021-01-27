@@ -124,6 +124,9 @@ class ChatBot:
     def send_snoomoji(self, snoomoji, channel_url):
         self.WebSocketClient.ws_send_snoomoji(snoomoji, channel_url)
 
+    def ws_send_typing_indicator(self, channel_url):
+        self.WebSocketClient.ws_send_typing_indicator(channel_url)
+
     def run_4ever(self, auto_reconnect=True, max_retries=100):
         for _ in range(max_retries):
             self.WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5)
@@ -174,33 +177,3 @@ class ChatBot:
         response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/api/v1/me.json', headers=self.headers)
         response.raise_for_status()
         return 't2_' + response.json()['id']
-
-    #  LEGACY STUFF
-    # def join_channel(self, sub, channel_url):
-    #     if channel_url.startswith("sendbird_group_channel_"):
-    #         channel_url_ = channel_url
-    #     else:
-    #         channel_url_ = "sendbird_group_channel_" + channel_url
-    #     sub_id = self._get_sub_id(sub)
-    #     data = f'{{"channel_url":"{channel_url_}","subreddit":"{sub_id}"}}'
-    #     resp = requests.post(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/join', headers=self.headers, data=data)
-    #     return resp.text
-
-    # def get_sendbird_channel_urls(self, sub_name):
-    #     sub_id = self._get_sub_id(sub_name)
-    #     response = requests.get(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/subreddit/{sub_id}/channels', headers=self.headers)
-    #     response.raise_for_status()
-    #     try:
-    #         rooms = response.json().get('rooms')
-    #         for room in rooms:
-    #             yield room.get('url')
-    #     except (KeyError, IndexError):
-    #         raise Exception('Sub doesnt have any rooms')
-
-    # def _get_sub_id(self, sub_name):
-    #     response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/r/{sub_name}/about.json', headers=self.headers)
-    #     response.raise_for_status()
-    #     sub_id = response.json().get('data').get('name')
-    #     if sub_id is None:
-    #         raise Exception('Wrong subreddit name')
-    #     return sub_id
