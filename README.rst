@@ -2,11 +2,11 @@
 Reddit ChatRoom
 =================
 
-a pretty basic websocket wrapper for reddit chatrooms
+a fully functional (almost) bot library for reddit chatrooms!
 
 no selenium no bullsh*t, just directly websocket
 
-works either with reddit username & password or the api token (not a regular one you get from your registered app), so you wont have to expose your pass
+works either with reddit username & password or the api token (not a regular one you get from your registered app)
 
 
 Installation
@@ -20,7 +20,7 @@ required:
 
 .. code:: bash
 
-    python>=3.7.0,<=3.8.7
+    python>=3.7,<=3.8.7
 
 packages:
 
@@ -50,10 +50,8 @@ Example
                                 period=1.5  # in what period (minutes)
                                 )
 
-    # now you can add hooks to the websock object in order for them to be executed when a message is received like so:
-
-    # create a function and hook:
-    @chatbot.after_message_hook
+    # now you can add hooks which will be executed when a frame is received like so:
+    @chatbot.after_message_hook # default frame_type is MESG
     def roll(resp):  # resp is a SimpleNamespace that carries all the data of the received frame
         messg_s = resp.message.split()
         if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
@@ -90,11 +88,50 @@ Example
 
 
 
+Instance of a MESG Frame (regular chat message)
+================================================
+
+.. code-block:: json
+
+    {
+      "msg_id": *msg id int*,
+      "is_op_msg": false,
+      "is_guest_msg": true,
+      "message": "*msg*",
+      "silent": false,
+      "ts": 1611782454265,
+      "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000",
+      "is_removed": false,
+      "sts": 1611782454265,
+      "user": {
+        "is_blocked_by_me": false,
+        "require_auth_for_profile_image": false,
+        "name": "*user nickname*",
+        "is_bot": false,
+        "image": "",
+        "is_active": true,
+        "guest_id": "*thing id*",
+        "friend_discovery_key": null,
+        "role": "",
+        "friend_name": null,
+        "id": *user id int*,
+      },
+    }
+
+You can access stuff from resp like this:
+
+.. code:: python
+
+    message = resp.message
+    nickname = resp.user.name
+
 Showcase of some other fun stuff you can do with this..
 =======================================================
 
-Save chatroom messages to a text file (or even in an sql database or some other sht)
+**Save chatroom messages to a text file (or even in an sql database or some other sht)**
+
 .. code:: python
+
     chatroom_name_id_pairs = chatbot.get_chatroom_name_id_pairs()
     messages_f_handle = open('reddit-chat-msgs.txt', 'w')
 
@@ -103,18 +140,24 @@ Save chatroom messages to a text file (or even in an sql database or some other 
         message = resp.message
         nickname = resp.user.name
         chatroom_name = chatroom_name_id_pairs.get(resp.channel_url)
-        formatted_msg = f"{nickname} said {message} in {chatroom_name}\n"
+        formatted_msg = f"{nickname} said {message} in {chatroom_name}"
         messages_f_handle.write(formatted_msg)
         messages_f_handle.flush()
 
-Catch deleted messages
+
+**Catch deleted messages**
+
 .. code:: python
+
     @chatbot.after_message_hook(frame_type='DELM')
     def catch_deleted_messages(resp):
         catched_deleted_message_id = resp.msg_id
 
-Catch who invited who
+
+**Catch who invited who**
+
 .. code:: python
+
     @chatbot.after_message_hook(frame_type='SYEV')
     def catch_invitees_and_inviters(resp):
         try:
