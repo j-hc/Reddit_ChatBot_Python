@@ -24,7 +24,8 @@ def _get_current_channels(user_id, logi_key):
         'member_state_filter': 'joined_only',
         'super_mode': 'all',
         'limit': '40',
-        'show_empty': 'true'
+        'show_empty': 'true',
+        'custom_types': 'direct, group'
     }
 
     response = requests.get(f'https://sendbirdproxy.chat.redditmedia.com/v3/users/{user_id}/my_group_channels',
