@@ -93,14 +93,29 @@ Example
 Showcase of some other fun stuff you can do with this..
 =======================================================
 
+Save chatroom messages to a text file (or even in an sql database or some other sht)
 .. code:: python
+    chatroom_name_id_pairs = chatbot.get_chatroom_name_id_pairs()
+    messages_f_handle = open('reddit-chat-msgs.txt', 'w')
 
-    @websock.after_message_hook(frame_type='DELM')
+    @chatbot.after_message_hook(frame_type='MESG')
+    def save_chat_messages_into_a_txt_file(resp):
+        message = resp.message
+        nickname = resp.user.name
+        chatroom_name = chatroom_name_id_pairs.get(resp.channel_url)
+        formatted_msg = f"{nickname} said {message} in {chatroom_name}\n"
+        messages_f_handle.write(formatted_msg)
+        messages_f_handle.flush()
+
+Catch deleted messages
+.. code:: python
+    @chatbot.after_message_hook(frame_type='DELM')
     def catch_deleted_messages(resp):
         catched_deleted_message_id = resp.msg_id
 
-
-    @websock.after_message_hook(frame_type='SYEV')
+Catch who invited who
+.. code:: python
+    @chatbot.after_message_hook(frame_type='SYEV')
     def catch_invitees_and_inviters(resp):
         try:
             inviter = resp.data.inviter.nickname
