@@ -20,7 +20,7 @@ required:
 
 .. code:: bash
 
-    python>=3.7
+    python>=3.7.0,<=3.8.7
 
 packages:
 
@@ -85,7 +85,7 @@ Example
     websock.set_welcome_message("welcome to the my cozy chat group u/{nickname}!)", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name
 
     # and a farewell message too:
-    websock.set_byebye_message("Too bad u/{nickname} left us :()", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name the same way
+    websock.set_farewell_message("Too bad u/{nickname} left us :()", limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name the same way
 
 
     # and finally, run forever...

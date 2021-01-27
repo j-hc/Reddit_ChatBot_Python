@@ -52,12 +52,10 @@ class WebSockClient:
         self.own_name = None
         self.print_chat = print_chat
         self.print_websocket_frames = print_websocket_frames
-        self._last_err = None
+        self.last_err = None
+        self.is_logi_err = False
 
-        self._after_message_hooks = []
-
-    def get_chatroom_name_id_pairs(self):
-        return self.channelid_sub_pairs
+        self.after_message_hooks = []
 
     def _get_ws_app(self, ws_url):
         ws = websocket.WebSocketApp(ws_url,
@@ -68,92 +66,6 @@ class WebSockClient:
 
     def on_open(self, ws):
         self.logger.info("### successfully connected to the websocket ###")
-
-    def after_message_hook(self, frame_type='MESG'):
-        def after_frame_hook(func):
-            def hook(resp):
-                if resp.type_f == frame_type:
-                    func(resp)
-            self._after_message_hooks.append(hook)
-        return after_frame_hook
-
-    def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,
-                         must_be_equal=True, limited_to_channels=None):
-
-        if limited_to_users is not None and isinstance(limited_to_channels, str):
-            limited_to_users = [limited_to_users]
-        elif limited_to_users is None:
-            limited_to_users = []
-        if limited_to_channels is not None and isinstance(limited_to_channels, str):
-            limited_to_channels = [limited_to_channels]
-        elif limited_to_channels is None:
-            limited_to_channels = []
-
-        try:
-            response.format(nickname="")
-        except KeyError as e:
-            raise Exception("You need to set a {nickname} key in welcome message!") from e
-
-        def hook(resp):
-            if resp.type_f == "MESG":
-                sent_message = resp.message.lower() if lower_the_input else resp.message
-                if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
-                        and (exclude_itself and resp.user.name != self.own_name) \
-                        and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)) \
-                        and (self.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
-                    response_prepped = response.format(nickname=resp.user.name)
-                    self.send_message(response_prepped, resp.channel_url)
-                    return True
-
-        self._after_message_hooks.append(hook)
-
-    def set_welcome_message(self, message, limited_to_channels=None):
-        try:
-            message.format(nickname="", inviter="")
-        except KeyError as e:
-            raise Exception("Keys should be {nickname} and {inviter}") from e
-
-        if limited_to_channels is not None and isinstance(limited_to_channels, str):
-            limited_to_channels = [limited_to_channels]
-        elif limited_to_channels is None:
-            limited_to_channels = []
-
-        def hook(resp):
-            if resp.type_f == "SYEV" and (self.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
-                try:
-                    nickname = resp.data.users[0].nickname
-                    inviter = resp.data.users[0].inviter.nickname
-                except (AttributeError, IndexError):
-                    return
-                response_prepped = message.format(nickname=nickname, inviter=inviter)
-                self.send_message(response_prepped, resp.channel_url)
-                return True
-
-        self._after_message_hooks.append(hook)
-
-    def set_byebye_message(self, message, limited_to_channels=None):
-        try:
-            message.format(nickname="")
-        except KeyError as e:
-            raise Exception("Key should be {nickname}") from e
-
-        if limited_to_channels is not None and isinstance(limited_to_channels, str):
-            limited_to_channels = [limited_to_channels]
-        elif limited_to_channels is None:
-            limited_to_channels = []
-
-        def hook(resp):
-            if resp.type_f == "SYEV" and (self.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
-                try:
-                    dispm = resp.channel.disappearing_message
-                    nickname = resp.data.nickname
-                except AttributeError:
-                    return
-                response_prepped = message.format(nickname=nickname)
-                self.send_message(response_prepped, resp.channel_url)
-                return True
-
-        self._after_message_hooks.append(hook)
 
     def on_message(self, ws, message):
         resp = FrameModel.get_frame_data(message)
@@ -181,14 +93,14 @@ class WebSockClient:
             self.own_name = resp.nickname
         else:
             self.logger.error(f"err: {resp.message}")
-            self._auto_reconnect = False
+            self.is_logi_err = True
 
     def _response_loop(self, resp):
-        for func in self._after_message_hooks:
+        for func in self.after_message_hooks:
             if func(resp):
                 break
 
-    def send_message(self, text, channel_url):
+    def ws_send_message(self, text, channel_url):
         if self.RateLimiter.is_enabled and self.RateLimiter._check():
             return
         if any(blacklist_word in text.lower() for blacklist_word in self.global_blacklist_words):
@@ -197,7 +109,7 @@ class WebSockClient:
         self.ws.send(payload)
         self.req_id += 1
 
-    def send_snoomoji(self, snoomoji, channel_url):
+    def ws_send_snoomoji(self, snoomoji, channel_url):
         if self.RateLimiter.is_enabled and self.RateLimiter._check():
             return
         payload = f'MESG{{"channel_url":"{channel_url}","message":"","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{\\"site_name\\":\\"Reddit\\"}},\\"hidden\\":false,\\"snoomoji\\":\\"{snoomoji}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
@@ -210,21 +122,10 @@ class WebSockClient:
 
     def on_error(self, ws, error):
         self.logger.error(error)
-        self._last_err = error
+        self.last_err = error
 
     def on_close(self, ws):
         self.logger.warning("### websocket closed ###")
-
-    def run_4ever(self, auto_reconnect=True):
-        self._auto_reconnect = auto_reconnect
-        while self._auto_reconnect:
-            self.ws.run_forever(ping_interval=15, ping_timeout=5)
-            if isinstance(self._last_err, websocket.WebSocketConnectionClosedException):
-                self.logger.info('Auto Reconnecting...')
-                continue
-            else:
-                return
-        self.ws.run_forever(ping_interval=15, ping_timeout=5)
 
     # def on_ping(self, ws, r):
     #     print("ping")
