@@ -12,6 +12,7 @@ class ChatBot:
 
     def __init__(self, authentication, store_session=True, **kwargs):
         assert isinstance(authentication, (TokenAuth, PasswordAuth)), "Wrong Authentication type"
+        self._kwargs = kwargs
         self.headers = {'User-Agent': "Reddit/Version 2020.41.1/Build 296539/Android 11"}
         self.authentication = authentication
         if store_session:
@@ -20,13 +21,13 @@ class ChatBot:
         else:
             sb_access_token, user_id = self._get_new_session()
 
-        self.WebSocketClient = self._init_websockclient(sb_access_token=sb_access_token, user_id=user_id, **kwargs)
+        self._init_websockclient(sb_access_token, user_id)
 
         # if with_chat_media:  # this is untested
         #     self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
 
-    def _init_websockclient(self, sb_access_token, user_id, **kwargs):
-        return WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
+    def _init_websockclient(self, sb_access_token, user_id):
+        self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **self._kwargs)
 
     def get_chatroom_name_id_pairs(self):
         return self.WebSocketClient.channelid_sub_pairs
@@ -126,25 +127,34 @@ class ChatBot:
     def run_4ever(self, auto_reconnect=True, max_retries=100):
         for _ in range(max_retries):
             self.WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5)
-            if auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException):
-                self.WebSocketClient.logger.info('Auto Reconnecting...')
-                continue
+            if self.WebSocketClient.is_logi_err and isinstance(self.authentication, PasswordAuth):
+                self.WebSocketClient.logger.info('Re-Authenticating...')
+                sb_access_token, user_id = self._load_session(self.authentication.reddit_username, force_reauth=True)
+                self._init_websockclient(sb_access_token, user_id)
+            elif auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException):
+                pass
             else:
                 break
+            self.WebSocketClient.logger.info('Auto Reconnecting...')
 
-    def _load_session(self, pkl_name):
-        try:
-            session_store_f = open(f'{pkl_name}-stored.pkl', 'rb')
-            sb_access_token = pickle.load(session_store_f)
-            user_id = pickle.load(session_store_f)
-            print("loading from session goes brrr")
-        except FileNotFoundError:
-            session_store_f = open(f'{pkl_name}-stored.pkl', 'wb+')
+    def _load_session(self, pkl_name, force_reauth=False):
+        def get_store_file_handle(pkl_name_, mode_):
+            try:
+                return open(f'{pkl_name_}-stored.pkl', mode_)
+            except FileNotFoundError:
+                return None
+
+        session_store_f = get_store_file_handle(pkl_name, 'rb')
+
+        if session_store_f is None or force_reauth:
+            session_store_f = get_store_file_handle(pkl_name, 'wb+')
             sb_access_token, user_id = self._get_new_session()
             pickle.dump(sb_access_token, session_store_f)
             pickle.dump(user_id, session_store_f)
-        finally:
-            session_store_f.close()
+        else:
+            sb_access_token = pickle.load(session_store_f)
+            user_id = pickle.load(session_store_f)
+        session_store_f.close()
 
         return sb_access_token, user_id
 
