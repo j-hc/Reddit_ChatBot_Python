@@ -101,23 +101,23 @@ class WebSockClient:
                 break
 
     def ws_send_message(self, text, channel_url):
-        if self.RateLimiter.is_enabled and self.RateLimiter._check():
+        if self.RateLimiter.is_enabled and self.RateLimiter.check():
             return
         if any(blacklist_word in text.lower() for blacklist_word in self.global_blacklist_words):
             return
-        payload = f'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
+        payload = WebSocketUtils.FrameSkeletons.MESG_regular.format(channel_url=channel_url, text=text, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1
 
     def ws_send_snoomoji(self, snoomoji, channel_url):
-        if self.RateLimiter.is_enabled and self.RateLimiter._check():
+        if self.RateLimiter.is_enabled and self.RateLimiter.check():
             return
-        payload = f'MESG{{"channel_url":"{channel_url}","message":"","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{\\"site_name\\":\\"Reddit\\"}},\\"hidden\\":false,\\"snoomoji\\":\\"{snoomoji}\\"}}}}","mention_type":"users","req_id":"{self.req_id}"}}\n'
+        payload = WebSocketUtils.FrameSkeletons.MESG_snoo.format(channel_url=channel_url, snoomoji=snoomoji, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1
 
     def ws_send_typing_indicator(self, channel_url):
-        payload = f'TPST{{"channel_url":"{channel_url}","time":{int(time.time() * 1000)},"req_id":""}}\n'
+        payload = WebSocketUtils.FrameSkeletons.TPST.format(channel_url=channel_url, time=int(time.time() * 1000))
         self.ws.send(payload)
 
     def on_error(self, ws, error):

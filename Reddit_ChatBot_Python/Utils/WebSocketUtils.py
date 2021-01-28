@@ -2,6 +2,12 @@ from urllib.parse import urlencode
 import requests
 
 
+class FrameSkeletons:
+    MESG_regular = 'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{req_id}"}}\n'
+    MESG_snoo = 'MESG{{"channel_url":"{channel_url}","message":"","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{\\"site_name\\":\\"Reddit\\"}},\\"hidden\\":false,\\"snoomoji\\":\\"{snoomoji}\\"}}}}","mention_type":"users","req_id":"{req_id}"}}\n'
+    TPST = 'TPST{{"channel_url":"{channel_url}","time":{time},"req_id":""}}\n'
+
+
 def _get_ws_url(socket_base, params):
     return f"{socket_base}/?{urlencode(params)}"
 

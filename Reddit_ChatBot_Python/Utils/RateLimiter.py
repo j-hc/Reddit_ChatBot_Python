@@ -9,7 +9,7 @@ class RateLimiter:
     _period_end_ts = 0
 
     @staticmethod
-    def _check():
+    def check():
         current_ts = RateLimiter._get_current_ts()
         if RateLimiter._period_end_ts < current_ts:
             RateLimiter._msg_counter = 0
