@@ -30,6 +30,10 @@ packages:
 
     websocket_client
     requests
+    numpy
+    wsaccel
+
+wsaccel and numpy are for extra performance in websocket operations
 
 
 Example
