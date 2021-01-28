@@ -29,9 +29,13 @@ def _get_current_channels(user_id, logi_key):
     response = requests.get(f'https://sendbirdproxyk8s.chat.redditmedia.com/v3/users/{user_id}/my_group_channels',
                             headers=headers, params=params).json()
     channelid_sub_pairs = {}
+    room_name = None
     for channel in response.get('channels', {}):
         if channel['custom_type'] == "direct":
-            room_name = channel['members'][1]['nickname']
+            for member in channel['members']:
+                if member['user_id'] != user_id:
+                    room_name = member['nickname']
+                    break
         else:
             room_name = channel['channel']['name']
         channelid_sub_pairs.update({channel['channel']['channel_url']: room_name})

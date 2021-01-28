@@ -53,7 +53,7 @@ Example
                                 )
 
     # now you can add hooks which will be executed when a frame is received like so:
-    @chatbot.after_message_hook # default frame_type is MESG
+    @chatbot.after_message_hook() # default frame_type is MESG
     def roll(resp):  # resp is a SimpleNamespace that carries all the data of the received frame
         messg_s = resp.message.split()
         if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
@@ -134,11 +134,11 @@ Showcase of some other fun stuff you can do with this..
 
 .. code:: python
 
-    chatroom_name_id_pairs = chatbot.get_chatroom_name_id_pairs()
     messages_f_handle = open('reddit-chat-msgs.txt', 'w')
 
     @chatbot.after_message_hook(frame_type='MESG')
     def save_chat_messages_into_a_txt_file(resp):
+        chatroom_name_id_pairs = chatbot.get_chatroom_name_id_pairs()
         message = resp.message
         nickname = resp.user.name
         chatroom_name = chatroom_name_id_pairs.get(resp.channel_url)
