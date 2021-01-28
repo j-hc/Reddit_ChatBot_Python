@@ -26,10 +26,13 @@ def _get_current_channels(user_id, logi_key):
         'limit': '40',
         'show_empty': 'true'
     }
-
-    response = requests.get(f'https://sendbirdproxy.chat.redditmedia.com/v3/users/{user_id}/my_group_channels',
+    response = requests.get(f'https://sendbirdproxyk8s.chat.redditmedia.com/v3/users/{user_id}/my_group_channels',
                             headers=headers, params=params).json()
     channelid_sub_pairs = {}
     for channel in response.get('channels', {}):
-        channelid_sub_pairs.update({channel['channel']['channel_url']: channel['channel']['name']})
+        if channel['custom_type'] == "direct":
+            room_name = channel['members'][1]['nickname']
+        else:
+            room_name = channel['channel']['name']
+        channelid_sub_pairs.update({channel['channel']['channel_url']: room_name})
     return channelid_sub_pairs
