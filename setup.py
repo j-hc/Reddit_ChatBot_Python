@@ -10,7 +10,7 @@ license="APLv2",
 packages=['Reddit_ChatBot_Python', 'Reddit_ChatBot_Python.Utils', 'Reddit_ChatBot_Python.Utils.FrameModel'],
 description='a pretty basic websocket wrapper for reddit chatrooms',
 long_description=open('README.rst').read(),
-python_requires='>=3.7,<=3.8.7',
+python_requires='<=3.8.7',
 install_requires=[
    "requests",
    "websocket_client",

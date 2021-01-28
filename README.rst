@@ -8,6 +8,8 @@ no selenium no bullsh*t, just directly websocket
 
 works either with reddit username & password or the api token (not a regular one you get from your registered app)
 
+re-authentication prior to auto reconnect is only possible with PasswordAuth
+
 
 Installation
 ============
@@ -20,7 +22,7 @@ required:
 
 .. code:: bash
 
-    python>=3.7,<=3.8.7
+    python<=3.8.7
 
 packages:
 
