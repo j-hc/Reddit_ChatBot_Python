@@ -14,5 +14,7 @@ python_requires='<=3.8.7',
 install_requires=[
    "requests",
    "websocket_client",
+   "wsaccel",
+   "numpy"
 ],
 )
