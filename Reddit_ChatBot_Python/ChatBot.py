@@ -1,30 +1,26 @@
 from .WebSockClient import WebSockClient
 # from .Utils.ChatMedia import ChatMedia
-import requests
 import pickle
 from .RedditAuthentication import TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 
 
 class ChatBot:
-    REDDIT_OAUTH_HOST = "https://oauth.reddit.com"
-    REDDIT_SENDBIRD_HOST = "https://s.reddit.com"
-
     def __init__(self, authentication, store_session=True, **kwargs):
         assert isinstance(authentication, (TokenAuth, PasswordAuth)), "Wrong Authentication type"
         self._kwargs = kwargs
-        self.headers = {'User-Agent': "Reddit/Version 2020.41.1/Build 296539/Android 11"}
-        self.authentication = authentication
+        self._r_authentication = authentication
         if store_session:
-            pkl_n = authentication.token if isinstance(authentication, TokenAuth) else authentication.reddit_username
+            pkl_n = authentication._api_token if isinstance(authentication, TokenAuth) else authentication.reddit_username
             sb_access_token, user_id = self._load_session(pkl_n)
         else:
-            sb_access_token, user_id = self._get_new_session()
+            reddit_authentication = self._r_authentication.authenticate()
+            sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
 
         self._init_websockclient(sb_access_token, user_id)
 
         # if with_chat_media:  # this is untested
-        #     self.ChatMedia = ChatMedia(key=sb_access_token, ai=self._SB_ai, reddit_api_token=reddit_api_token)
+        #     self.ChatMedia = ChatMedia(key=sb_access_token, reddit_api_token=reddit_api_token)
 
     def _init_websockclient(self, sb_access_token, user_id):
         self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **self._kwargs)
@@ -130,13 +126,11 @@ class ChatBot:
     def run_4ever(self, auto_reconnect=True, max_retries=100):
         for _ in range(max_retries):
             self.WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5)
-            if self.WebSocketClient.is_logi_err and isinstance(self.authentication, PasswordAuth):
+            if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
                 self.WebSocketClient.logger.info('Re-Authenticating...')
-                sb_access_token, user_id = self._load_session(self.authentication.reddit_username, force_reauth=True)
+                sb_access_token, user_id = self._load_session(self._r_authentication.reddit_username, force_reauth=True)
                 self._init_websockclient(sb_access_token, user_id)
-            elif auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException):
-                pass
-            else:
+            elif not (auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException)):
                 break
             self.WebSocketClient.logger.info('Auto Reconnecting...')
 
@@ -156,7 +150,8 @@ class ChatBot:
 
         if session_store_f is None or force_reauth:
             session_store_f = get_store_file_handle(pkl_name, 'wb+')
-            sb_access_token, user_id = self._get_new_session()
+            reddit_authentication = self._r_authentication.authenticate()
+            sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
             pickle.dump(sb_access_token, session_store_f)
             pickle.dump(user_id, session_store_f)
         else:
@@ -165,20 +160,3 @@ class ChatBot:
         session_store_f.close()
 
         return sb_access_token, user_id
-
-    def _get_new_session(self):
-        reddit_api_token = self.authentication.authenticate()
-        self.headers.update({'Authorization': f'Bearer {reddit_api_token}'})
-        sb_access_token = self._get_sendbird_access_token()
-        user_id = self._get_user_id()
-        return sb_access_token, user_id
-
-    def _get_sendbird_access_token(self):
-        response = requests.get(f'{ChatBot.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/me', headers=self.headers)
-        response.raise_for_status()
-        return response.json()['sb_access_token']
-
-    def _get_user_id(self):
-        response = requests.get(f'{ChatBot.REDDIT_OAUTH_HOST}/api/v1/me.json', headers=self.headers)
-        response.raise_for_status()
-        return 't2_' + response.json()['id']
