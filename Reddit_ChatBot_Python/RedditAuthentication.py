@@ -68,7 +68,7 @@ class PasswordAuth(_RedditAuthBase):
         data = {
             'op': 'login',
             'user': self.reddit_username,
-            'passwd': "%s%s" % (self.reddit_password, ':%s' % self.twofa if self.twofa else ''),
+            'passwd': f'{self.reddit_password}:{self.twofa}' if self.twofa is not None else self.reddit_password,
             'api_type': 'json'
         }
         response = requests.post(f'https://old.reddit.com/api/login/{self.reddit_username}', headers=headers, data=data, allow_redirects=False)
