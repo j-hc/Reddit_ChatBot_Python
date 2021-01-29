@@ -146,7 +146,7 @@ class ChatBot:
             except FileNotFoundError:
                 return None
 
-        session_store_f = get_store_file_handle(pkl_name, 'rb')
+        session_store_f = None if force_reauth else get_store_file_handle(pkl_name, 'rb')
 
         if session_store_f is None or force_reauth:
             session_store_f = get_store_file_handle(pkl_name, 'wb+')

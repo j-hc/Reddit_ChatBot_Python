@@ -42,7 +42,7 @@ class WebSockClient:
             "active": "1"
         }
 
-        self.ws = self._get_ws_app(WebSocketUtils._get_ws_url(socket_base, ws_params))
+        self.ws = self._get_ws_app(WebSocketUtils.get_ws_url(socket_base, ws_params))
 
         self.ws.on_open = lambda ws: self.on_open(ws)
         # self.ws.on_ping = lambda ws, r: self.on_ping(ws, r)
@@ -87,9 +87,9 @@ class WebSockClient:
         try:
             logi_err = resp.error
         except AttributeError:
-            logi_err = False
-        if not logi_err:
-            self.channelid_sub_pairs = WebSocketUtils._get_current_channels(self._user_id, resp.key)
+            logi_err = None
+        if logi_err is not None:
+            self.channelid_sub_pairs = WebSocketUtils.get_current_channels(self._user_id, resp.key)
             self.own_name = resp.nickname
         else:
             self.logger.error(f"err: {resp.message}")
