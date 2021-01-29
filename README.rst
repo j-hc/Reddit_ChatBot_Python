@@ -75,8 +75,19 @@ Example
             return True  # return true if you want to be done with checking the other hooks, otherwise return None or False
             # keep in mind that first added hooks gets executed first
 
-
     # now everytime someone says "!roll 1 100", the bot will roll a dice between 1 and 100 and send the result!
+
+    @chatbot.after_message_hook() # default frame_type is MESG
+    def keeper_of_decency(resp): # WE WILL KEEP THE DECENCY IN THE CHAT BOIS
+        if resp.message == "*some very bad slur word*":
+            chatbot.kick_user(channel_url=resp.channel_url, user_id=resp.user.guest_id, duration=600) # duration is in mins
+            chatbot.send_message(f'i banned {resp.user.name} for 10 mins', resp.channel_url)
+            return True
+        elif resp.message == "*another bad word*":
+            chatbot.delete_another_users_mesg(channel_url=resp.channel_url, msg_id=resp.msg_id)
+            chatbot.send_message(f"i deleted {resp.user.name}'s message", resp.channel_url)
+            return True
+
 
     # or you can add a basic response hook directly like so:
     chatbot.set_respond_hook(input_="Hi", response="Hello {nickname}! sup?", limited_to_users=None, lower_the_input=False,
