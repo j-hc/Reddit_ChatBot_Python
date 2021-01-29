@@ -3,6 +3,7 @@ from .WebSockClient import WebSockClient
 import pickle
 from .RedditAuthentication import TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
+from .Utils.ModTools import ModTools
 
 
 class ChatBot:
@@ -18,7 +19,7 @@ class ChatBot:
             sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
 
         self._init_websockclient(sb_access_token, user_id)
-
+        self._mod_tools = self._mod_tools = ModTools(self._r_authentication)
         # if with_chat_media:  # this is untested
         #     self.ChatMedia = ChatMedia(key=sb_access_token, reddit_api_token=reddit_api_token)
 
@@ -134,6 +135,12 @@ class ChatBot:
                 break
             self.WebSocketClient.logger.info('Auto Reconnecting...')
 
+    def kick_user(self, channel_url, user_id, duration):
+        self._mod_tools.kick_user(channel_url, user_id, duration)
+
+    def delete_another_users_mesg(self, channel_url, msg_id):
+        self._mod_tools.delete_message(channel_url, msg_id, session_key=self.WebSocketClient.session_key)
+
     def enable_rate_limiter(self, max_calls, period):
         self.WebSocketClient.RateLimiter.is_enabled = True
         self.WebSocketClient.RateLimiter.max_calls = max_calls
@@ -154,12 +161,15 @@ class ChatBot:
         if session_store_f is None or force_reauth:
             session_store_f = get_store_file_handle(pkl_name, 'wb+')
             reddit_authentication = self._r_authentication.authenticate()
-            sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
+            sb_access_token, user_id, api_token = reddit_authentication['sb_access_token'], reddit_authentication['user_id'], reddit_authentication['api_token']
             pickle.dump(sb_access_token, session_store_f)
             pickle.dump(user_id, session_store_f)
+            pickle.dump(api_token, session_store_f)
         else:
             sb_access_token = pickle.load(session_store_f)
             user_id = pickle.load(session_store_f)
+            api_token = pickle.load(session_store_f)
+            self._r_authentication._api_token = api_token
         session_store_f.close()
 
         return sb_access_token, user_id

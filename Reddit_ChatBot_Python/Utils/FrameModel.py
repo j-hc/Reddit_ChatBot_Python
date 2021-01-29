@@ -3,18 +3,6 @@ from types import SimpleNamespace
 
 
 class FrameModel:
-    """
-    mostly important fields of MESG:
-    msg_id
-    is_op_msg
-    is_guest_msg
-    message
-    ts
-    channel_url
-    user -> name, guest_id, is_blocked_by_me
-    mentioned_users
-    """
-
     @staticmethod
     def get_frame_data(data):
         data_r = data[4:]

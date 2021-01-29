@@ -7,7 +7,7 @@ SB_ai = '2515BDA8-9D3A-47CF-9325-330BC37ADA13'
 SB_PROXY_CHATMEDIA = 'https://sendbirdproxyk8s.chat.redditmedia.com'
 S_REDDIT = 'https://s.reddit.com'
 OAUTH_REDDIT = 'https://oauth.reddit.com'
-OLD_REDDIT = 'https://old.reddit.com'
+WWW_REDDIT = 'https://old.reddit.com'
 ACCOUNTS_REDDIT = 'https://accounts.reddit.com'
 
 # ws payloads

@@ -33,10 +33,14 @@ class PasswordAuth(_RedditAuthBase):
         self._reddit_session = None
 
     def authenticate(self):
-        self._reddit_session = self._do_login()
-        if self._reddit_session is None:
-            raise Exception("Wrong username or password")
-        self._api_token = self._get_api_token(self._reddit_session)
+        if not (self._reddit_session is None and self._api_token is None):
+            self.refresh_api_token()
+        else:
+            self._reddit_session = self._do_login()
+            if self._reddit_session is None:
+                raise Exception("Wrong username or password")
+            self._api_token = self._get_api_token(self._reddit_session)
+
         return super(PasswordAuth, self).authenticate()
 
     def _get_api_token(self, reddit_session):
@@ -70,6 +74,7 @@ class PasswordAuth(_RedditAuthBase):
         }
         response = requests.post(f'{WWW_REDDIT}/refreshproxy', headers=headers, cookies=cookies, data=data).json()
         self._api_token = response['accessToken']
+        return self._api_token
 
     def _do_login(self):
         headers = {
@@ -80,7 +85,7 @@ class PasswordAuth(_RedditAuthBase):
         data = {
             'op': 'login',
             'user': self.reddit_username,
-            'passwd': f'{self.reddit_password}:{self.twofa}' if self.twofa is not None else self.reddit_password,
+            'passwd': f'{self.reddit_password}:{self.twofa}' if bool(self.twofa) else self.reddit_password,
             'api_type': 'json'
         }
         response = requests.post(f'{WWW_REDDIT}/api/login/{self.reddit_username}', headers=headers, data=data, allow_redirects=False)
