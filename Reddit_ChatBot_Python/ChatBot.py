@@ -139,6 +139,9 @@ class ChatBot:
         self.WebSocketClient.RateLimiter.max_calls = max_calls
         self.WebSocketClient.RateLimiter.period = period
 
+    def disable_rate_limiter(self):
+        self.WebSocketClient.RateLimiter.is_enabled = False
+
     def _load_session(self, pkl_name, force_reauth=False):
         def get_store_file_handle(pkl_name_, mode_):
             try:
