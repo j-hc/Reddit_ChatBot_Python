@@ -11,11 +11,16 @@ class ModTools:
             'SB-User-Agent': SB_User_Agent
         }
         self._reddit_auth = reddit_auth
+        try:
+            r = self._reddit_auth.reddit_username
+            self._is_reauthable = True
+        except AttributeError:
+            self._is_reauthable = False
 
     def _handled_req(self, method, uri, **kwargs):
         while True:
             response = requests.request(method, uri, **kwargs)
-            if response.status_code == 401:
+            if response.status_code == 401 and self._is_reauthable:
                 new_access_token = self._reddit_auth.refresh_api_token()
                 new_headers = kwargs.get('headers', {})
                 new_headers.update({'Authorization': f'Bearer {new_access_token}'})
