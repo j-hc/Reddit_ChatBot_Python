@@ -88,7 +88,7 @@ class WebSockClient:
             logi_err = resp.error
         except AttributeError:
             logi_err = None
-        if logi_err is not None:
+        if logi_err is None:
             self.channelid_sub_pairs = WebSocketUtils.get_current_channels(self._user_id, resp.key)
             self.own_name = resp.nickname
         else:
