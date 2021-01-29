@@ -1,7 +1,7 @@
 import websocket
 from .Utils.RateLimiter import RateLimiter
 import time
-from .Utils.FrameModel.FrameModel import FrameModel
+from .Utils.FrameModel import FrameModel
 import logging
 import _thread as thread
 from .Utils import WebSocketUtils
