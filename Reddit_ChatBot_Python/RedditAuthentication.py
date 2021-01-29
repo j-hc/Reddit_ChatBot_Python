@@ -1,12 +1,9 @@
 import requests
 import uuid
+from .Utils.CONST import mobile_useragent, OAUTH_REDDIT, S_REDDIT, web_useragent, OAUTH_CLIENT_ID_B64, OLD_REDDIT, ACCOUNTS_REDDIT
 
 
 class _RedditAuthBase:
-    _mobile_useragent = "Reddit/Version 2020.47.0/Build 302202/Android 11"
-    REDDIT_OAUTH_HOST = "https://oauth.reddit.com"
-    REDDIT_SENDBIRD_HOST = "https://s.reddit.com"
-
     def __init__(self, _api_token=None):
         self._api_token = _api_token
 
@@ -16,20 +13,17 @@ class _RedditAuthBase:
 
     def _get_userid_sb_token(self, api_token):
         headers = {
-            'User-Agent': self._mobile_useragent,
+            'User-Agent': mobile_useragent,
             'Authorization': f'Bearer {api_token}'
         }
-        sb_token_j = requests.get(f'{self.REDDIT_SENDBIRD_HOST}/api/v1/sendbird/me', headers=headers).json()
+        sb_token_j = requests.get(f'{S_REDDIT}/api/v1/sendbird/me', headers=headers).json()
         sb_access_token = sb_token_j['sb_access_token']
-        user_id_j = requests.get(f'{self.REDDIT_OAUTH_HOST}/api/v1/me.json', headers=headers).json()
+        user_id_j = requests.get(f'{OAUTH_REDDIT}/api/v1/me.json', headers=headers).json()
         user_id = 't2_' + user_id_j['id']
         return sb_access_token, user_id
 
 
 class PasswordAuth(_RedditAuthBase):
-    _web_useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0"
-    OAUTH_CLIENT_ID_B64 = "b2hYcG9xclpZdWIxa2c6"
-
     def __init__(self, reddit_username, reddit_password, twofa=None):
         super().__init__()
         self.reddit_username = reddit_username
@@ -49,19 +43,19 @@ class PasswordAuth(_RedditAuthBase):
             'reddit_session': reddit_session,
         }
         headers = {
-            'Authorization': f'Basic {self.OAUTH_CLIENT_ID_B64}',
-            'User-Agent': self._mobile_useragent,
+            'Authorization': f'Basic {OAUTH_CLIENT_ID_B64}',
+            'User-Agent': mobile_useragent,
             'Content-Type': 'application/json; charset=UTF-8',
             'client-vendor-id': self._client_vendor_uuid,
         }
         data = '{"scopes":["*"]}'
-        response = requests.post('https://accounts.reddit.com/api/access_token', headers=headers, cookies=cookies, data=data).json()
+        response = requests.post(f'{ACCOUNTS_REDDIT}/api/access_token', headers=headers, cookies=cookies, data=data).json()
         api_token = response['access_token']
         return api_token
 
     def _do_login(self):
         headers = {
-            'User-Agent': self._web_useragent,
+            'User-Agent': web_useragent,
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         }
@@ -71,7 +65,7 @@ class PasswordAuth(_RedditAuthBase):
             'passwd': f'{self.reddit_password}:{self.twofa}' if self.twofa is not None else self.reddit_password,
             'api_type': 'json'
         }
-        response = requests.post(f'https://old.reddit.com/api/login/{self.reddit_username}', headers=headers, data=data, allow_redirects=False)
+        response = requests.post(f'{OLD_REDDIT}/api/login/{self.reddit_username}', headers=headers, data=data, allow_redirects=False)
         reddit_session = response.cookies.get("reddit_session")
         return reddit_session
 

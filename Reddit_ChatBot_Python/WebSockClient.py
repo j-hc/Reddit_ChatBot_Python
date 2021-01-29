@@ -5,11 +5,10 @@ from .Utils.FrameModel import FrameModel
 import logging
 import _thread as thread
 from .Utils import WebSocketUtils
+from .Utils.CONST import SB_User_Agent, SB_ai, MESG_regular, MESG_snoo, TPST
 
 
 class WebSockClient:
-    _SB_ai = '2515BDA8-9D3A-47CF-9325-330BC37ADA13'
-
     def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, print_websocket_frames=False,
                  other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
         self._user_id = user_id
@@ -37,8 +36,8 @@ class WebSockClient:
             "p": "Android",
             "pv": 30,
             "sv": "3.0.144",
-            "ai": self._SB_ai,
-            "SB-User-Agent": "Android%2Fc3.0.144",
+            "ai": SB_ai,
+            "SB-User-Agent": SB_User_Agent,
             "active": "1"
         }
 
@@ -105,19 +104,19 @@ class WebSockClient:
             return
         if any(blacklist_word in text.lower() for blacklist_word in self.global_blacklist_words):
             return
-        payload = WebSocketUtils.FrameSkeletons.MESG_regular.format(channel_url=channel_url, text=text, req_id=self.req_id)
+        payload = MESG_regular.format(channel_url=channel_url, text=text, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1
 
     def ws_send_snoomoji(self, snoomoji, channel_url):
         if self.RateLimiter.is_enabled and self.RateLimiter.check():
             return
-        payload = WebSocketUtils.FrameSkeletons.MESG_snoo.format(channel_url=channel_url, snoomoji=snoomoji, req_id=self.req_id)
+        payload = MESG_snoo.format(channel_url=channel_url, snoomoji=snoomoji, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1
 
     def ws_send_typing_indicator(self, channel_url):
-        payload = WebSocketUtils.FrameSkeletons.TPST.format(channel_url=channel_url, time=int(time.time() * 1000))
+        payload = TPST.format(channel_url=channel_url, time=int(time.time() * 1000))
         self.ws.send(payload)
 
     def on_error(self, ws, error):

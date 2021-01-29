@@ -1,11 +1,6 @@
 from urllib.parse import urlencode
 import requests
-
-
-class FrameSkeletons:
-    MESG_regular = 'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{req_id}"}}\n'
-    MESG_snoo = 'MESG{{"channel_url":"{channel_url}","message":"","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{\\"site_name\\":\\"Reddit\\"}},\\"hidden\\":false,\\"snoomoji\\":\\"{snoomoji}\\"}}}}","mention_type":"users","req_id":"{req_id}"}}\n'
-    TPST = 'TPST{{"channel_url":"{channel_url}","time":{time},"req_id":""}}\n'
+from .CONST import SB_User_Agent, SB_PROXY_CHATMEDIA
 
 
 def get_ws_url(socket_base, params):
@@ -20,7 +15,7 @@ def print_chat_(resp, channelid_sub_pairs):
 def get_current_channels(user_id, logi_key):
     headers = {
         'session-key': logi_key,
-        'SB-User-Agent': 'Android%2Fc3.0.144',
+        'SB-User-Agent': SB_User_Agent,
         'User-Agent': None
     }
     params = {
@@ -32,7 +27,7 @@ def get_current_channels(user_id, logi_key):
         'limit': '40',
         'show_empty': 'true'
     }
-    response = requests.get(f'https://sendbirdproxyk8s.chat.redditmedia.com/v3/users/{user_id}/my_group_channels', headers=headers, params=params).json()
+    response = requests.get(f'{SB_PROXY_CHATMEDIA}/v3/users/{user_id}/my_group_channels', headers=headers, params=params).json()
     channelid_sub_pairs = {}
     for channel in response.get('channels', {}):
         room_name = None
