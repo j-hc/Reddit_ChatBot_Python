@@ -3,7 +3,7 @@ from .WebSockClient import WebSockClient
 import pickle
 from .RedditAuthentication import TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
-from .Utils.ModTools import ModTools
+from tools import Tools
 
 
 class ChatBot:
@@ -19,7 +19,7 @@ class ChatBot:
             sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
 
         self._init_websockclient(sb_access_token, user_id)
-        self._mod_tools = self._mod_tools = ModTools(self._r_authentication)
+        self._tools = Tools(self._r_authentication)
         # if with_chat_media:  # this is untested
         #     self.ChatMedia = ChatMedia(key=sb_access_token, reddit_api_token=reddit_api_token)
 
@@ -136,10 +136,10 @@ class ChatBot:
             self.WebSocketClient.logger.info('Auto Reconnecting...')
 
     def kick_user(self, channel_url, user_id, duration):
-        self._mod_tools.kick_user(channel_url, user_id, duration)
+        self._tools.kick_user(channel_url, user_id, duration)
 
     def delete_another_users_mesg(self, channel_url, msg_id):
-        self._mod_tools.delete_message(channel_url, msg_id, session_key=self.WebSocketClient.session_key)
+        self._tools.delete_message(channel_url, msg_id, session_key=self.WebSocketClient.session_key)
 
     def enable_rate_limiter(self, max_calls, period):
         self.WebSocketClient.RateLimiter.is_enabled = True

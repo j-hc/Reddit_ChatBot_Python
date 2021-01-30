@@ -1,8 +1,8 @@
 import requests
-from .CONST import SB_PROXY_CHATMEDIA, S_REDDIT, user_agent, SB_User_Agent, SB_ai
+from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, user_agent, SB_User_Agent, SB_ai
 
 
-class ModTools:
+class Tools:
     def __init__(self, reddit_auth):
         self.headers = {
             'User-Agent': user_agent,
