@@ -3,7 +3,7 @@ from .WebSockClient import WebSockClient
 import pickle
 from .RedditAuthentication import TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
-from tools import Tools
+from .tools import Tools
 
 
 class ChatBot:
@@ -161,15 +161,19 @@ class ChatBot:
         if session_store_f is None or force_reauth:
             session_store_f = get_store_file_handle(pkl_name, 'wb+')
             reddit_authentication = self._r_authentication.authenticate()
-            sb_access_token, user_id, api_token = reddit_authentication['sb_access_token'], reddit_authentication['user_id'], reddit_authentication['api_token']
+            sb_access_token, user_id, api_token, reddit_session = reddit_authentication['sb_access_token'], reddit_authentication['user_id'], \
+                                                  reddit_authentication['api_token'], reddit_authentication['reddit_session']
             pickle.dump(sb_access_token, session_store_f)
             pickle.dump(user_id, session_store_f)
             pickle.dump(api_token, session_store_f)
+            pickle.dump(reddit_session, session_store_f)
         else:
             sb_access_token = pickle.load(session_store_f)
             user_id = pickle.load(session_store_f)
             api_token = pickle.load(session_store_f)
+            reddit_session = pickle.load(session_store_f)
             self._r_authentication._api_token = api_token
+            self._r_authentication._reddit_session = reddit_session
         session_store_f.close()
 
         return sb_access_token, user_id

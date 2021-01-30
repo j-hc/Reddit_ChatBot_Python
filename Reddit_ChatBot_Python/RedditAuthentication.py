@@ -6,10 +6,11 @@ from .Utils.CONST import mobile_useragent, OAUTH_REDDIT, S_REDDIT, web_useragent
 class _RedditAuthBase:
     def __init__(self, _api_token=None):
         self._api_token = _api_token
+        self._reddit_session = None
 
     def authenticate(self):
         sb_access_token, user_id = self._get_userid_sb_token()
-        return {'sb_access_token': sb_access_token, 'user_id': user_id, "api_token": self._api_token}
+        return {'sb_access_token': sb_access_token, 'user_id': user_id, "api_token": self._api_token, 'reddit_session': self._reddit_session}
 
     def _get_userid_sb_token(self):
         headers = {
@@ -30,7 +31,6 @@ class PasswordAuth(_RedditAuthBase):
         self.reddit_password = reddit_password
         self.twofa = twofa
         self._client_vendor_uuid = str(uuid.uuid4())
-        self._reddit_session = None
 
     def authenticate(self):
         if not (self._reddit_session is None and self._api_token is None):
@@ -59,6 +59,7 @@ class PasswordAuth(_RedditAuthBase):
         return api_token
 
     def refresh_api_token(self):
+        assert self._reddit_session is not None
         cookies = {
             'reddit_session': self._reddit_session,
         }
