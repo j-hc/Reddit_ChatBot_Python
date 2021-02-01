@@ -1,5 +1,4 @@
 from .WebSockClient import WebSockClient
-# from .Utils.ChatMedia import ChatMedia
 import pickle
 from .RedditAuthentication import TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
@@ -20,8 +19,6 @@ class ChatBot:
 
         self._init_websockclient(sb_access_token, user_id)
         self._tools = Tools(self._r_authentication)
-        # if with_chat_media:  # this is untested
-        #     self.ChatMedia = ChatMedia(key=sb_access_token, reddit_api_token=reddit_api_token)
 
     def _init_websockclient(self, sb_access_token, user_id):
         self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **self._kwargs)
@@ -39,7 +36,6 @@ class ChatBot:
 
     def set_respond_hook(self, input_, response, limited_to_users=None, lower_the_input=False, exclude_itself=True,
                          must_be_equal=True, limited_to_channels=None):
-
         if limited_to_users is not None and isinstance(limited_to_channels, str):
             limited_to_users = [limited_to_users]
         elif limited_to_users is None:
@@ -138,8 +134,11 @@ class ChatBot:
     def kick_user(self, channel_url, user_id, duration):
         self._tools.kick_user(channel_url, user_id, duration)
 
-    def delete_another_users_mesg(self, channel_url, msg_id):
+    def delete_mesg(self, channel_url, msg_id):
         self._tools.delete_message(channel_url, msg_id, session_key=self.WebSocketClient.session_key)
+
+    def mute_user(self, channel_url, user_id, duration):
+        raise NotImplementedError
 
     def enable_rate_limiter(self, max_calls, period):
         self.WebSocketClient.RateLimiter.is_enabled = True
@@ -160,20 +159,10 @@ class ChatBot:
 
         if session_store_f is None or force_reauth:
             session_store_f = get_store_file_handle(pkl_name, 'wb+')
-            reddit_authentication = self._r_authentication.authenticate()
-            sb_access_token, user_id, api_token, reddit_session = reddit_authentication['sb_access_token'], reddit_authentication['user_id'], \
-                                                  reddit_authentication['api_token'], reddit_authentication['reddit_session']
-            pickle.dump(sb_access_token, session_store_f)
-            pickle.dump(user_id, session_store_f)
-            pickle.dump(api_token, session_store_f)
-            pickle.dump(reddit_session, session_store_f)
+            self._r_authentication.authenticate()
+            pickle.dump(self._r_authentication, session_store_f)
         else:
-            sb_access_token = pickle.load(session_store_f)
-            user_id = pickle.load(session_store_f)
-            api_token = pickle.load(session_store_f)
-            reddit_session = pickle.load(session_store_f)
-            self._r_authentication._api_token = api_token
-            self._r_authentication._reddit_session = reddit_session
+            self._r_authentication = pickle.load(session_store_f)
         session_store_f.close()
 
-        return sb_access_token, user_id
+        return self._r_authentication.sb_access_token, self._r_authentication.user_id
