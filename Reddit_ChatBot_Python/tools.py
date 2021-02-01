@@ -1,12 +1,21 @@
 import requests
-from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, user_agent, SB_User_Agent, SB_ai
+from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, user_agent, SB_User_Agent, SB_ai, web_useragent
+import json
+
+
+def _get_user_id(username):
+    response = requests.get(f"https://www.reddit.com/user/{username}/about.json", headers={'user-agent': web_useragent}).json()
+    u_id = response.get('data', {}).get('id')
+    if u_id is None:
+        return None
+    else:
+        return f't2_{u_id}'
 
 
 class Tools:
     def __init__(self, reddit_auth):
         self.headers = {
             'User-Agent': user_agent,
-            'Accept': 'application/json, text/plain, */*',
             'SendBird': f'Android,29,3.0.82,{SB_ai}',
             'SB-User-Agent': SB_User_Agent
         }
@@ -20,6 +29,7 @@ class Tools:
     def _handled_req(self, method, uri, **kwargs):
         while True:
             response = requests.request(method, uri, **kwargs)
+            print(response.text)
             if response.status_code == 401 and self._is_reauthable:
                 new_access_token = self._reddit_auth.refresh_api_token()
                 new_headers = kwargs.get('headers', {})
@@ -36,6 +46,41 @@ class Tools:
 
     def kick_user(self, channel_url, user_id, duration):
         headers = {'Authorization': f'Bearer {self._reddit_auth._api_token}', **self.headers}
-        data = f'{{"channel_url":"{channel_url}","user_id":"{user_id}","duration":"{duration}"}}'
+        data = json.dumps({
+            'channel_url': channel_url,
+            'user_id': user_id,
+            'duration': duration
+        })
         uri = f'{S_REDDIT}/api/v1/channel/kick/user'
         self._handled_req(method='POST', uri=uri, headers=headers, data=data)
+
+    def invite_user(self, channel_url, nicknames: list):
+        assert isinstance(nicknames, list)
+        users = []
+        for nickname in nicknames:
+            users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
+        headers = {'Authorization': f'Bearer {self._reddit_auth._api_token}', **self.headers}
+        data = json.dumps({
+            'users': users
+        })
+        url = f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite'
+        self._handled_req(method='POST', uri=url, headers=headers, data=data)
+
+    def accept_chat_invite(self):
+        pass
+
+    def leave_chat(self):
+        pass
+
+    def create_channel(self, nicknames: list, group_name, own_name):
+        assert isinstance(nicknames, list)
+        users = [{"user_id": _get_user_id(own_name), "nickname": own_name}]
+        for nickname in nicknames:
+            users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
+        headers = {'Authorization': f'Bearer {self._reddit_auth._api_token}', **self.headers}
+        data = json.dumps({
+            'users': users,
+            'name': group_name
+        })
+        url = f'{S_REDDIT}/api/v1/sendbird/group_channels'
+        self._handled_req(method='POST', uri=url, headers=headers, data=data)

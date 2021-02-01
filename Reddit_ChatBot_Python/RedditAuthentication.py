@@ -7,10 +7,12 @@ class _RedditAuthBase:
     def __init__(self, _api_token=None):
         self._api_token = _api_token
         self._reddit_session = None
+        self.sb_access_token = None
+        self.user_id = None
 
     def authenticate(self):
-        sb_access_token, user_id = self._get_userid_sb_token()
-        return {'sb_access_token': sb_access_token, 'user_id': user_id, "api_token": self._api_token, 'reddit_session': self._reddit_session}
+        self._get_userid_sb_token()
+        return {'sb_access_token': self.sb_access_token, 'user_id': self.user_id, "api_token": self._api_token, 'reddit_session': self._reddit_session}
 
     def _get_userid_sb_token(self):
         headers = {
@@ -18,10 +20,9 @@ class _RedditAuthBase:
             'Authorization': f'Bearer {self._api_token}'
         }
         sb_token_j = requests.get(f'{S_REDDIT}/api/v1/sendbird/me', headers=headers).json()
-        sb_access_token = sb_token_j['sb_access_token']
+        self.sb_access_token = sb_token_j['sb_access_token']
         user_id_j = requests.get(f'{OAUTH_REDDIT}/api/v1/me.json', headers=headers).json()
-        user_id = 't2_' + user_id_j['id']
-        return sb_access_token, user_id
+        self.user_id = 't2_' + user_id_j['id']
 
 
 class PasswordAuth(_RedditAuthBase):

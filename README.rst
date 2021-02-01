@@ -84,7 +84,7 @@ Example
             chatbot.send_message(f'i banned {resp.user.name} for 10 mins', resp.channel_url)
             return True
         elif resp.message == "*another bad word*":
-            chatbot.delete_another_users_mesg(channel_url=resp.channel_url, msg_id=resp.msg_id)
+            chatbot.delete_mesg(channel_url=resp.channel_url, msg_id=resp.msg_id)
             chatbot.send_message(f"i deleted {resp.user.name}'s message", resp.channel_url)
             return True
 
