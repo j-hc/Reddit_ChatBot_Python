@@ -12,6 +12,11 @@ def _get_user_id(username):
         return f't2_{u_id}'
 
 
+class Invitation:
+    def __init__(self, data):
+        self.data = data
+
+
 class Tools:
     def __init__(self, reddit_auth):
         self.headers = {
@@ -29,7 +34,6 @@ class Tools:
     def _handled_req(self, method, uri, **kwargs):
         while True:
             response = requests.request(method, uri, **kwargs)
-            print(response.text)
             if response.status_code == 401 and self._is_reauthable:
                 new_access_token = self._reddit_auth.refresh_api_token()
                 new_headers = kwargs.get('headers', {})
@@ -54,7 +58,7 @@ class Tools:
         uri = f'{S_REDDIT}/api/v1/channel/kick/user'
         self._handled_req(method='POST', uri=uri, headers=headers, data=data)
 
-    def invite_user(self, channel_url, nicknames: list):
+    def invite_user(self, channel_url, nicknames):
         assert isinstance(nicknames, list)
         users = []
         for nickname in nicknames:
@@ -66,15 +70,44 @@ class Tools:
         url = f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite'
         self._handled_req(method='POST', uri=url, headers=headers, data=data)
 
-    def accept_chat_invite(self):
-        pass
+    def accept_chat_invite(self, inviation, session_key):
+        assert isinstance(inviation, Invitation), 'invitation must be of Invitation taken from get_chat_invites()'
+        headers = {'Session-Key': session_key, **self.headers}
+        data = json.dumps({
+            'user_id': self._reddit_auth.user_id
+        })
+        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{inviation.data["channel_url"]}/accept'
+        return self._handled_req(method='PUT', uri=url, headers=headers, data=data).json
+
+    def get_chat_invites(self, session_key):
+        headers = {'Session-Key': session_key, **self.headers}
+        params = (
+            ('limit', '40'),
+            ('order', 'latest_last_message'),
+            ('show_member', 'true'),
+            ('show_read_receipt', 'true'),
+            ('show_delivery_receipt', 'true'),
+            ('show_empty', 'true'),
+            ('member_state_filter', 'invited_only'),
+            ('super_mode', 'all'),
+            ('public_mode', 'all'),
+            ('unread_filter', 'all'),
+            ('hidden_mode', 'unhidden_only'),
+            ('show_frozen', 'true'),
+        )
+        url = f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels'
+        response = self._handled_req(method='GET', uri=url, headers=headers, params=params).json()
+        invitations = []
+        for channel in response.get('channels', {}):
+            invitations.append(Invitation(channel))
+        return invitations
 
     def leave_chat(self):
         pass
 
-    def create_channel(self, nicknames: list, group_name, own_name):
+    def create_channel(self, nicknames, group_name, own_name):
         assert isinstance(nicknames, list)
-        users = [{"user_id": _get_user_id(own_name), "nickname": own_name}]
+        users = [{"user_id": self._reddit_auth.user_id, "nickname": own_name}]
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
         headers = {'Authorization': f'Bearer {self._reddit_auth._api_token}', **self.headers}

@@ -77,10 +77,10 @@ Example
 
     # now everytime someone says "!roll 1 100", the bot will roll a dice between 1 and 100 and send the result!
 
-    @chatbot.after_message_hook() # default frame_type is MESG
+    @chatbot.after_message_hook()
     def keeper_of_decency(resp): # WE WILL KEEP THE DECENCY IN THE CHAT BOIS
         if resp.message == "*some very bad slur word*":
-            chatbot.kick_user(channel_url=resp.channel_url, user_id=resp.user.guest_id, duration=600) # duration is in mins
+            chatbot.kick_user(channel_url=resp.channel_url, user_id=resp.user.guest_id, duration=600) # duration is in secs
             chatbot.send_message(f'i banned {resp.user.name} for 10 mins', resp.channel_url)
             return True
         elif resp.message == "*another bad word*":

@@ -90,7 +90,7 @@ class PasswordAuth(_RedditAuthBase):
             'passwd': f'{self.reddit_password}:{self.twofa}' if bool(self.twofa) else self.reddit_password,
             'api_type': 'json'
         }
-        response = requests.post(f'{WWW_REDDIT}/api/login/{self.reddit_username}', headers=headers, data=data, allow_redirects=False)
+        response = requests.post(f'{WWW_REDDIT}/api/login/{self.reddit_username}', headers=headers, data=data)
         reddit_session = response.cookies.get("reddit_session")
         return reddit_session
 

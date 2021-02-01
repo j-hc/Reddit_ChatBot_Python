@@ -137,8 +137,17 @@ class ChatBot:
     def delete_mesg(self, channel_url, msg_id):
         self._tools.delete_message(channel_url, msg_id, session_key=self.WebSocketClient.session_key)
 
-    def mute_user(self, channel_url, user_id, duration):
-        raise NotImplementedError
+    def invite_user_to_channel(self, channel_url, nicknames: list):
+        self._tools.invite_user(channel_url, nicknames)
+
+    def get_chat_invites(self):
+        return self._tools.get_chat_invites(session_key=self.WebSocketClient.session_key)
+
+    def create_channel(self, nicknames, group_name):
+        self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)
+
+    def accept_chat_invite(self, inviation):
+        self._tools.accept_chat_invite(inviation, session_key=self.WebSocketClient.session_key)
 
     def enable_rate_limiter(self, max_calls, period):
         self.WebSocketClient.RateLimiter.is_enabled = True
