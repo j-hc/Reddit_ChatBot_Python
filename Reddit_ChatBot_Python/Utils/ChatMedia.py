@@ -2,7 +2,7 @@ import requests
 
 
 class ChatMedia:
-    def __init__(self, ai, key, reddit_api_token):
+    def __init__(self, ai: str, key: str, reddit_api_token: str):
         self.reddit_api_token = reddit_api_token
         self.headers = {
             'Accept': 'application/json',

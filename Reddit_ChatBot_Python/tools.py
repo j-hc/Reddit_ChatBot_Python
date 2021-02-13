@@ -71,7 +71,6 @@ class Tools:
         self._handled_req(method='POST', uri=url, headers=headers, data=data)
 
     def accept_chat_invite(self, inviation, session_key):
-        assert isinstance(inviation, Invitation), 'invitation must be of Invitation taken from get_chat_invites()'
         headers = {'Session-Key': session_key, **self.headers}
         data = json.dumps({
             'user_id': self._reddit_auth.user_id
