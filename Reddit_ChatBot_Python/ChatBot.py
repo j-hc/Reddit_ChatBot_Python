@@ -35,6 +35,19 @@ class ChatBot:
 
         return after_frame_hook
 
+    def on_invitation_hook(self, func):
+        def hook(resp):
+            if resp.type_f == 'SYEV':
+                try:
+                    inviter = resp.data.inviter
+                    invte = [invitee.nickname for invitee in resp.data.invitees]
+                except AttributeError:
+                    return
+                if not (len(invte) == 1 and invte[0] == self.WebSocketClient.own_name):
+                    return
+                func(resp)
+        self.WebSocketClient.after_message_hooks.append(hook)
+
     def set_respond_hook(self, input_: str, response: str, limited_to_users: list = None, lower_the_input: bool = False,
                          exclude_itself: bool = True, must_be_equal=True, limited_to_channels=None):
         try:
@@ -132,8 +145,8 @@ class ChatBot:
     def create_channel(self, nicknames: list, group_name: str):
         self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)
 
-    def accept_chat_invite(self, invitation):
-        self._tools.accept_chat_invite(invitation, session_key=self.WebSocketClient.session_key)
+    def accept_chat_invite(self, channel_url: str):
+        self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
 
     def enable_rate_limiter(self, max_calls: int, period: int):
         self.WebSocketClient.RateLimiter.is_enabled = True

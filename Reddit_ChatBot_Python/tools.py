@@ -67,11 +67,11 @@ class Tools:
         self._handled_req(method='POST', uri=url, headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
                           data=data)
 
-    def accept_chat_invite(self, invitation, session_key):
+    def accept_chat_invite(self, channel_url, session_key):
         data = json.dumps({
             'user_id': self._reddit_auth.user_id
         })
-        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{invitation.channel_url}/accept'
+        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept'
         return self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data).json
 
     def get_chat_invites(self, session_key):
