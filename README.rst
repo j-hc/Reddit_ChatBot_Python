@@ -58,7 +58,7 @@ Example
 
     # now you can add hooks which will be executed when a frame is received like so:
     @chatbot.after_message_hook() # default frame_type is MESG
-    def roll(resp):  # resp is a SimpleNamespace that carries all the data of the received frame
+    def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of the received frame
         messg_s = resp.message.split()
         if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
             limit_bottom = int(messg_s[1])
@@ -98,6 +98,18 @@ Example
 
     # and a farewell message too:
     chatbot.set_farewell_message("Too bad u/{nickname} left us :()", limited_to_channels=["my cozy chat group"])
+
+    # there is also another hook type for invitation frames
+    @chatbot.on_invitation_hook
+    def on_invit(resp):
+        if resp.channel_type == "group":
+            invit_type = "group chat"
+        elif resp.channel_type == "direct":
+            invit_type = "DM"
+        else:
+            invit_type = None
+        print(f"Invited to {invit_type} by {resp.data.inviter.nickname}")
+        chatbot.accept_chat_invite(resp.channel_url)
 
 
     # and finally, run forever...
@@ -141,6 +153,56 @@ You can access stuff from resp like this:
 
     message = resp.message
     nickname = resp.user.name
+
+
+Instance of a Invitation Frame (frame type SYEV)
+================================================
+
+.. code-block:: json
+
+    {
+      "unread_cnt": {
+        "all": 1,
+        "ts": 1614006345986
+      },
+      "is_super": false,
+      "data": {
+        "inviter": {
+          "nickname": "*inviter nickname*",
+          "metadata": {
+          },
+          "require_auth_for_profile_image": false,
+          "profile_url": "",
+          "user_id": "*user id str t2_ included*"
+        },
+        "invited_at": 1614006345956,
+        "invitees": [
+          {
+            "nickname": "*bot's nickname*",
+            "metadata": {
+            },
+            "require_auth_for_profile_image": false,
+            "profile_url": "",
+            "user_id": "*user id str t2_ included*"
+          }
+        ]
+      },
+      "ts": 1614006345978,
+      "is_access_code_required": false,
+      "cat": 10020,
+      "channel_type": "*can either be 'group' for group chat or 'direct' for DM*",
+      "channel_id": *channel_id str*,
+      "sts": 1614006345978,
+      "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000"
+    }
+
+You can access stuff from Invitation resp like this:
+
+.. code:: python
+
+    message = resp.data.inviter.nickname
+    direct_or_group = resp.channel_type
+
 
 Showcase of some other fun stuff you can do with this..
 =======================================================
