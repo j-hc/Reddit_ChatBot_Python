@@ -1,6 +1,6 @@
 import requests
 import uuid
-from .Utils.CONST import mobile_useragent, OAUTH_REDDIT, S_REDDIT, web_useragent, OAUTH_CLIENT_ID_B64, WWW_REDDIT, ACCOUNTS_REDDIT
+from .Utils.CONST import MOBILE_USERAGENT, OAUTH_REDDIT, S_REDDIT, WEB_USERAGENT, OAUTH_CLIENT_ID_B64, WWW_REDDIT, ACCOUNTS_REDDIT
 
 
 class _RedditAuthBase:
@@ -16,7 +16,7 @@ class _RedditAuthBase:
 
     def _get_userid_sb_token(self):
         headers = {
-            'User-Agent': mobile_useragent,
+            'User-Agent': MOBILE_USERAGENT,
             'Authorization': f'Bearer {self._api_token}'
         }
         sb_token_j = requests.get(f'{S_REDDIT}/api/v1/sendbird/me', headers=headers).json()
@@ -50,7 +50,7 @@ class PasswordAuth(_RedditAuthBase):
         }
         headers = {
             'Authorization': f'Basic {OAUTH_CLIENT_ID_B64}',
-            'User-Agent': mobile_useragent,
+            'User-Agent': MOBILE_USERAGENT,
             'Content-Type': 'application/json; charset=UTF-8',
             'client-vendor-id': self._client_vendor_uuid,
         }
@@ -65,7 +65,7 @@ class PasswordAuth(_RedditAuthBase):
             'reddit_session': self._reddit_session,
         }
         headers = {
-            'User-Agent': web_useragent,
+            'User-Agent': WEB_USERAGENT,
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': f'Bearer {self._api_token}',
         }
@@ -80,7 +80,7 @@ class PasswordAuth(_RedditAuthBase):
 
     def _do_login(self):
         headers = {
-            'User-Agent': web_useragent,
+            'User-Agent': WEB_USERAGENT,
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         }

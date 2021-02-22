@@ -108,8 +108,9 @@ Example
             invit_type = "DM"
         else:
             invit_type = None
-        print(f"Invited to {invit_type} by {resp.data.inviter.nickname}")
+        print(f"got invited to {invit_type} by {resp.data.inviter.nickname}")
         chatbot.accept_chat_invite(resp.channel_url)
+        chatbot.send_message("Hello! I accepted your invite", resp.channel_url)
 
 
     # and finally, run forever...

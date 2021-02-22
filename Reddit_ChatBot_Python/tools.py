@@ -1,12 +1,12 @@
 import requests
-from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, user_agent, SB_User_Agent, SB_ai, web_useragent
+from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT
 import json
 from types import SimpleNamespace
 
 
 def _get_user_id(username):
     response = requests.get(f"https://www.reddit.com/user/{username}/about.json",
-                            headers={'user-agent': web_useragent}).json()
+                            headers={'user-agent': WEB_USERAGENT}).json()
     u_id = response.get('data', {}).get('id')
     if u_id is None:
         return None
@@ -18,7 +18,7 @@ class Tools:
     def __init__(self, reddit_auth):
         self._req_sesh = requests.Session()
         self._req_sesh.headers = {
-            'User-Agent': user_agent,
+            'User-Agent': USER_AGENT,
             'SendBird': f'Android,29,3.0.82,{SB_ai}',
             'SB-User-Agent': SB_User_Agent
         }
@@ -72,7 +72,7 @@ class Tools:
             'user_id': self._reddit_auth.user_id
         })
         url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept'
-        return self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data).json
+        self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data)
 
     def get_chat_invites(self, session_key):
         params = (

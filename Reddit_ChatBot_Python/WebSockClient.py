@@ -128,9 +128,3 @@ class WebSockClient:
 
     def on_close(self, ws):
         self.logger.warning("### websocket closed ###")
-
-    # def on_ping(self, ws, r):
-    #     print("ping")
-    #
-    # def on_pong(self, ws, r):
-    #     print("pong")

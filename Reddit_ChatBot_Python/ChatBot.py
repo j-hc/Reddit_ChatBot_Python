@@ -54,7 +54,11 @@ class ChatBot:
         self.WebSocketClient.after_message_hooks.append(hook)
 
     def set_respond_hook(self, input_: str, response: str, limited_to_users: list = None, lower_the_input: bool = False,
-                         exclude_itself: bool = True, must_be_equal=True, limited_to_channels=None):
+                         exclude_itself: bool = True, must_be_equal: bool = True, limited_to_channels: list = None):
+        if limited_to_channels is None:
+            limited_to_channels = []
+        if limited_to_users is None:
+            limited_to_users = []
         try:
             response.format(nickname="")
         except KeyError as e:
@@ -76,6 +80,8 @@ class ChatBot:
         self.WebSocketClient.after_message_hooks.append(hook)
 
     def set_welcome_message(self, message: str, limited_to_channels: list = None):
+        if limited_to_channels is None:
+            limited_to_channels = []
         try:
             message.format(nickname="", inviter="")
         except KeyError as e:
@@ -96,6 +102,8 @@ class ChatBot:
         self.WebSocketClient.after_message_hooks.append(hook)
 
     def set_farewell_message(self, message: str, limited_to_channels: list = None):
+        if limited_to_channels is None:
+            limited_to_channels = []
         try:
             message.format(nickname="")
         except KeyError as e:
@@ -153,7 +161,7 @@ class ChatBot:
     def accept_chat_invite(self, channel_url: str):
         self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
 
-    def enable_rate_limiter(self, max_calls: int, period: int):
+    def enable_rate_limiter(self, max_calls: float, period: float):
         self.WebSocketClient.RateLimiter.is_enabled = True
         self.WebSocketClient.RateLimiter.max_calls = max_calls
         self.WebSocketClient.RateLimiter.period = period
