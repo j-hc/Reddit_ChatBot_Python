@@ -9,8 +9,6 @@ class _RedditAuthBase:
         self._reddit_session = None
         self.sb_access_token = None
         self.user_id = None
-        self.reddit_username = None
-        self.reddit_password = None
 
     def authenticate(self):
         self._get_userid_sb_token()

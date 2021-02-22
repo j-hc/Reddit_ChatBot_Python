@@ -10,7 +10,12 @@ class ChatBot:
         self._kwargs = kwargs
         self._r_authentication = authentication
         if store_session:
-            pkl_n = authentication._api_token if isinstance(authentication, TokenAuth) else authentication.reddit_username
+            if isinstance(authentication, TokenAuth):
+                pkl_n = authentication._api_token
+            elif isinstance(authentication, PasswordAuth):
+                pkl_n = authentication.reddit_username
+            else:
+                pkl_n = None
             sb_access_token, user_id = self._load_session(pkl_n)
         else:
             reddit_authentication = self._r_authentication.authenticate()

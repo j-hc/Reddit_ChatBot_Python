@@ -97,8 +97,12 @@ class Tools:
             invitations.append(channel)
         return invitations
 
-    def leave_chat(self):
-        raise NotImplementedError
+    def leave_chat(self, channel_url, session_key):
+        data = json.dumps({
+            'user_id': self._reddit_auth.user_id
+        })
+        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/leave'
+        self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data)
 
     def create_channel(self, nicknames, group_name, own_name):
         assert isinstance(nicknames, list)
