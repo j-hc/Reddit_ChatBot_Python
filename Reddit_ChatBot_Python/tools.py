@@ -4,7 +4,8 @@ import json
 
 
 def _get_user_id(username):
-    response = requests.get(f"https://www.reddit.com/user/{username}/about.json", headers={'user-agent': web_useragent}).json()
+    response = requests.get(f"https://www.reddit.com/user/{username}/about.json",
+                            headers={'user-agent': web_useragent}).json()
     u_id = response.get('data', {}).get('id')
     if u_id is None:
         return None
@@ -19,7 +20,8 @@ class Invitation:
 
 class Tools:
     def __init__(self, reddit_auth):
-        self.headers = {
+        self._req_sesh = requests.Session()
+        self._req_sesh.headers = {
             'User-Agent': user_agent,
             'SendBird': f'Android,29,3.0.82,{SB_ai}',
             'SB-User-Agent': SB_User_Agent
@@ -33,7 +35,7 @@ class Tools:
 
     def _handled_req(self, method, uri, **kwargs):
         while True:
-            response = requests.request(method, uri, **kwargs)
+            response = self._req_sesh.request(method, uri, **kwargs)
             if response.status_code == 401 and self._is_reauthable:
                 new_access_token = self._reddit_auth.refresh_api_token()
                 new_headers = kwargs.get('headers', {})
@@ -44,42 +46,39 @@ class Tools:
                 return response
 
     def delete_message(self, channel_url, msg_id, session_key):
-        headers = {'Session-Key': session_key, **self.headers}
         uri = f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages/{msg_id}"
-        self._handled_req(method='DELETE', uri=uri, headers=headers)
+        self._handled_req(method='DELETE', uri=uri, headers={'Session-Key': session_key})
 
     def kick_user(self, channel_url, user_id, duration):
-        headers = {'Authorization': f'Bearer {self._reddit_auth._api_token}', **self.headers}
         data = json.dumps({
             'channel_url': channel_url,
             'user_id': user_id,
             'duration': duration
         })
         uri = f'{S_REDDIT}/api/v1/channel/kick/user'
-        self._handled_req(method='POST', uri=uri, headers=headers, data=data)
+        self._handled_req(method='POST', uri=uri, headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
+                          data=data)
 
     def invite_user(self, channel_url, nicknames):
         assert isinstance(nicknames, list)
         users = []
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
-        headers = {'Authorization': f'Bearer {self._reddit_auth._api_token}', **self.headers}
         data = json.dumps({
             'users': users
         })
         url = f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite'
-        self._handled_req(method='POST', uri=url, headers=headers, data=data)
+        self._handled_req(method='POST', uri=url, headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
+                          data=data)
 
-    def accept_chat_invite(self, inviation, session_key):
-        headers = {'Session-Key': session_key, **self.headers}
+    def accept_chat_invite(self, invitation, session_key):
         data = json.dumps({
             'user_id': self._reddit_auth.user_id
         })
-        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{inviation.data["channel_url"]}/accept'
-        return self._handled_req(method='PUT', uri=url, headers=headers, data=data).json
+        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{invitation.data["channel_url"]}/accept'
+        return self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data).json
 
     def get_chat_invites(self, session_key):
-        headers = {'Session-Key': session_key, **self.headers}
         params = (
             ('limit', '40'),
             ('order', 'latest_last_message'),
@@ -95,24 +94,24 @@ class Tools:
             ('show_frozen', 'true'),
         )
         url = f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels'
-        response = self._handled_req(method='GET', uri=url, headers=headers, params=params).json()
+        response = self._handled_req(method='GET', uri=url, headers={'Session-Key': session_key}, params=params).json()
         invitations = []
         for channel in response.get('channels', {}):
             invitations.append(Invitation(channel))
         return invitations
 
     def leave_chat(self):
-        pass
+        raise NotImplementedError
 
     def create_channel(self, nicknames, group_name, own_name):
         assert isinstance(nicknames, list)
         users = [{"user_id": self._reddit_auth.user_id, "nickname": own_name}]
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
-        headers = {'Authorization': f'Bearer {self._reddit_auth._api_token}', **self.headers}
         data = json.dumps({
             'users': users,
             'name': group_name
         })
         url = f'{S_REDDIT}/api/v1/sendbird/group_channels'
-        self._handled_req(method='POST', uri=url, headers=headers, data=data)
+        self._handled_req(method='POST', uri=url, headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
+                          data=data)
