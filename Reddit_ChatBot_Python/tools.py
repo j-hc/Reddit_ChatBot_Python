@@ -1,6 +1,7 @@
 import requests
 from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, user_agent, SB_User_Agent, SB_ai, web_useragent
 import json
+from types import SimpleNamespace
 
 
 def _get_user_id(username):
@@ -11,11 +12,6 @@ def _get_user_id(username):
         return None
     else:
         return f't2_{u_id}'
-
-
-class Invitation:
-    def __init__(self, data):
-        self.data = data
 
 
 class Tools:
@@ -75,7 +71,7 @@ class Tools:
         data = json.dumps({
             'user_id': self._reddit_auth.user_id
         })
-        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{invitation.data["channel_url"]}/accept'
+        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{invitation.channel_url}/accept'
         return self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data).json
 
     def get_chat_invites(self, session_key):
@@ -94,10 +90,11 @@ class Tools:
             ('show_frozen', 'true'),
         )
         url = f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels'
-        response = self._handled_req(method='GET', uri=url, headers={'Session-Key': session_key}, params=params).json()
+        response = self._handled_req(method='GET', uri=url, headers={'Session-Key': session_key}, params=params)
+        invts = json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))
         invitations = []
-        for channel in response.get('channels', {}):
-            invitations.append(Invitation(channel))
+        for channel in invts.channels:
+            invitations.append(channel)
         return invitations
 
     def leave_chat(self):

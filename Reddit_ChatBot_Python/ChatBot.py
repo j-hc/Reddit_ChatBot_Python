@@ -2,7 +2,7 @@ from .WebSockClient import WebSockClient
 import pickle
 from .RedditAuthentication import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
-from .tools import Tools, Invitation
+from .tools import Tools
 
 
 class ChatBot:
@@ -132,8 +132,8 @@ class ChatBot:
     def create_channel(self, nicknames: list, group_name: str):
         self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)
 
-    def accept_chat_invite(self, inviation: Invitation):
-        self._tools.accept_chat_invite(inviation, session_key=self.WebSocketClient.session_key)
+    def accept_chat_invite(self, invitation):
+        self._tools.accept_chat_invite(invitation, session_key=self.WebSocketClient.session_key)
 
     def enable_rate_limiter(self, max_calls: int, period: int):
         self.WebSocketClient.RateLimiter.is_enabled = True
