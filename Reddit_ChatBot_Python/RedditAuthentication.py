@@ -51,7 +51,6 @@ class PasswordAuth(_RedditAuthBase):
         headers = {
             'Authorization': f'Basic {OAUTH_CLIENT_ID_B64}',
             'User-Agent': MOBILE_USERAGENT,
-            'Content-Type': 'application/json; charset=UTF-8',
             'client-vendor-id': self._client_vendor_uuid,
         }
         data = '{"scopes":["*"]}'
@@ -66,7 +65,6 @@ class PasswordAuth(_RedditAuthBase):
         }
         headers = {
             'User-Agent': WEB_USERAGENT,
-            'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': f'Bearer {self._api_token}',
         }
         data = {
@@ -81,8 +79,6 @@ class PasswordAuth(_RedditAuthBase):
     def _do_login(self):
         headers = {
             'User-Agent': WEB_USERAGENT,
-            'Accept': 'application/json, text/javascript, */*; q=0.01',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         }
         data = {
             'op': 'login',
