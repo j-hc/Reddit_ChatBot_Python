@@ -91,11 +91,14 @@ class WebSockClient:
             logi_err = None
         if logi_err is None:
             self.session_key = resp.key
-            self.channelid_sub_pairs = WebSocketUtils.get_current_channels(self._user_id, self.session_key)
+            self.update_channelid_sub_pair()
             self.own_name = resp.nickname
         else:
             self.logger.error(f"err: {resp.message}")
             self.is_logi_err = True
+
+    def update_channelid_sub_pair(self):
+        self.channelid_sub_pairs = WebSocketUtils.get_current_channels(self._user_id, self.session_key)
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:

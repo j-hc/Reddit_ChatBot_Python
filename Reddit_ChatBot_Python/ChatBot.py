@@ -155,6 +155,7 @@ class ChatBot:
 
     def accept_chat_invite(self, channel_url: str):
         self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
+        self.WebSocketClient.update_channelid_sub_pair()
 
     def enable_rate_limiter(self, max_calls: float, period: float):
         self.WebSocketClient.RateLimiter.is_enabled = True
