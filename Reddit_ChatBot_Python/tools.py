@@ -24,7 +24,7 @@ class Tools:
         }
         self._reddit_auth = reddit_auth
         try:
-            r = self._reddit_auth.reddit_username
+            _ = self._reddit_auth.reddit_username
             self._is_reauthable = True
         except AttributeError:
             self._is_reauthable = False

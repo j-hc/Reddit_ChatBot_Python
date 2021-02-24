@@ -30,7 +30,7 @@ class WebSockClient:
 
         websocket.enableTrace(enable_trace)
         socket_base = "wss://sendbirdproxyk8s.chat.redditmedia.com"
-        ws_params = {
+        self.ws_params = {
             "user_id": self._user_id,
             "access_token": access_token,
             "p": "Android",
@@ -41,7 +41,7 @@ class WebSockClient:
             "active": "1"
         }
 
-        ws_url = WebSocketUtils.get_ws_url(socket_base, ws_params)
+        ws_url = WebSocketUtils.get_ws_url(socket_base, self.ws_params)
         self.ws = self._get_ws_app(ws_url)
 
         self.ws.on_open = lambda ws: self.on_open(ws)

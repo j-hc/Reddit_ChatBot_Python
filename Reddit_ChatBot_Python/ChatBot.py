@@ -7,7 +7,6 @@ from .tools import Tools
 
 class ChatBot:
     def __init__(self, authentication: _RedditAuthBase, store_session: bool = True, **kwargs):
-        self._kwargs = kwargs
         self._r_authentication = authentication
         if store_session:
             if isinstance(authentication, TokenAuth):
@@ -21,11 +20,8 @@ class ChatBot:
             reddit_authentication = self._r_authentication.authenticate()
             sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
 
-        self._init_websockclient(sb_access_token, user_id)
+        self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
         self._tools = Tools(self._r_authentication)
-
-    def _init_websockclient(self, sb_access_token, user_id):
-        self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **self._kwargs)
 
     def get_chatroom_name_id_pairs(self) -> dict:
         return self.WebSocketClient.channelid_sub_pairs
@@ -44,7 +40,7 @@ class ChatBot:
         def hook(resp):
             if resp.type_f == 'SYEV':
                 try:
-                    inviter = resp.data.inviter
+                    _ = resp.data.inviter
                     invte = [invitee.nickname for invitee in resp.data.invitees]
                 except AttributeError:
                     return
@@ -69,8 +65,7 @@ class ChatBot:
                 sent_message = resp.message.lower() if lower_the_input else resp.message
                 if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
                         and (exclude_itself and resp.user.name != self.WebSocketClient.own_name) \
-                        and (
-                        (must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)) \
+                        and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)) \
                         and (self.WebSocketClient.channelid_sub_pairs.get(
                     resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                     response_prepped = response.format(nickname=resp.user.name)
@@ -113,7 +108,7 @@ class ChatBot:
             if resp.type_f == "SYEV" and (
                     self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                 try:
-                    dispm = resp.channel.disappearing_message
+                    _ = resp.channel.disappearing_message
                     nickname = resp.data.nickname
                 except AttributeError:
                     return
@@ -138,7 +133,7 @@ class ChatBot:
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
                 self.WebSocketClient.logger.info('Re-Authenticating...')
                 sb_access_token, user_id = self._load_session(self._r_authentication.reddit_username, force_reauth=True)
-                self._init_websockclient(sb_access_token, user_id)
+                self.WebSocketClient.ws_params.update({'access_token': sb_access_token})
             elif not (auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException)):
                 break
             self.WebSocketClient.logger.info('Auto Reconnecting...')
@@ -152,7 +147,7 @@ class ChatBot:
     def invite_user_to_channel(self, channel_url: str, nicknames: list):
         self._tools.invite_user(channel_url, nicknames)
 
-    def get_chat_invites(self):
+    def get_chat_invites(self) -> list:
         return self._tools.get_chat_invites(session_key=self.WebSocketClient.session_key)
 
     def create_channel(self, nicknames: list, group_name: str):
