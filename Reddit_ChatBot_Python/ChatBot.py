@@ -151,7 +151,9 @@ class ChatBot:
         return self._tools.get_chat_invites(session_key=self.WebSocketClient.session_key)
 
     def create_channel(self, nicknames: list, group_name: str):
-        return self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)
+        channel = self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)
+        self.WebSocketClient.update_channelid_sub_pair()
+        return channel
 
     def accept_chat_invite(self, channel_url: str):
         self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
