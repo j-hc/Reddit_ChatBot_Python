@@ -105,7 +105,6 @@ class Tools:
         self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data)
 
     def create_channel(self, nicknames, group_name, own_name):
-        assert isinstance(nicknames, list)
         users = [{"user_id": self._reddit_auth.user_id, "nickname": own_name}]
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
@@ -114,5 +113,7 @@ class Tools:
             'name': group_name
         })
         url = f'{S_REDDIT}/api/v1/sendbird/group_channels'
-        self._handled_req(method='POST', uri=url, headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
-                          data=data)
+        response = self._handled_req(method='POST', uri=url,
+                                     headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
+                                     data=data)
+        return json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))
