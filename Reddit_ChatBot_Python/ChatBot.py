@@ -24,6 +24,9 @@ class ChatBot:
         self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
         self._tools = Tools(self._r_authentication)
 
+        self._on_join_used = False
+        self._on_left_used = False
+
     def get_chatroom_name_id_pairs(self) -> dict:
         return self.WebSocketClient.channelid_sub_pairs
 
@@ -36,19 +39,6 @@ class ChatBot:
             self.WebSocketClient.after_message_hooks.append(hook)
 
         return after_frame_hook
-
-    def on_invitation_hook(self, func):
-        def hook(resp):
-            try:
-                _ = resp.data.inviter
-                invte = [invitee.nickname for invitee in resp.data.invitees]
-            except AttributeError:
-                return
-            if not (len(invte) == 1 and invte[0] == self.WebSocketClient.own_name):
-                return
-            func(resp)
-
-        self.after_message_hook(frame_type='SYEV')(hook)
 
     def set_respond_hook(self, input_: str, response: str, limited_to_users: list = None, lower_the_input: bool = False,
                          exclude_itself: bool = True, must_be_equal: bool = True, limited_to_channels: list = None):
@@ -74,6 +64,33 @@ class ChatBot:
 
         self.after_message_hook(frame_type='MESG')(hook)
 
+    def on_invitation_hook(self, func):
+        def hook(resp):
+            try:
+                _ = resp.data.inviter
+                invte = [invitee.nickname for invitee in resp.data.invitees]
+            except AttributeError:
+                return
+            if not (len(invte) == 1 and invte[0] == self.WebSocketClient.own_name):
+                return
+            func(resp)
+
+        self.after_message_hook(frame_type='SYEV')(hook)
+
+    def on_user_join_hook(self, func):
+        if self._on_join_used:
+            raise Exception("You can't use on_user_join_hook more than once")
+        self._on_join_used = True
+
+        def hook(resp):
+            try:
+                _ = resp.data.users[0].nickname
+                _ = resp.data.users[0].inviter.nickname
+            except AttributeError:
+                return
+            func(resp)
+        self.after_message_hook(frame_type='SYEV')(hook)
+
     def set_welcome_message(self, message: str, limited_to_channels: list = None):
         if limited_to_channels is None:
             limited_to_channels = []
@@ -83,16 +100,27 @@ class ChatBot:
             raise Exception("Keys should be {nickname} and {inviter}") from e
 
         def hook(resp):
-            if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels):
-                try:
-                    nickname = resp.data.users[0].nickname
-                    inviter = resp.data.users[0].inviter.nickname
-                except (AttributeError, IndexError):
-                    return
-                response_prepped = message.format(nickname=nickname, inviter=inviter)
-                self.WebSocketClient.ws_send_snoomoji(response_prepped, resp.channel_url)
+            if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
+                    not bool(limited_to_channels):
+                response_prepped = message.format(nickname=resp.data.users[0].nickname,
+                                                  inviter=resp.data.users[0].inviter.nickname)
+                self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
+        self.on_user_join_hook(hook)
+
+    def on_user_left_hook(self, func):
+        if self._on_left_used:
+            raise Exception("You can't use on_user_left_hook more than once")
+        self._on_left_used = True
+
+        def hook(resp):
+            try:
+                _ = resp.channel.disappearing_message
+                _ = resp.data.nickname
+            except AttributeError:
+                return
+            func(resp)
         self.after_message_hook(frame_type='SYEV')(hook)
 
     def set_farewell_message(self, message: str, limited_to_channels: list = None):
@@ -104,17 +132,13 @@ class ChatBot:
             raise Exception("Key should be {nickname}") from e
 
         def hook(resp):
-            if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels):
-                try:
-                    _ = resp.channel.disappearing_message
-                    nickname = resp.data.nickname
-                except AttributeError:
-                    return
-                response_prepped = message.format(nickname=nickname)
+            if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
+                    not bool(limited_to_channels):
+                response_prepped = message.format(nickname=resp.data.nickname)
                 self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.after_message_hook(frame_type='SYEV')(hook)
+        self.on_user_left_hook(hook)
 
     def send_message(self, text: str, channel_url: str):
         self.WebSocketClient.ws_send_message(text, channel_url)

@@ -5,7 +5,7 @@ from .Utils.FrameModel import FrameModel
 import logging
 import _thread as thread
 from .Utils import WebSocketUtils
-from .Utils.CONST import SB_User_Agent, SB_ai, MESG_regular, MESG_snoo, TPST
+from .Utils.CONST import MESG_regular, MESG_snoo, TPST
 
 
 class WebSockClient:
