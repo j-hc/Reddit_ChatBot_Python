@@ -27,26 +27,12 @@ class WebSockClient:
         logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
         self.logger = logging.getLogger("websocket")
         self.logger.disabled = not other_logging
-
         websocket.enableTrace(enable_trace)
-        socket_base = "wss://sendbirdproxyk8s.chat.redditmedia.com"
-        self.ws_params = {
-            "user_id": self._user_id,
-            "access_token": access_token,
-            "p": "Android",
-            "pv": 30,
-            "sv": "3.0.144",
-            "ai": SB_ai,
-            "SB-User-Agent": SB_User_Agent,
-            "active": "1"
-        }
 
-        ws_url = WebSocketUtils.get_ws_url(socket_base, self.ws_params)
+        ws_url = WebSocketUtils.get_ws_url(self._user_id, access_token)
         self.ws = self._get_ws_app(ws_url)
 
         self.ws.on_open = lambda ws: self.on_open(ws)
-        # self.ws.on_ping = lambda ws, r: self.on_ping(ws, r)
-        # self.ws.on_pong = lambda ws, r: self.on_pong(ws, r)
 
         self.req_id = int(time.time() * 1000)
         self.own_name = None
@@ -64,6 +50,12 @@ class WebSockClient:
                                     on_error=lambda ws, msg: self.on_error(ws, msg),
                                     on_close=lambda ws: self.on_close(ws))
         return ws
+
+    def ws_run_forever(self):
+        self.ws.run_forever(ping_interval=15, ping_timeout=5)
+
+    def update_ws_app_urls_access_token(self, access_token):
+        self.ws.url = WebSocketUtils.get_ws_url(self._user_id, access_token)
 
     def on_open(self, ws):
         self.logger.info("### successfully connected to the websocket ###")

@@ -1,10 +1,21 @@
 from urllib.parse import urlencode
 import requests
-from .CONST import SB_User_Agent, SB_PROXY_CHATMEDIA
+from .CONST import SB_User_Agent, SB_PROXY_CHATMEDIA, SB_ai
 
 
-def get_ws_url(socket_base, params):
-    return f"{socket_base}/?{urlencode(params)}"
+def get_ws_url(user_id, access_token):
+    socket_base = "wss://sendbirdproxyk8s.chat.redditmedia.com"
+    ws_params = {
+        "user_id": user_id,
+        "access_token": access_token,
+        "p": "Android",
+        "pv": 30,
+        "sv": "3.0.144",
+        "ai": SB_ai,
+        "SB-User-Agent": SB_User_Agent,
+        "active": "1"
+    }
+    return f"{socket_base}/?{urlencode(ws_params)}"
 
 
 def print_chat_(resp, channelid_sub_pairs):

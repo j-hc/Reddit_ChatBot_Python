@@ -8,6 +8,7 @@ from .tools import Tools
 class ChatBot:
     def __init__(self, authentication: _RedditAuthBase, store_session: bool = True, **kwargs):
         self._r_authentication = authentication
+        self._store_session = store_session
         if store_session:
             if isinstance(authentication, TokenAuth):
                 pkl_n = authentication._api_token
@@ -129,11 +130,11 @@ class ChatBot:
 
     def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 100):
         for _ in range(max_retries):
-            self.WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5)
+            self.WebSocketClient.ws_run_forever()
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
                 self.WebSocketClient.logger.info('Re-Authenticating...')
-                sb_access_token, user_id = self._load_session(self._r_authentication.reddit_username, force_reauth=True)
-                self.WebSocketClient.ws_params.update({'access_token': sb_access_token})
+                sb_access_token, _ = self._load_session(self._r_authentication.reddit_username, force_reauth=True)
+                self.WebSocketClient.update_ws_app_urls_access_token(sb_access_token)
             elif not (auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException)):
                 break
             self.WebSocketClient.logger.info('Auto Reconnecting...')
