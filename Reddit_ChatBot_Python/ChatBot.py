@@ -24,9 +24,6 @@ class ChatBot:
         self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
         self._tools = Tools(self._r_authentication)
 
-        self._on_join_used = False
-        self._on_left_used = False
-
     def get_chatroom_name_id_pairs(self) -> dict:
         return self.WebSocketClient.channelid_sub_pairs
 
@@ -87,10 +84,6 @@ class ChatBot:
         self.on_frame_hook(frame_type='DELM')(hook)
 
     def on_user_joined_hook(self, func):
-        if self._on_join_used:
-            raise Exception("You can't use on_user_joined_hook more than once")
-        self._on_join_used = True
-
         def hook(resp):
             try:
                 _ = resp.data.users[0].nickname
@@ -119,10 +112,6 @@ class ChatBot:
         self.on_user_joined_hook(hook)
 
     def on_user_left_hook(self, func):
-        if self._on_left_used:
-            raise Exception("You can't use on_user_left_hook more than once")
-        self._on_left_used = True
-
         def hook(resp):
             try:
                 _ = resp.channel.disappearing_message
