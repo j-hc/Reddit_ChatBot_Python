@@ -133,7 +133,10 @@ class ChatBot:
             self.WebSocketClient.ws_run_forever()
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
                 self.WebSocketClient.logger.info('Re-Authenticating...')
-                sb_access_token, _ = self._load_session(self._r_authentication.reddit_username, force_reauth=True)
+                if self._store_session:
+                    sb_access_token, _ = self._load_session(self._r_authentication.reddit_username, force_reauth=True)
+                else:
+                    sb_access_token = self._r_authentication.authenticate()['sb_access_token']
                 self.WebSocketClient.update_ws_app_urls_access_token(sb_access_token)
             elif not (auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException)):
                 break
