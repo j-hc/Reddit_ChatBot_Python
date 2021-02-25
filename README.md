@@ -1,7 +1,7 @@
 Reddit ChatRoom
 ---------------
 
-a fully functional (almost) bot library for reddit chatrooms!
+a fully featured bot library for reddit chatrooms!
 
 no selenium no bullsh*t, just directly websocket
 
@@ -49,7 +49,7 @@ chatbot.enable_rate_limiter(max_calls=23, # how many messages will be sent by th
                             )
 
 # now you can add hooks which will be executed when a frame is received like so:
-@chatbot.after_message_hook() # default frame_type is MESG
+@chatbot.on_message_hook
 def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of the received frame
     messg_s = resp.message.split()
     if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
@@ -69,7 +69,7 @@ def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of
 
 # now everytime someone says "!roll 1 100", the bot will roll a dice between 1 and 100 and send the result!
 
-@chatbot.after_message_hook()
+@chatbot.on_message_hook
 def keeper_of_decency(resp): # WE WILL KEEP THE DECENCY IN THE CHAT BOIS
     if resp.message == "*some very bad slur word*":
         chatbot.kick_user(channel_url=resp.channel_url, user_id=resp.user.guest_id, duration=600) # duration is in secs
@@ -91,7 +91,7 @@ chatbot.set_welcome_message("welcome to the my cozy chat group u/{nickname}!)", 
 # and a farewell message too:
 chatbot.set_farewell_message("Too bad u/{nickname} left us :(", limited_to_channels=["my cozy chat group"])
 
-# there is also another hook type for invitation frames
+# there are also other types of hooks like this one for invitations
 @chatbot.on_invitation_hook
 def on_invit(resp):
     if resp.channel_type == "group":
@@ -348,7 +348,7 @@ Showcase of some other fun stuff you can do with this..
 ```python
 messages_f_handle = open('reddit-chat-msgs.txt', 'w')
 
-@chatbot.after_message_hook(frame_type='MESG')
+@chatbot.on_message_hook(frame_type='MESG')
 def save_chat_messages_into_a_txt_file(resp):
     chatroom_name_id_pairs = chatbot.get_chatroom_name_id_pairs()
     message = resp.message
@@ -362,15 +362,21 @@ def save_chat_messages_into_a_txt_file(resp):
 **Catch deleted messages**
 
 ```python
-@chatbot.after_message_hook(frame_type='DELM')
+latest_messages = {}
+
+@chatbot.on_message_hook
+def save_msg_ids(resp):
+    latest_messages.update({resp.msg_id: resp.message})
+
+@chatbot.on_message_deleted_hook
 def catch_deleted_messages(resp):
-    caught_deleted_message_id = resp.msg_id
+    chatbot.send_message(f"this message was deleted: {latest_messages.get(resp.msg_id)}", resp.channel_url)
 ```
 
 **See who invited who**
 
 ```python
-@chatbot.after_message_hook(frame_type='SYEV')
+@chatbot.on_frame_hook(frame_type='SYEV')
 def catch_invitees_and_inviters(resp):
     try:
         inviter = resp.data.inviter.nickname
