@@ -30,7 +30,7 @@ class ChatBot:
     def get_chatroom_name_id_pairs(self) -> dict:
         return self.WebSocketClient.channelid_sub_pairs
 
-    def after_message_hook(self, frame_type: str = 'MESG'):
+    def on_message_hook(self, frame_type: str = 'MESG'):
         def after_frame_hook(func):
             def hook(resp):
                 if resp.type_f == frame_type:
@@ -62,7 +62,7 @@ class ChatBot:
                 self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.after_message_hook(frame_type='MESG')(hook)
+        self.on_message_hook(frame_type='MESG')(hook)
 
     def on_invitation_hook(self, func):
         def hook(resp):
@@ -75,11 +75,17 @@ class ChatBot:
                 return
             func(resp)
 
-        self.after_message_hook(frame_type='SYEV')(hook)
+        self.on_message_hook(frame_type='SYEV')(hook)
 
-    def on_user_join_hook(self, func):
+    def on_message_deleted_hook(self, func):
+        def hook(resp):
+            func(resp)
+
+        self.on_message_hook(frame_type='DELM')(hook)
+
+    def on_user_joined_hook(self, func):
         if self._on_join_used:
-            raise Exception("You can't use on_user_join_hook more than once")
+            raise Exception("You can't use on_user_joined_hook more than once")
         self._on_join_used = True
 
         def hook(resp):
@@ -89,7 +95,7 @@ class ChatBot:
             except AttributeError:
                 return
             func(resp)
-        self.after_message_hook(frame_type='SYEV')(hook)
+        self.on_message_hook(frame_type='SYEV')(hook)
 
     def set_welcome_message(self, message: str, limited_to_channels: list = None):
         if limited_to_channels is None:
@@ -107,7 +113,7 @@ class ChatBot:
                 self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.on_user_join_hook(hook)
+        self.on_user_joined_hook(hook)
 
     def on_user_left_hook(self, func):
         if self._on_left_used:
@@ -121,7 +127,7 @@ class ChatBot:
             except AttributeError:
                 return
             func(resp)
-        self.after_message_hook(frame_type='SYEV')(hook)
+        self.on_message_hook(frame_type='SYEV')(hook)
 
     def set_farewell_message(self, message: str, limited_to_channels: list = None):
         if limited_to_channels is None:

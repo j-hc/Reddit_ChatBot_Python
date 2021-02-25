@@ -118,7 +118,7 @@ You access stuff like this with dot operator:
     nickname = resp.user.name
 
 <details>
-  <summary>Instance of MESG Frame (regular chat message)</summary>
+  <summary>Instance of regular chat message Frame - on_message_hook()</summary>
   
 ```json
 {
@@ -142,15 +142,15 @@ You access stuff like this with dot operator:
     "friend_discovery_key": null,
     "role": "",
     "friend_name": null,
-    "id": 10000,
-  },
+    "id": 10000
+  }
 }
 ```
 </details>
 
 
 <details>
-  <summary>Instance of Invitation Frame</summary>
+  <summary>Instance of Invitation Frame - on_invitation_hook()</summary>
   
 ```json
 {
@@ -193,7 +193,7 @@ You access stuff like this with dot operator:
 
 
 <details>
-  <summary>Instance of User Joined Frame</summary>
+  <summary>Instance of User Joined Frame - on_user_joined_hook()</summary>
   
 ```json
 {
@@ -234,7 +234,7 @@ You access stuff like this with dot operator:
 
 
 <details>
-  <summary>Instance of User Left Frame</summary>
+  <summary>Instance of User Left Frame - on_user_left_hook()</summary>
   
 ```json
 {
@@ -322,6 +322,22 @@ You access stuff like this with dot operator:
 ```
 </details>
 
+
+<details>
+  <summary>Instance of Deleted Message Frame - on_message_deleted_hook()</summary>
+  
+```json
+{
+  "is_super": false,
+  "msg_id": 2323966291,
+  "ts": 1614266924885,
+  "channel_type": "group",
+  "channel_id": 177623421,
+  "sts": 1614266924885,
+  "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000"
+}
+```
+</details>
 
 
 Showcase of some other fun stuff you can do with this..
