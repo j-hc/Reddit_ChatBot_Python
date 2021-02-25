@@ -39,16 +39,16 @@ class ChatBot:
 
     def on_invitation_hook(self, func):
         def hook(resp):
-            if resp.type_f == 'SYEV':
-                try:
-                    _ = resp.data.inviter
-                    invte = [invitee.nickname for invitee in resp.data.invitees]
-                except AttributeError:
-                    return
-                if not (len(invte) == 1 and invte[0] == self.WebSocketClient.own_name):
-                    return
-                func(resp)
-        self.WebSocketClient.after_message_hooks.append(hook)
+            try:
+                _ = resp.data.inviter
+                invte = [invitee.nickname for invitee in resp.data.invitees]
+            except AttributeError:
+                return
+            if not (len(invte) == 1 and invte[0] == self.WebSocketClient.own_name):
+                return
+            func(resp)
+
+        self.after_message_hook(frame_type='SYEV')(hook)
 
     def set_respond_hook(self, input_: str, response: str, limited_to_users: list = None, lower_the_input: bool = False,
                          exclude_itself: bool = True, must_be_equal: bool = True, limited_to_channels: list = None):
@@ -62,18 +62,17 @@ class ChatBot:
             raise Exception("You need to set a {nickname} key in welcome message!") from e
 
         def hook(resp):
-            if resp.type_f == "MESG":
-                sent_message = resp.message.lower() if lower_the_input else resp.message
-                if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
-                        and (exclude_itself and resp.user.name != self.WebSocketClient.own_name) \
-                        and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)) \
-                        and (self.WebSocketClient.channelid_sub_pairs.get(
-                    resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
-                    response_prepped = response.format(nickname=resp.user.name)
-                    self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
-                    return True
+            sent_message = resp.message.lower() if lower_the_input else resp.message
+            if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
+                    and (exclude_itself and resp.user.name != self.WebSocketClient.own_name) \
+                    and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)) \
+                    and (self.WebSocketClient.channelid_sub_pairs.get(
+                resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
+                response_prepped = response.format(nickname=resp.user.name)
+                self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
+                return True
 
-        self.WebSocketClient.after_message_hooks.append(hook)
+        self.after_message_hook(frame_type='MESG')(hook)
 
     def set_welcome_message(self, message: str, limited_to_channels: list = None):
         if limited_to_channels is None:
@@ -84,8 +83,7 @@ class ChatBot:
             raise Exception("Keys should be {nickname} and {inviter}") from e
 
         def hook(resp):
-            if resp.type_f == "SYEV" and (
-                    self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
+            if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels):
                 try:
                     nickname = resp.data.users[0].nickname
                     inviter = resp.data.users[0].inviter.nickname
@@ -95,7 +93,7 @@ class ChatBot:
                 self.WebSocketClient.ws_send_snoomoji(response_prepped, resp.channel_url)
                 return True
 
-        self.WebSocketClient.after_message_hooks.append(hook)
+        self.after_message_hook(frame_type='SYEV')(hook)
 
     def set_farewell_message(self, message: str, limited_to_channels: list = None):
         if limited_to_channels is None:
@@ -106,8 +104,7 @@ class ChatBot:
             raise Exception("Key should be {nickname}") from e
 
         def hook(resp):
-            if resp.type_f == "SYEV" and (
-                    self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
+            if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or not bool(limited_to_channels):
                 try:
                     _ = resp.channel.disappearing_message
                     nickname = resp.data.nickname
@@ -117,7 +114,7 @@ class ChatBot:
                 self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.WebSocketClient.after_message_hooks.append(hook)
+        self.after_message_hook(frame_type='SYEV')(hook)
 
     def send_message(self, text: str, channel_url: str):
         self.WebSocketClient.ws_send_message(text, channel_url)
