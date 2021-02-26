@@ -348,7 +348,7 @@ Showcase of some other fun stuff you can do with this..
 ```python
 messages_f_handle = open('reddit-chat-msgs.txt', 'w')
 
-@chatbot.on_message_hook(frame_type='MESG')
+@chatbot.on_message_hook
 def save_chat_messages_into_a_txt_file(resp):
     chatroom_name_id_pairs = chatbot.get_chatroom_name_id_pairs()
     message = resp.message
