@@ -78,10 +78,7 @@ class ChatBot:
         self.on_frame_hook(frame_type='SYEV')(hook)
 
     def on_message_deleted_hook(self, func):
-        def hook(resp):
-            func(resp)
-
-        self.on_frame_hook(frame_type='DELM')(hook)
+        self.on_frame_hook(frame_type='DELM')(func)
 
     def on_user_joined_hook(self, func):
         def hook(resp):
