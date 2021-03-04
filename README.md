@@ -12,21 +12,25 @@ re-authentication prior to auto reconnect is only possible with PasswordAuth
 
 Installation
 ------------
+    
+with recommended but optional extra packages:
 
-    pip3 install Reddit-ChatBot-Python
+    pip3 install Reddit-ChatBot-Python[extra]
+
 
 required:
 
     python<=3.8.7
 
-packages:
+packages required:
 
     websocket_client
     requests
+
+extra packages needed for extra performance in websocket operations:
+
     numpy
     wsaccel
-
-wsaccel and numpy are for extra performance in websocket operations
 
 
 Example
