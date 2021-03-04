@@ -5,7 +5,7 @@ from .Utils.FrameModel import FrameModel
 import logging
 import _thread as thread
 from .Utils import WebSocketUtils
-from .Utils.CONST import MESG_regular, MESG_snoo, TPST
+from .Utils.CONST import MESG_regular, MESG_snoo, TPST, TPEN
 
 
 class WebSockClient:
@@ -115,6 +115,10 @@ class WebSockClient:
 
     def ws_send_typing_indicator(self, channel_url):
         payload = TPST.format(channel_url=channel_url, time=int(time.time() * 1000))
+        self.ws.send(payload)
+
+    def ws_stop_typing_indicator(self, channel_url):
+        payload = TPEN.format(channel_url=channel_url, time=int(time.time() * 1000))
         self.ws.send(payload)
 
     def on_error(self, ws, error):

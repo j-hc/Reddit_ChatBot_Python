@@ -17,11 +17,6 @@ with recommended but optional extra packages:
 
     pip3 install Reddit-ChatBot-Python[extra]
 
-
-required:
-
-    python<=3.8.7
-
 packages required:
 
     websocket_client
@@ -375,16 +370,4 @@ def save_msg_ids(resp):
 @chatbot.on_message_deleted_hook
 def catch_deleted_messages(resp):
     chatbot.send_message(f"this message was deleted: {latest_messages.get(resp.msg_id)}", resp.channel_url)
-```
-
-**See who invited who**
-
-```python
-@chatbot.on_frame_hook(frame_type='SYEV')
-def catch_invitees_and_inviters(resp):
-    try:
-        inviter = resp.data.inviter.nickname
-        invitees = [invitee.nickname for invitee in resp.data.invitees]
-    except AttributeError:
-        return
 ```

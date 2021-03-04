@@ -144,6 +144,9 @@ class ChatBot:
     def send_typing_indicator(self, channel_url: str):
         self.WebSocketClient.ws_send_typing_indicator(channel_url)
 
+    def stop_typing_indicator(self, channel_url: str):
+        self.WebSocketClient.ws_stop_typing_indicator(channel_url)
+
     def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 100):
         for _ in range(max_retries):
             self.WebSocketClient.ws_run_forever()
