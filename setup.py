@@ -11,10 +11,9 @@ setup(
     description='a pretty basic websocket wrapper for reddit chatrooms',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    python_requires='<=3.8.7',
     install_requires=[
         "requests",
-        "websocket_client"
+        "websocket_client==0.58.0"
     ],
     extras_require={"extra": ["numpy", "wsaccel"]}
 )
