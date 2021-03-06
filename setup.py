@@ -8,7 +8,7 @@ setup(
     author='scrubjay55',
     license="APLv2",
     packages=['Reddit_ChatBot_Python', 'Reddit_ChatBot_Python.Utils'],
-    description='a pretty basic websocket wrapper for reddit chatrooms',
+    description='an event-driven chatbot library for reddit chatrooms',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     install_requires=[

@@ -1,13 +1,13 @@
 Reddit ChatRoom
 ---------------
 
-a fully featured bot library for reddit chatrooms!
+a fully featured, event-driven chatbot library for reddit chatrooms in python!
 
 no selenium no bullsh*t, just directly websocket
 
-works either with reddit username & password or the api token (not a regular one you get from your registered app)
+works either with reddit username & password or the api token (not a regular one you get from your registered app as it's not fully scoped)
 
-re-authentication prior to auto reconnect is only possible with PasswordAuth
+re-authentication prior to auto re-connect is only possible with PasswordAuth
 
 
 Installation
@@ -62,12 +62,14 @@ def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of
         # send typing indicator cuz why not? maybe they think you are a real person
         chatbot.send_typing_indicator(resp.channel_url)
         chatbot.send_message(response_text, resp.channel_url)  # and send the message, always add resp.channel_url as the second argument
+        chatbot.stop_typing_indicator(resp.channel_url)
         chatbot.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not??
         return True  # return true if you want to be done with checking the other hooks, otherwise return None or False
         # keep in mind that first added hooks gets executed first
 
 # now everytime someone says "!roll 1 100", the bot will roll a dice between 1 and 100 and send the result!
 
+# there are also host actions availabe but ofc they require the bot account to be the host of the chatroom
 @chatbot.on_message_hook
 def keeper_of_decency(resp): # WE WILL KEEP THE DECENCY IN THE CHAT BOIS
     if resp.message == "*some very bad slur word*":
@@ -108,7 +110,7 @@ def on_invit(resp):
 chatbot.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
 ```
 
-Instances of Frames
+Instances of Frames ("resp" object of the events)
 ------------------
 
 You access stuff like this with dot operator:
