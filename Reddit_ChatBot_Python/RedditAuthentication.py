@@ -4,20 +4,19 @@ from .Utils.CONST import MOBILE_USERAGENT, OAUTH_REDDIT, S_REDDIT, WEB_USERAGENT
 
 
 class _RedditAuthBase:
-    def __init__(self, _api_token=None):
-        self._api_token = _api_token
-        self._reddit_session = None
+    def __init__(self, api_token=None):
+        self.api_token = api_token
         self.sb_access_token = None
         self.user_id = None
 
     def authenticate(self):
         self._get_userid_sb_token()
-        return {'sb_access_token': self.sb_access_token, 'user_id': self.user_id, "api_token": self._api_token, 'reddit_session': self._reddit_session}
+        return {'sb_access_token': self.sb_access_token, 'user_id': self.user_id}
 
     def _get_userid_sb_token(self):
         headers = {
             'User-Agent': MOBILE_USERAGENT,
-            'Authorization': f'Bearer {self._api_token}'
+            'Authorization': f'Bearer {self.api_token}'
         }
         sb_token_j = requests.get(f'{S_REDDIT}/api/v1/sendbird/me', headers=headers).json()
         self.sb_access_token = sb_token_j['sb_access_token']
@@ -32,22 +31,21 @@ class PasswordAuth(_RedditAuthBase):
         self.reddit_password = reddit_password
         self.twofa = twofa
         self._client_vendor_uuid = str(uuid.uuid4())
+        self._reddit_session = None
 
     def authenticate(self):
-        if not (self._reddit_session is None and self._api_token is None):
+        if not (self._reddit_session is None and self.api_token is None):
             self.refresh_api_token()
         else:
             self._reddit_session = self._do_login()
             if self._reddit_session is None:
                 raise Exception("Wrong username or password")
-            self._api_token = self._get_api_token(self._reddit_session)
+            self.api_token = self._get_api_token(self._reddit_session)
 
         return super(PasswordAuth, self).authenticate()
 
     def _get_api_token(self, reddit_session):
-        cookies = {
-            'reddit_session': reddit_session,
-        }
+        cookies = {'reddit_session': reddit_session}
         headers = {
             'Authorization': f'Basic {OAUTH_CLIENT_ID_B64}',
             'User-Agent': MOBILE_USERAGENT,
@@ -65,16 +63,16 @@ class PasswordAuth(_RedditAuthBase):
         }
         headers = {
             'User-Agent': WEB_USERAGENT,
-            'Authorization': f'Bearer {self._api_token}',
+            'Authorization': f'Bearer {self.api_token}',
         }
         data = {
-            'accessToken': self._api_token,
+            'accessToken': self.api_token,
             'unsafeLoggedOut': 'false',
             'safe': 'true'
         }
         response = requests.post(f'{WWW_REDDIT}/refreshproxy', headers=headers, cookies=cookies, data=data).json()
-        self._api_token = response['accessToken']
-        return self._api_token
+        self.api_token = response['accessToken']
+        return self.api_token
 
     def _do_login(self):
         headers = {
