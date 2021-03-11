@@ -11,7 +11,7 @@ class ChatBot:
         self._store_session = store_session
         if store_session:
             if isinstance(authentication, TokenAuth):
-                pkl_n = authentication._api_token
+                pkl_n = authentication.api_token
             elif isinstance(authentication, PasswordAuth):
                 pkl_n = authentication.reddit_username
             else:

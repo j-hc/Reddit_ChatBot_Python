@@ -52,7 +52,7 @@ class Tools:
             'duration': duration
         })
         uri = f'{S_REDDIT}/api/v1/channel/kick/user'
-        self._handled_req(method='POST', uri=uri, headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
+        self._handled_req(method='POST', uri=uri, headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                           data=data)
 
     def invite_user(self, channel_url, nicknames):
@@ -64,7 +64,7 @@ class Tools:
             'users': users
         })
         url = f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite'
-        self._handled_req(method='POST', uri=url, headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
+        self._handled_req(method='POST', uri=url, headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                           data=data)
 
     def accept_chat_invite(self, channel_url, session_key):
@@ -114,6 +114,6 @@ class Tools:
         })
         url = f'{S_REDDIT}/api/v1/sendbird/group_channels'
         response = self._handled_req(method='POST', uri=url,
-                                     headers={'Authorization': f'Bearer {self._reddit_auth._api_token}'},
+                                     headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                                      data=data)
         return json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))
