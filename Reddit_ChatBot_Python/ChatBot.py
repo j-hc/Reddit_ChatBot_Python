@@ -3,6 +3,7 @@ import pickle
 from .RedditAuthentication import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 from .tools import Tools
+from typing import Dict, List, Callable
 
 
 class ChatBot:
@@ -24,10 +25,10 @@ class ChatBot:
         self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
         self._tools = Tools(self._r_authentication)
 
-    def get_chatroom_name_id_pairs(self) -> dict:
+    def get_chatroom_name_id_pairs(self) -> Dict[str: str]:
         return self.WebSocketClient.channelid_sub_pairs
 
-    def on_message_hook(self, func):
+    def on_message_hook(self, func: Callable):
         self.on_frame_hook(frame_type='MESG')(func)
 
     def on_frame_hook(self, frame_type: str = 'MESG'):
@@ -40,8 +41,8 @@ class ChatBot:
 
         return on_frame_hook
 
-    def set_respond_hook(self, input_: str, response: str, limited_to_users: list = None, lower_the_input: bool = False,
-                         exclude_itself: bool = True, must_be_equal: bool = True, limited_to_channels: list = None):
+    def set_respond_hook(self, input_: str, response: str, limited_to_users: List[str] = None, lower_the_input: bool = False,
+                         exclude_itself: bool = True, must_be_equal: bool = True, limited_to_channels: List[str] = None):
         if limited_to_channels is None:
             limited_to_channels = []
         if limited_to_users is None:
@@ -64,7 +65,7 @@ class ChatBot:
 
         self.on_frame_hook(frame_type='MESG')(hook)
 
-    def on_invitation_hook(self, func):
+    def on_invitation_hook(self, func: Callable):
         def hook(resp):
             try:
                 _ = resp.data.inviter
@@ -77,10 +78,10 @@ class ChatBot:
 
         self.on_frame_hook(frame_type='SYEV')(hook)
 
-    def on_message_deleted_hook(self, func):
+    def on_message_deleted_hook(self, func: Callable):
         self.on_frame_hook(frame_type='DELM')(func)
 
-    def on_user_joined_hook(self, func):
+    def on_user_joined_hook(self, func: Callable):
         def hook(resp):
             try:
                 _ = resp.data.users[0].nickname
@@ -90,7 +91,7 @@ class ChatBot:
             func(resp)
         self.on_frame_hook(frame_type='SYEV')(hook)
 
-    def set_welcome_message(self, message: str, limited_to_channels: list = None):
+    def set_welcome_message(self, message: str, limited_to_channels: List[str] = None):
         if limited_to_channels is None:
             limited_to_channels = []
         try:
@@ -108,7 +109,7 @@ class ChatBot:
 
         self.on_user_joined_hook(hook)
 
-    def on_user_left_hook(self, func):
+    def on_user_left_hook(self, func: Callable):
         def hook(resp):
             try:
                 _ = resp.channel.disappearing_message
@@ -118,7 +119,7 @@ class ChatBot:
             func(resp)
         self.on_frame_hook(frame_type='SYEV')(hook)
 
-    def set_farewell_message(self, message: str, limited_to_channels: list = None):
+    def set_farewell_message(self, message: str, limited_to_channels: List[str] = None):
         if limited_to_channels is None:
             limited_to_channels = []
         try:
@@ -147,7 +148,7 @@ class ChatBot:
     def stop_typing_indicator(self, channel_url: str):
         self.WebSocketClient.ws_stop_typing_indicator(channel_url)
 
-    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 100):
+    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500):
         for _ in range(max_retries):
             self.WebSocketClient.ws_run_forever()
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
@@ -167,13 +168,13 @@ class ChatBot:
     def delete_mesg(self, channel_url: str, msg_id: str):
         self._tools.delete_message(channel_url, msg_id, session_key=self.WebSocketClient.session_key)
 
-    def invite_user_to_channel(self, channel_url: str, nicknames: list):
+    def invite_user_to_channel(self, channel_url: str, nicknames: List[str]):
         self._tools.invite_user(channel_url, nicknames)
 
     def get_chat_invites(self) -> list:
         return self._tools.get_chat_invites(session_key=self.WebSocketClient.session_key)
 
-    def create_channel(self, nicknames: list, group_name: str):
+    def create_channel(self, nicknames: List[str], group_name: str):
         channel = self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)
         self.WebSocketClient.update_channelid_sub_pair()
         return channel
