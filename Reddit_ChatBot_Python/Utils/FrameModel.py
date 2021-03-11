@@ -11,7 +11,8 @@ class FrameModel:
 
         # some presets
         if type_f == "MESG" and data_j.message == "":
-            data_j.message = "[snoomoji]"
+            wfdata = json.loads(data_j.data, object_hook=lambda d: SimpleNamespace(**d))
+            data_j.message = wfdata.v1.snoomoji
         data_j.type_f = type_f
 
         return data_j
