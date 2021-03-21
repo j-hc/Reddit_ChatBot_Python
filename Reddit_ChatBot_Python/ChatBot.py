@@ -2,8 +2,11 @@ from .WebSockClient import WebSockClient
 import pickle
 from .RedditAuthentication import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
+from types import SimpleNamespace
 from .tools import Tools
-from typing import Dict, List, Callable
+from typing import Dict, List, Callable, Optional
+
+_hook = Callable[[SimpleNamespace], Optional[bool]]
 
 
 class ChatBot:
@@ -28,21 +31,27 @@ class ChatBot:
     def get_chatroom_name_id_pairs(self) -> Dict[str: str]:
         return self.WebSocketClient.channelid_sub_pairs
 
-    def on_message_hook(self, func: Callable):
+    def on_message_hook(self, func: _hook) -> None:
         self.on_frame_hook(frame_type='MESG')(func)
 
-    def on_frame_hook(self, frame_type: str = 'MESG'):
-        def on_frame_hook(func):
-            def hook(resp):
+    def on_frame_hook(self, frame_type: str = 'MESG') -> Callable[[_hook], None]:
+        def on_frame_hook_append(func: _hook):
+            def hook(resp: SimpleNamespace):
                 if resp.type_f == frame_type:
                     func(resp)
 
             self.WebSocketClient.after_message_hooks.append(hook)
 
-        return on_frame_hook
+        return on_frame_hook_append
 
-    def set_respond_hook(self, input_: str, response: str, limited_to_users: List[str] = None, lower_the_input: bool = False,
-                         exclude_itself: bool = True, must_be_equal: bool = True, limited_to_channels: List[str] = None):
+    def set_respond_hook(self, input_: str,
+                         response: str,
+                         limited_to_users: List[str] = None,
+                         lower_the_input: bool = False,
+                         exclude_itself: bool = True,
+                         must_be_equal: bool = True,
+                         limited_to_channels: List[str] = None
+                         ) -> None:
         if limited_to_channels is None:
             limited_to_channels = []
         if limited_to_users is None:
@@ -52,7 +61,7 @@ class ChatBot:
         except KeyError as e:
             raise Exception("You need to set a {nickname} key in welcome message!") from e
 
-        def hook(resp):
+        def hook(resp: SimpleNamespace) -> Optional[bool]:
             sent_message = resp.message.lower() if lower_the_input else resp.message
             if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
                     and (exclude_itself and resp.user.name != self.WebSocketClient.own_name) \
@@ -65,8 +74,8 @@ class ChatBot:
 
         self.on_frame_hook(frame_type='MESG')(hook)
 
-    def on_invitation_hook(self, func: Callable):
-        def hook(resp):
+    def on_invitation_hook(self, func: _hook) -> None:
+        def hook(resp: SimpleNamespace) -> Optional[bool]:
             try:
                 _ = resp.data.inviter
                 invte = [invitee.nickname for invitee in resp.data.invitees]
@@ -78,11 +87,11 @@ class ChatBot:
 
         self.on_frame_hook(frame_type='SYEV')(hook)
 
-    def on_message_deleted_hook(self, func: Callable):
+    def on_message_deleted_hook(self, func: _hook) -> None:
         self.on_frame_hook(frame_type='DELM')(func)
 
-    def on_user_joined_hook(self, func: Callable):
-        def hook(resp):
+    def on_user_joined_hook(self, func: _hook):
+        def hook(resp: SimpleNamespace) -> Optional[bool]:
             try:
                 _ = resp.data.users[0].nickname
                 _ = resp.data.users[0].inviter.nickname
@@ -91,7 +100,7 @@ class ChatBot:
             func(resp)
         self.on_frame_hook(frame_type='SYEV')(hook)
 
-    def set_welcome_message(self, message: str, limited_to_channels: List[str] = None):
+    def set_welcome_message(self, message: str, limited_to_channels: List[str] = None) -> None:
         if limited_to_channels is None:
             limited_to_channels = []
         try:
@@ -99,7 +108,7 @@ class ChatBot:
         except KeyError as e:
             raise Exception("Keys should be {nickname} and {inviter}") from e
 
-        def hook(resp):
+        def hook(resp: SimpleNamespace) -> Optional[bool]:
             if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
                     not bool(limited_to_channels):
                 response_prepped = message.format(nickname=resp.data.users[0].nickname,
@@ -109,8 +118,8 @@ class ChatBot:
 
         self.on_user_joined_hook(hook)
 
-    def on_user_left_hook(self, func: Callable):
-        def hook(resp):
+    def on_user_left_hook(self, func: _hook) -> None:
+        def hook(resp: SimpleNamespace) -> Optional[bool]:
             try:
                 _ = resp.channel.disappearing_message
                 _ = resp.data.nickname
@@ -119,7 +128,7 @@ class ChatBot:
             func(resp)
         self.on_frame_hook(frame_type='SYEV')(hook)
 
-    def set_farewell_message(self, message: str, limited_to_channels: List[str] = None):
+    def set_farewell_message(self, message: str, limited_to_channels: List[str] = None) -> None:
         if limited_to_channels is None:
             limited_to_channels = []
         try:
@@ -127,7 +136,7 @@ class ChatBot:
         except KeyError as e:
             raise Exception("Key should be {nickname}") from e
 
-        def hook(resp):
+        def hook(resp: SimpleNamespace) -> Optional[bool]:
             if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
                     not bool(limited_to_channels):
                 response_prepped = message.format(nickname=resp.data.nickname)
@@ -136,19 +145,19 @@ class ChatBot:
 
         self.on_user_left_hook(hook)
 
-    def send_message(self, text: str, channel_url: str):
+    def send_message(self, text: str, channel_url: str) -> None:
         self.WebSocketClient.ws_send_message(text, channel_url)
 
-    def send_snoomoji(self, snoomoji: str, channel_url: str):
+    def send_snoomoji(self, snoomoji: str, channel_url: str) -> None:
         self.WebSocketClient.ws_send_snoomoji(snoomoji, channel_url)
 
-    def send_typing_indicator(self, channel_url: str):
+    def send_typing_indicator(self, channel_url: str) -> None:
         self.WebSocketClient.ws_send_typing_indicator(channel_url)
 
-    def stop_typing_indicator(self, channel_url: str):
+    def stop_typing_indicator(self, channel_url: str) -> None:
         self.WebSocketClient.ws_stop_typing_indicator(channel_url)
 
-    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500):
+    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500) -> None:
         for _ in range(max_retries):
             self.WebSocketClient.ws_run_forever()
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
@@ -162,13 +171,13 @@ class ChatBot:
                 break
             self.WebSocketClient.logger.info('Auto Reconnecting...')
 
-    def kick_user(self, channel_url: str, user_id: str, duration: int):
+    def kick_user(self, channel_url: str, user_id: str, duration: int) -> None:
         self._tools.kick_user(channel_url, user_id, duration)
 
-    def delete_mesg(self, channel_url: str, msg_id: str):
+    def delete_mesg(self, channel_url: str, msg_id: str) -> None:
         self._tools.delete_message(channel_url, msg_id, session_key=self.WebSocketClient.session_key)
 
-    def invite_user_to_channel(self, channel_url: str, nicknames: List[str]):
+    def invite_user_to_channel(self, channel_url: str, nicknames: List[str]) -> None:
         self._tools.invite_user(channel_url, nicknames)
 
     def get_chat_invites(self) -> list:
@@ -179,16 +188,16 @@ class ChatBot:
         self.WebSocketClient.update_channelid_sub_pair()
         return channel
 
-    def accept_chat_invite(self, channel_url: str):
+    def accept_chat_invite(self, channel_url: str) -> None:
         self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
         self.WebSocketClient.update_channelid_sub_pair()
 
-    def enable_rate_limiter(self, max_calls: float, period: float):
+    def enable_rate_limiter(self, max_calls: float, period: float) -> None:
         self.WebSocketClient.RateLimiter.is_enabled = True
         self.WebSocketClient.RateLimiter.max_calls = max_calls
         self.WebSocketClient.RateLimiter.period = period
 
-    def disable_rate_limiter(self):
+    def disable_rate_limiter(self) -> None:
         self.WebSocketClient.RateLimiter.is_enabled = False
 
     def _load_session(self, pkl_name, force_reauth=False):
