@@ -5,8 +5,22 @@ from websocket import WebSocketConnectionClosedException
 from types import SimpleNamespace
 from .tools import Tools
 from typing import Dict, List, Callable, Optional
+from enum import Enum
 
 _hook = Callable[[SimpleNamespace], Optional[bool]]
+
+
+# known types
+class FrameType(Enum):
+    MESG = 'MESG'
+    SYEV = 'SYEV'
+    DELM = 'DELM'
+    TPEN = 'TPEN'
+    TPST = 'TPST'
+    READ = 'READ'
+    USEV = 'USEV'
+    MACK = 'MACK'
+    BRDM = 'BRDM'
 
 
 class ChatBot:
@@ -32,16 +46,16 @@ class ChatBot:
         return self.WebSocketClient.channelid_sub_pairs
 
     def on_message_hook(self, func: _hook) -> None:
-        self.on_frame_hook(frame_type='MESG')(func)
+        self.on_frame_hook(frame_type=FrameType.MESG)(func)
 
-    def on_frame_hook(self, frame_type: str = 'MESG') -> Callable[[_hook], None]:
+    def on_frame_hook(self, frame_type: FrameType = FrameType.MESG) -> Callable[[_hook], None]:
         def on_frame_hook_append(func: _hook):
+            ft_val = frame_type.value
+
             def hook(resp: SimpleNamespace):
-                if resp.type_f == frame_type:
+                if resp.type_f == ft_val:
                     func(resp)
-
             self.WebSocketClient.after_message_hooks.append(hook)
-
         return on_frame_hook_append
 
     def set_respond_hook(self, input_: str,
@@ -72,7 +86,7 @@ class ChatBot:
                 self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.on_frame_hook(frame_type='MESG')(hook)
+        self.on_frame_hook(frame_type=FrameType.MESG)(hook)
 
     def on_invitation_hook(self, func: _hook) -> None:
         def hook(resp: SimpleNamespace) -> Optional[bool]:
@@ -85,10 +99,10 @@ class ChatBot:
                 return
             func(resp)
 
-        self.on_frame_hook(frame_type='SYEV')(hook)
+        self.on_frame_hook(frame_type=FrameType.SYEV)(hook)
 
     def on_message_deleted_hook(self, func: _hook) -> None:
-        self.on_frame_hook(frame_type='DELM')(func)
+        self.on_frame_hook(frame_type=FrameType.DELM)(func)
 
     def on_user_joined_hook(self, func: _hook):
         def hook(resp: SimpleNamespace) -> Optional[bool]:
@@ -98,7 +112,7 @@ class ChatBot:
             except (AttributeError, IndexError):
                 return
             func(resp)
-        self.on_frame_hook(frame_type='SYEV')(hook)
+        self.on_frame_hook(FrameType.SYEV)(hook)
 
     def set_welcome_message(self, message: str, limited_to_channels: List[str] = None) -> None:
         if limited_to_channels is None:
@@ -126,7 +140,7 @@ class ChatBot:
             except AttributeError:
                 return
             func(resp)
-        self.on_frame_hook(frame_type='SYEV')(hook)
+        self.on_frame_hook(FrameType.SYEV)(hook)
 
     def set_farewell_message(self, message: str, limited_to_channels: List[str] = None) -> None:
         if limited_to_channels is None:
