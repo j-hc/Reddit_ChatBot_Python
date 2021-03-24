@@ -21,6 +21,7 @@ class FrameType(Enum):
     USEV = 'USEV'
     MACK = 'MACK'
     BRDM = 'BRDM'
+    LOGI = 'LOGI'
 
 
 class ChatBot:
@@ -42,11 +43,14 @@ class ChatBot:
         self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
         self._tools = Tools(self._r_authentication)
 
-    def get_chatroom_name_id_pairs(self) -> Dict[str: str]:
+    def get_chatroom_name_id_pairs(self) -> Dict[str, str]:
         return self.WebSocketClient.channelid_sub_pairs
 
     def on_message_hook(self, func: _hook) -> None:
         self.on_frame_hook(frame_type=FrameType.MESG)(func)
+
+    def on_ready_hook(self, func: _hook) -> None:
+        self.on_frame_hook(frame_type=FrameType.LOGI)(func)
 
     def on_frame_hook(self, frame_type: FrameType = FrameType.MESG) -> Callable[[_hook], None]:
         def on_frame_hook_append(func: _hook):
