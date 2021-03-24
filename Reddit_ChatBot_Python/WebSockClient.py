@@ -32,8 +32,6 @@ class WebSockClient:
         ws_url = WebSocketUtils.get_ws_url(self._user_id, access_token)
         self.ws = self._get_ws_app(ws_url)
 
-        self.ws.on_open = lambda ws: self.on_open(ws)
-
         self.req_id = int(time.time() * 1000)
         self.own_name = None
         self.print_chat = print_chat
@@ -42,13 +40,17 @@ class WebSockClient:
         self.is_logi_err = False
         self.session_key = None
 
+        self._get_current_channels = None
+
         self.after_message_hooks = []
 
     def _get_ws_app(self, ws_url):
         ws = websocket.WebSocketApp(ws_url,
                                     on_message=lambda ws, msg: self.on_message(ws, msg),
                                     on_error=lambda ws, msg: self.on_error(ws, msg),
-                                    on_close=lambda ws: self.on_close(ws))
+                                    on_close=lambda ws: self.on_close(ws),
+                                    on_open=lambda ws: self.on_open(ws)
+                                    )
         return ws
 
     def ws_run_forever(self):
@@ -83,6 +85,8 @@ class WebSockClient:
             logi_err = None
         if logi_err is None:
             self.session_key = resp.key
+            self.current_channels = self._get_current_channels(session_key=self.session_key,
+                                                               member_state_filter="joined_only")
             self.update_channelid_sub_pair()
             self.own_name = resp.nickname
         else:
@@ -90,7 +94,8 @@ class WebSockClient:
             self.is_logi_err = True
 
     def update_channelid_sub_pair(self):
-        self.channelid_sub_pairs = WebSocketUtils.get_current_channels(self._user_id, self.session_key)
+        self.channelid_sub_pairs = WebSocketUtils.get_current_channels(channels=self.current_channels,
+                                                                       user_id=self._user_id)
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:

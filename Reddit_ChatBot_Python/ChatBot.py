@@ -42,6 +42,7 @@ class ChatBot:
 
         self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
         self._tools = Tools(self._r_authentication)
+        self.WebSocketClient._get_current_channels = self._tools.get_channels
 
     def get_chatroom_name_id_pairs(self) -> Dict[str, str]:
         return self.WebSocketClient.channelid_sub_pairs
@@ -199,7 +200,10 @@ class ChatBot:
         self._tools.invite_user(channel_url, nicknames)
 
     def get_chat_invites(self) -> list:
-        return self._tools.get_chat_invites(session_key=self.WebSocketClient.session_key)
+        return self._tools.get_channels(session_key=self.WebSocketClient.session_key, member_state_filter="invited_only")
+
+    def get_channels(self, **kwargs) -> list:
+        return self._tools.get_channels(session_key=self.WebSocketClient.session_key, **kwargs)
 
     def create_channel(self, nicknames: List[str], group_name: str):
         channel = self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)

@@ -74,28 +74,26 @@ class Tools:
         url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept'
         self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data)
 
-    def get_chat_invites(self, session_key):
-        params = (
-            ('limit', '40'),
-            ('order', 'latest_last_message'),
-            ('show_member', 'true'),
-            ('show_read_receipt', 'true'),
-            ('show_delivery_receipt', 'true'),
-            ('show_empty', 'true'),
-            ('member_state_filter', 'invited_only'),
-            ('super_mode', 'all'),
-            ('public_mode', 'all'),
-            ('unread_filter', 'all'),
-            ('hidden_mode', 'unhidden_only'),
-            ('show_frozen', 'true'),
-        )
+    def get_channels(self, session_key, **kwargs):
+        params = {
+            'limit': '100',
+            'order': 'latest_last_message',
+            'show_member': 'true',
+            'show_read_receipt': 'true',
+            'show_delivery_receipt': 'true',
+            'show_empty': 'true',
+            # 'member_state_filter': 'invited_only',
+            'super_mode': 'all',
+            'public_mode': 'all',
+            'unread_filter': 'all',
+            'hidden_mode': 'unhidden_only',
+            'show_frozen': 'true',
+            **kwargs
+        }
         url = f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels'
         response = self._handled_req(method='GET', uri=url, headers={'Session-Key': session_key}, params=params)
-        invts = json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))
-        invitations = []
-        for channel in invts.channels:
-            invitations.append(channel)
-        return invitations
+        g_channels = json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d)).channels
+        return g_channels
 
     def leave_chat(self, channel_url, session_key):
         data = json.dumps({
