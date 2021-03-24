@@ -1,7 +1,7 @@
 import websocket
 from .Utils.RateLimiter import RateLimiter
 import time
-from .Utils.FrameModel import FrameModel
+from .Utils.FrameModel import get_frame_data
 import logging
 import _thread as thread
 from .Utils import WebSocketUtils
@@ -63,7 +63,7 @@ class WebSockClient:
         self.logger.info("### successfully connected to the websocket ###")
 
     def on_message(self, ws, message):
-        resp = FrameModel.get_frame_data(message)
+        resp = get_frame_data(message)
         if self.print_chat:
             WebSocketUtils.print_chat_(resp, self.channelid_sub_pairs)
         if self.print_websocket_frames:

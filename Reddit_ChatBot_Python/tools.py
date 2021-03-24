@@ -1,7 +1,7 @@
 import requests
 from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT
 import json
-from types import SimpleNamespace
+from .Utils.FrameModel import convert_to_framemodel
 
 
 def _get_user_id(username):
@@ -92,7 +92,7 @@ class Tools:
         }
         url = f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels'
         response = self._handled_req(method='GET', uri=url, headers={'Session-Key': session_key}, params=params)
-        g_channels = json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d)).channels
+        g_channels = convert_to_framemodel(response.text).channels
         return g_channels
 
     def leave_chat(self, channel_url, session_key):
@@ -114,4 +114,4 @@ class Tools:
         response = self._handled_req(method='POST', uri=url,
                                      headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                                      data=data)
-        return json.loads(response.text, object_hook=lambda d: SimpleNamespace(**d))
+        return convert_to_framemodel(response.text)
