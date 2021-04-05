@@ -25,7 +25,7 @@ class _RedditAuthBase:
 
 
 class PasswordAuth(_RedditAuthBase):
-    def __init__(self, reddit_username, reddit_password, twofa=None):
+    def __init__(self, reddit_username: str, reddit_password: str, twofa: str = None):
         super().__init__()
         self.reddit_username = reddit_username
         self.reddit_password = reddit_password

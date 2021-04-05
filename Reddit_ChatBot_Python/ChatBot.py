@@ -2,26 +2,11 @@ from .WebSockClient import WebSockClient
 import pickle
 from .RedditAuthentication import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
-from types import SimpleNamespace
 from .tools import Tools
 from typing import Dict, List, Callable, Optional
-from enum import Enum
+from .Utils.FrameModel import FrameType, FrameModel
 
-_hook = Callable[[SimpleNamespace], Optional[bool]]
-
-
-# known types
-class FrameType(Enum):
-    MESG = 'MESG'
-    SYEV = 'SYEV'
-    DELM = 'DELM'
-    TPEN = 'TPEN'
-    TPST = 'TPST'
-    READ = 'READ'
-    USEV = 'USEV'
-    MACK = 'MACK'
-    BRDM = 'BRDM'
-    LOGI = 'LOGI'
+_hook = Callable[[FrameModel], Optional[bool]]
 
 
 class ChatBot:
@@ -55,10 +40,8 @@ class ChatBot:
 
     def on_frame_hook(self, frame_type: FrameType = FrameType.MESG) -> Callable[[_hook], None]:
         def on_frame_hook_append(func: _hook):
-            ft_val = frame_type.value
-
-            def hook(resp: SimpleNamespace):
-                if resp.type_f == ft_val:
+            def hook(resp: FrameModel):
+                if resp.type_f == frame_type:
                     func(resp)
             self.WebSocketClient.after_message_hooks.append(hook)
         return on_frame_hook_append
@@ -80,7 +63,7 @@ class ChatBot:
         except KeyError as e:
             raise Exception("You need to set a {nickname} key in welcome message!") from e
 
-        def hook(resp: SimpleNamespace) -> Optional[bool]:
+        def hook(resp: FrameModel) -> Optional[bool]:
             sent_message = resp.message.lower() if lower_the_input else resp.message
             if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
                     and (exclude_itself and resp.user.name != self.WebSocketClient.own_name) \
@@ -94,7 +77,7 @@ class ChatBot:
         self.on_frame_hook(frame_type=FrameType.MESG)(hook)
 
     def on_invitation_hook(self, func: _hook) -> None:
-        def hook(resp: SimpleNamespace) -> Optional[bool]:
+        def hook(resp: FrameModel) -> Optional[bool]:
             try:
                 _ = resp.data.inviter
                 invte = [invitee.nickname for invitee in resp.data.invitees]
@@ -110,7 +93,7 @@ class ChatBot:
         self.on_frame_hook(frame_type=FrameType.DELM)(func)
 
     def on_user_joined_hook(self, func: _hook):
-        def hook(resp: SimpleNamespace) -> Optional[bool]:
+        def hook(resp: FrameModel) -> Optional[bool]:
             try:
                 _ = resp.data.users[0].nickname
                 _ = resp.data.users[0].inviter.nickname
@@ -127,7 +110,7 @@ class ChatBot:
         except KeyError as e:
             raise Exception("Keys should be {nickname} and {inviter}") from e
 
-        def hook(resp: SimpleNamespace) -> Optional[bool]:
+        def hook(resp: FrameModel) -> Optional[bool]:
             if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
                     not bool(limited_to_channels):
                 response_prepped = message.format(nickname=resp.data.users[0].nickname,
@@ -138,7 +121,7 @@ class ChatBot:
         self.on_user_joined_hook(hook)
 
     def on_user_left_hook(self, func: _hook) -> None:
-        def hook(resp: SimpleNamespace) -> Optional[bool]:
+        def hook(resp: FrameModel) -> Optional[bool]:
             try:
                 _ = resp.channel.disappearing_message
                 _ = resp.data.nickname
@@ -155,7 +138,7 @@ class ChatBot:
         except KeyError as e:
             raise Exception("Key should be {nickname}") from e
 
-        def hook(resp: SimpleNamespace) -> Optional[bool]:
+        def hook(resp: FrameModel) -> Optional[bool]:
             if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
                     not bool(limited_to_channels):
                 response_prepped = message.format(nickname=resp.data.nickname)
@@ -176,9 +159,9 @@ class ChatBot:
     def stop_typing_indicator(self, channel_url: str) -> None:
         self.WebSocketClient.ws_stop_typing_indicator(channel_url)
 
-    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500) -> None:
+    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500, skip_utf8_validation=True) -> None:
         for _ in range(max_retries):
-            self.WebSocketClient.ws_run_forever()
+            self.WebSocketClient.ws_run_forever(skip_utf8_validation=skip_utf8_validation)
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
                 self.WebSocketClient.logger.info('Re-Authenticating...')
                 if self._store_session:

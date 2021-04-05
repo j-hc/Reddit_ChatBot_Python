@@ -1,11 +1,11 @@
 import requests
-from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT
+from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT, WWW_REDDIT
 import json
 from .Utils.FrameModel import convert_to_framemodel
 
 
 def _get_user_id(username):
-    response = requests.get(f"https://www.reddit.com/user/{username}/about.json",
+    response = requests.get(f"{WWW_REDDIT}/user/{username}/about.json",
                             headers={'user-agent': WEB_USERAGENT}).json()
     u_id = response.get('data', {}).get('id')
     if u_id is None:

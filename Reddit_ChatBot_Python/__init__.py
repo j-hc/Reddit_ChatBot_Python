@@ -1,2 +1,3 @@
-from .ChatBot import ChatBot, FrameType
+from .ChatBot import ChatBot
 from . import RedditAuthentication
+from .Utils.FrameModel import FrameType

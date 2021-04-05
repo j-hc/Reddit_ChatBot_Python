@@ -1,11 +1,19 @@
 import websocket
 from .Utils.RateLimiter import RateLimiter
 import time
-from .Utils.FrameModel import get_frame_data
+from .Utils.FrameModel import get_frame_data, FrameType
 import logging
 import _thread as thread
 from .Utils import WebSocketUtils
 from .Utils.CONST import MESG_regular, MESG_snoo, TPST, TPEN
+
+
+logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
+
+
+def _print_chat_(resp, channelid_sub_pairs):
+    if resp.type_f == FrameType.MESG:
+        print(f"{resp.user.name}@{channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
 
 
 class WebSockClient:
@@ -24,8 +32,7 @@ class WebSockClient:
         self.channelid_sub_pairs = {}
         self.RateLimiter = RateLimiter
 
-        logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
-        self.logger = logging.getLogger("websocket")
+        self.logger = logging.getLogger(__name__)
         self.logger.disabled = not other_logging
         websocket.enableTrace(enable_trace)
 
@@ -53,8 +60,8 @@ class WebSockClient:
                                     )
         return ws
 
-    def ws_run_forever(self):
-        self.ws.run_forever(ping_interval=15, ping_timeout=5)
+    def ws_run_forever(self, skip_utf8_validation):
+        self.ws.run_forever(ping_interval=15, ping_timeout=5, skip_utf8_validation=skip_utf8_validation)
 
     def update_ws_app_urls_access_token(self, access_token):
         self.ws.url = WebSocketUtils.get_ws_url(self._user_id, access_token)
@@ -65,15 +72,15 @@ class WebSockClient:
     def on_message(self, ws, message):
         resp = get_frame_data(message)
         if self.print_chat:
-            WebSocketUtils.print_chat_(resp, self.channelid_sub_pairs)
+            _print_chat_(resp, self.channelid_sub_pairs)
         if self.print_websocket_frames:
             print(message)
 
-        if resp.type_f == "LOGI":
+        if resp.type_f == FrameType.LOGI:
             self.logger.info(message)
             self._logi(resp)
 
-        if resp.type_f == "MESG" and resp.user.name in self.global_blacklist_users:
+        if resp.type_f == FrameType.MESG and resp.user.name in self.global_blacklist_users:
             return
 
         thread.start_new_thread(self._response_loop, (resp,))
