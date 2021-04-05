@@ -15,17 +15,18 @@ Installation
     
 with recommended but optional extra packages:
 
-    pip3 install Reddit-ChatBot-Python[extra]
+    pip3 install Reddit-ChatBot-Python
 
 packages required:
 
     websocket_client
     requests
 
-extra packages needed for extra performance in websocket operations:
 
-    numpy
-    wsaccel
+There is a skip_utf8_validation parameter for run_4ever method which slows things down when set to False.
+If you want to set it to False, it is recommended that you install with extra modules:
+
+    pip3 install Reddit-ChatBot-Python[extra]
 
 
 Example
@@ -113,7 +114,7 @@ chatbot.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect
 Instances of Frames ("resp" object of the events)
 ------------------
 
-You access stuff like this with dot operator:
+You access stuff like this with the dot operator:
 
     message = resp.message
     nickname = resp.user.name
