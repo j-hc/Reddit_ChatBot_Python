@@ -17,7 +17,7 @@ def _print_chat_(resp, channelid_sub_pairs):
 
 
 class WebSockClient:
-    def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, print_websocket_frames=False,
+    def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, log_websocket_frames=False,
                  other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
         self._user_id = user_id
         if global_blacklist_words is None:
@@ -42,7 +42,7 @@ class WebSockClient:
         self.req_id = int(time.time() * 1000)
         self.own_name = None
         self.print_chat = print_chat
-        self.print_websocket_frames = print_websocket_frames
+        self.log_websocket_frames = log_websocket_frames
         self.last_err = None
         self.is_logi_err = False
         self.session_key = None
@@ -73,9 +73,8 @@ class WebSockClient:
         resp = get_frame_data(message)
         if self.print_chat:
             _print_chat_(resp, self.channelid_sub_pairs)
-        if self.print_websocket_frames:
-            print(message)
-
+        if self.log_websocket_frames:
+            self.logger.info(message)
         if resp.type_f == FrameType.LOGI:
             self.logger.info(message)
             self._logi(resp)

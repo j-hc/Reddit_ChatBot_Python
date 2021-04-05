@@ -40,7 +40,7 @@ import random  # for a basic dice rolling game
 reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="", twofa="")  # 2FA supported although not necessary obv..
 
 # instantiate the chatbot
-chatbot = ChatBot(print_chat=True, store_session=True, print_websocket_frames=False,  # some parameters u might wanna know
+chatbot = ChatBot(print_chat=True, store_session=True, log_websocket_frames=False,  # some parameters u might wanna know
                   authentication=reddit_authentication)
 
 # you can add a rate limit like so:
