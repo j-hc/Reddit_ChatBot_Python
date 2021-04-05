@@ -115,3 +115,12 @@ class Tools:
                                      headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                                      data=data)
         return convert_to_framemodel(response.text)
+
+    def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide, session_key):
+        data = json.dumps({
+            'user_id': user_id,
+            'hide_previous_messages': hide_previous_messages,
+            'allow_auto_unhide': allow_auto_unhide
+        })
+        self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
+                          headers={'Session-Key': session_key}, data=data)

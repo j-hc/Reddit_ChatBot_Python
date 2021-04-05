@@ -197,6 +197,11 @@ class ChatBot:
         self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
         self.WebSocketClient.update_channelid_sub_pair()
 
+    def hide_chat(self, user_id: str, channel_url: str, hide_previous_messages: bool = False,
+                  allow_auto_unhide: bool = True) -> None:
+        self._tools.hide_chat(user_id, channel_url, hide_previous_messages, allow_auto_unhide,
+                              session_key=self.WebSocketClient.session_key)
+
     def enable_rate_limiter(self, max_calls: float, period: float) -> None:
         self.WebSocketClient.RateLimiter.is_enabled = True
         self.WebSocketClient.RateLimiter.max_calls = max_calls
