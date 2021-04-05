@@ -12,12 +12,11 @@ re-authentication prior to auto re-connect is only possible with PasswordAuth
 
 Installation
 ------------
-    
-with recommended but optional extra packages:
+
 
     pip3 install Reddit-ChatBot-Python
 
-packages required:
+required:
 
     websocket_client
     requests
