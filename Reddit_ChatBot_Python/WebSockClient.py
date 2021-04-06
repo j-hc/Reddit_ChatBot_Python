@@ -5,7 +5,7 @@ from .Utils.FrameModel import get_frame_data, FrameType
 import logging
 from threading import Thread
 from .Utils import WebSocketUtils
-from .Utils.CONST import MESG_regular, MESG_snoo, TPST, TPEN
+from .Utils.CONST import MESG_regular, MESG_snoo, TPST, TPEN, MOBILE_USERAGENT
 
 
 logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
@@ -56,7 +56,8 @@ class WebSockClient:
                                     on_message=lambda ws, msg: self.on_message(ws, msg),
                                     on_error=lambda ws, msg: self.on_error(ws, msg),
                                     on_close=lambda ws: self.on_close(ws),
-                                    on_open=lambda ws: self.on_open(ws)
+                                    on_open=lambda ws: self.on_open(ws),
+                                    header={'User-Agent': MOBILE_USERAGENT}
                                     )
         return ws
 
