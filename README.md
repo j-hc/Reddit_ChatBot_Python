@@ -20,6 +20,7 @@ required:
 
     websocket_client
     requests
+    dataclasses-json
 
 
 There is a skip_utf8_validation parameter for run_4ever method which slows things down when set to False.
@@ -32,11 +33,11 @@ Example
 -------
 
 ```python
-from Reddit_ChatBot_Python import ChatBot, reddit_auth
+from Reddit_ChatBot_Python import ChatBot, RedditAuthentication
 import random  # for a basic dice rolling game
 
 # create authentication with username and pass
-reddit_authentication = reddit_auth.PasswordAuth(reddit_username="", reddit_password="",
+reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="",
                                                  twofa="")  # 2FA supported although not necessary obv..
 
 # instantiate the chatbot
