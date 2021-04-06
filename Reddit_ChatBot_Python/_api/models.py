@@ -31,7 +31,7 @@ class _MentionedUser:
 @dataclass(frozen=True)
 class _User:
     require_auth_for_profile_image: bool
-    is_active: bool
+    is_active: Optional[bool]
     is_blocked_by_me: bool
     role: str
     user_id: str
@@ -80,7 +80,7 @@ class _Member:
     user_id: str
     is_muted: bool
     friend_name: Optional[str]
-    is_active: bool
+    is_active: Optional[bool]
     is_blocked_by_me: bool
     state: str
     # friend_discovery_key: null
