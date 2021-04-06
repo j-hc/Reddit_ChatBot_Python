@@ -1,10 +1,10 @@
-from .WebSockClient import WebSockClient
+from .ws_client import WebSockClient
 import pickle
-from .RedditAuthentication import _RedditAuthBase, TokenAuth, PasswordAuth
+from .reddit_auth import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
-from .tools import Tools
+from ._api.tools import Tools
 from typing import Dict, List, Callable, Optional
-from .Utils.FrameModel import FrameType, FrameModel
+from ._utils.frame_model import FrameType, FrameModel
 
 _hook = Callable[[FrameModel], Optional[bool]]
 

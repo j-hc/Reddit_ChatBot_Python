@@ -1,11 +1,11 @@
 import websocket
-from .Utils.RateLimiter import RateLimiter
+from ._utils.rate_limiter import RateLimiter
 import time
-from .Utils.FrameModel import get_frame_data, FrameType
+from ._utils.frame_model import get_frame_data, FrameType
 import logging
 from threading import Thread
-from .Utils import WebSocketUtils
-from .Utils.CONST import MESG_regular, MESG_snoo, TPST, TPEN, MOBILE_USERAGENT
+from ._utils import ws_utils
+from ._utils.consts import MESG_regular, MESG_snoo, TPST, TPEN, MOBILE_USERAGENT
 
 
 logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
@@ -36,7 +36,7 @@ class WebSockClient:
         self.logger.disabled = not other_logging
         websocket.enableTrace(enable_trace)
 
-        ws_url = WebSocketUtils.get_ws_url(self._user_id, access_token)
+        ws_url = ws_utils.get_ws_url(self._user_id, access_token)
         self.ws = self._get_ws_app(ws_url)
 
         self.req_id = int(time.time() * 1000)
@@ -65,7 +65,7 @@ class WebSockClient:
         self.ws.run_forever(ping_interval=15, ping_timeout=5, skip_utf8_validation=skip_utf8_validation)
 
     def update_ws_app_urls_access_token(self, access_token):
-        self.ws.url = WebSocketUtils.get_ws_url(self._user_id, access_token)
+        self.ws.url = ws_utils.get_ws_url(self._user_id, access_token)
 
     def on_open(self, ws):
         self.logger.info("### successfully connected to the websocket ###")
@@ -101,8 +101,8 @@ class WebSockClient:
             self.is_logi_err = True
 
     def update_channelid_sub_pair(self):
-        self.channelid_sub_pairs = WebSocketUtils.get_current_channels(channels=self.current_channels,
-                                                                       user_id=self._user_id)
+        self.channelid_sub_pairs = ws_utils.get_current_channels(channels=self.current_channels,
+                                                                 user_id=self._user_id)
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:

@@ -1,7 +1,7 @@
 import requests
-from .Utils.CONST import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT, WWW_REDDIT
+from .._utils.consts import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT, WWW_REDDIT
 import json
-from .Utils.FrameModel import convert_to_framemodel
+from .._utils.frame_model import convert_to_framemodel
 
 
 def _get_user_id(username):

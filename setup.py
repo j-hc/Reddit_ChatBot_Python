@@ -7,7 +7,7 @@ setup(
     url="https://github.com/scrubjay55/Reddit_ChatBot_Python.git",
     author='scrubjay55',
     license="APLv2",
-    packages=['Reddit_ChatBot_Python', 'Reddit_ChatBot_Python.Utils'],
+    packages=['Reddit_ChatBot_Python', 'Reddit_ChatBot_Python._utils'],
     description='an event-driven chatbot library for reddit chatrooms',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',

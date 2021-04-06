@@ -32,20 +32,22 @@ Example
 -------
 
 ```python
-from Reddit_ChatBot_Python import ChatBot, RedditAuthentication
+from Reddit_ChatBot_Python import ChatBot, reddit_auth
 import random  # for a basic dice rolling game
 
 # create authentication with username and pass
-reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="", twofa="")  # 2FA supported although not necessary obv..
+reddit_authentication = reddit_auth.PasswordAuth(reddit_username="", reddit_password="",
+                                                 twofa="")  # 2FA supported although not necessary obv..
 
 # instantiate the chatbot
 chatbot = ChatBot(print_chat=True, store_session=True, log_websocket_frames=False,  # some parameters u might wanna know
                   authentication=reddit_authentication)
 
 # you can add a rate limit like so:
-chatbot.enable_rate_limiter(max_calls=23, # how many messages will be sent by the bot
+chatbot.enable_rate_limiter(max_calls=23,  # how many messages will be sent by the bot
                             period=1.5  # in what period (minutes)
                             )
+
 
 # now you can add hooks which will be executed when a frame is received like so:
 @chatbot.on_message_hook
@@ -61,19 +63,21 @@ def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of
 
         # send typing indicator cuz why not? maybe they think you are a real person
         chatbot.send_typing_indicator(resp.channel_url)
-        chatbot.send_message(response_text, resp.channel_url)  # and send the message, always add resp.channel_url as the second argument
+        chatbot.send_message(response_text,
+                             resp.channel_url)  # and send the message, always add resp.channel_url as the second argument
         chatbot.stop_typing_indicator(resp.channel_url)
         chatbot.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not??
         return True  # return true if you want to be done with checking the other hooks, otherwise return None or False
         # keep in mind that first added hooks gets executed first
 
+
 # now everytime someone says "!roll 1 100", the bot will roll a dice between 1 and 100 and send the result!
 
 # there are also host actions availabe but ofc they require the bot account to be the host of the chatroom
 @chatbot.on_message_hook
-def keeper_of_decency(resp): # WE WILL KEEP THE DECENCY IN THE CHAT BOIS
+def keeper_of_decency(resp):  # WE WILL KEEP THE DECENCY IN THE CHAT BOIS
     if resp.message == "*some very bad slur word*":
-        chatbot.kick_user(channel_url=resp.channel_url, user_id=resp.user.guest_id, duration=600) # duration is in secs
+        chatbot.kick_user(channel_url=resp.channel_url, user_id=resp.user.guest_id, duration=600)  # duration is in secs
         chatbot.send_message(f'i banned {resp.user.name} for 10 mins', resp.channel_url)
         return True
     elif resp.message == "*another bad word*":
@@ -84,13 +88,16 @@ def keeper_of_decency(resp): # WE WILL KEEP THE DECENCY IN THE CHAT BOIS
 
 # or you can add a basic response hook directly like so:
 chatbot.set_respond_hook(input_="Hi", response="Hello {nickname}! sup?", limited_to_users=None, lower_the_input=False,
-                         exclude_itself=True, must_be_equal=True, limited_to_channels=["my cozy chat group"]) # you can limit by indicating chatroom's name
+                         exclude_itself=True, must_be_equal=True,
+                         limited_to_channels=["my cozy chat group"])  # you can limit by indicating chatroom's name
 
 # you can add a welcome message for newly joined users:
-chatbot.set_welcome_message("welcome to the my cozy chat group u/{nickname}!)", limited_to_channels=["my cozy chat group"])
+chatbot.set_welcome_message("welcome to the my cozy chat group u/{nickname}!)",
+                            limited_to_channels=["my cozy chat group"])
 
 # and a farewell message too:
 chatbot.set_farewell_message("Too bad u/{nickname} left us :(", limited_to_channels=["my cozy chat group"])
+
 
 # there are also other types of hooks like this one for invitations
 @chatbot.on_invitation_hook
@@ -107,7 +114,8 @@ def on_invit(resp):
 
 
 # and finally, run forever...
-chatbot.run_4ever(auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
+chatbot.run_4ever(
+    auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
 ```
 
 Instances of Frames ("resp" object of the events)

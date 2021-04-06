@@ -1,5 +1,5 @@
 from urllib.parse import urlencode
-from .CONST import SB_User_Agent, SB_ai
+from .consts import SB_User_Agent, SB_ai
 
 
 def get_ws_url(user_id, access_token):
