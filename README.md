@@ -70,8 +70,8 @@ def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of
         return True  # return true if you want to be done with checking the other hooks, otherwise return None or False
         # keep in mind that first added hooks gets executed first
 
-
 # now everytime someone says "!roll 1 100", the bot will roll a dice between 1 and 100 and send the result!
+
 
 # there are also host actions availabe but ofc they require the bot account to be the host of the chatroom
 @chatbot.on_message_hook
@@ -111,11 +111,28 @@ def on_invit(resp):
     print(f"got invited to {invit_type} by {resp.data.inviter.nickname}")
     chatbot.accept_chat_invite(resp.channel_url)
     chatbot.send_message("Hello! I accepted your invite", resp.channel_url)
+    return True
+
+# or on ready hook
+@chatbot.on_ready_hook
+def report_channels(_):
+    channels = chatbot.get_channels()
+    print("up and running in these channels!: ")
+    for channel in channels:
+        print(channel.name)
+
+# wanna check invitations on start? i got you
+@chatbot.on_ready_hook
+def check_invites(_):
+    invites = chatbot.get_chat_invites()
+    for invite in invites:
+        chatbot.accept_chat_invite(invite.channel_url)
+    return True
 
 
 # and finally, run forever...
-chatbot.run_4ever(
-    auto_reconnect=True)  # set auto_reconnect so as to re-connect in case remote server shuts down the connection after some period of time
+chatbot.run_4ever(auto_reconnect=True)
+# set auto_reconnect to True so as to re-connect in case remote server shuts down the connection after some period of time
 ```
 
 Instances of Frames ("resp" object of the events)

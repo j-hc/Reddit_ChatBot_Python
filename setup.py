@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='Reddit_ChatBot_Python',
-    version='1.2.4',
+    version='1.2.5',
     project_urls={"Source": "https://github.com/scrubjay55/Reddit_ChatBot_Python.git"},
     url="https://github.com/scrubjay55/Reddit_ChatBot_Python.git",
     author='scrubjay55',
@@ -13,7 +13,8 @@ setup(
     long_description_content_type='text/markdown',
     install_requires=[
         "requests",
-        "websocket_client==0.58.0"
+        "websocket_client==0.58.0",
+        "dataclasses-json"
     ],
     extras_require={"extra": ["numpy", "wsaccel"]}
 )

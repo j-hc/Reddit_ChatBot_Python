@@ -191,13 +191,14 @@ class ChatBot:
     def get_chat_invites(self) -> List[Channel]:
         return self.get_channels(member_state_filter="invited_only")
 
-    def get_channels(self, limit=100, order='latest_last_message', show_member=True, show_read_receipt=True,
-                     show_empty=True, member_state_filter='joined_only', super_mode='all', public_mode='all',
-                     unread_filter='all', hidden_mode='unhidden_only', show_frozen=True) -> List[Channel]:
+    def get_channels(self, limit: int = 100, order: str = 'latest_last_message', show_member: bool = True,
+                     show_read_receipt: bool = True, show_empty: bool = True, member_state_filter: str = 'joined_only',
+                     super_mode: str = 'all', public_mode: str = 'all', unread_filter: str = 'all',
+                     hidden_mode: str = 'unhidden_only', show_frozen: bool = True) -> List[Channel]:
         return self._tools.get_channels(**_get_locals_without_self(locals()),
                                         session_key=self.WebSocketClient.session_key)
 
-    def get_older_messages(self, channel_url, prev_limit=40, next_limit=0, reverse=True) -> List[Message]:
+    def get_older_messages(self, channel_url: str, prev_limit: int = 40, next_limit: int = 0, reverse: bool = True) -> List[Message]:
         return self._tools.get_older_messages(**_get_locals_without_self(locals()),
                                               session_key=self.WebSocketClient.session_key)
 
