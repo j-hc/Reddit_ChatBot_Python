@@ -83,7 +83,7 @@ class WebSockClient:
         if resp.type_f == FrameType.MESG and resp.user.name in self.global_blacklist_users:
             return
 
-        Thread(target=self._response_loop, args=(resp,)).start()
+        Thread(target=self._response_loop, args=(resp,), daemon=True).start()
 
     def _logi(self, resp):
         try:

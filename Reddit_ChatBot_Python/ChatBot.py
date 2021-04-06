@@ -183,10 +183,15 @@ class ChatBot:
         self._tools.invite_user(channel_url, nicknames)
 
     def get_chat_invites(self) -> list:
-        return self._tools.get_channels(session_key=self.WebSocketClient.session_key, member_state_filter="invited_only")
+        return self._tools.get_channels(session_key=self.WebSocketClient.session_key,
+                                        member_state_filter="invited_only")
 
     def get_channels(self, **kwargs) -> list:
         return self._tools.get_channels(session_key=self.WebSocketClient.session_key, **kwargs)
+
+    def get_older_messages(self, channel_url, prev_limit, next_limit, reverse, message_ts) -> FrameType:
+        return self._tools.get_older_messages(channel_url, prev_limit, next_limit, reverse, message_ts,
+                                              session_key=self.WebSocketClient.session_key)
 
     def create_channel(self, nicknames: List[str], group_name: str):
         channel = self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)

@@ -124,3 +124,22 @@ class Tools:
         })
         self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
                           headers={'Session-Key': session_key}, data=data)
+
+    def get_older_messages(self, channel_url, prev_limit, next_limit, reverse, message_ts, session_key):
+        params = {
+            'is_sdk': 'true',
+            'prev_limit': prev_limit,
+            'next_limit': next_limit,
+            'include': 'false',
+            'reverse': reverse,
+            'message_ts': message_ts,
+            'with_sorted_meta_array': 'false',
+            'include_reactions': 'false',
+            'include_thread_info': 'false',
+            'include_replies': 'false',
+            'include_parent_message_text': 'false'
+        }
+
+        response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
+                                     headers={'Session-Key': session_key}, params=params)
+        return convert_to_framemodel(response.text)
