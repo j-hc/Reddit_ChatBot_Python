@@ -3,7 +3,7 @@ from .Utils.RateLimiter import RateLimiter
 import time
 from .Utils.FrameModel import get_frame_data, FrameType
 import logging
-import _thread as thread
+from threading import Thread
 from .Utils import WebSocketUtils
 from .Utils.CONST import MESG_regular, MESG_snoo, TPST, TPEN
 
@@ -82,7 +82,7 @@ class WebSockClient:
         if resp.type_f == FrameType.MESG and resp.user.name in self.global_blacklist_users:
             return
 
-        thread.start_new_thread(self._response_loop, (resp,))
+        Thread(target=self._response_loop, args=(resp,)).start()
 
     def _logi(self, resp):
         try:
