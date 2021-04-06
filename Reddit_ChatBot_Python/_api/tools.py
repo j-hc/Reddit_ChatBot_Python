@@ -1,7 +1,7 @@
 import requests
 from .._utils.consts import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT, WWW_REDDIT
 import json
-from .._utils.frame_model import convert_to_framemodel
+from .models import Channel, Message
 
 
 def _get_user_id(username):
@@ -74,26 +74,25 @@ class Tools:
         url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept'
         self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data)
 
-    def get_channels(self, session_key, **kwargs):
+    def get_channels(self, limit, order, show_member, show_read_receipt, show_empty, member_state_filter, super_mode,
+                     public_mode, unread_filter, hidden_mode, show_frozen, session_key):
         params = {
-            'limit': '100',
-            'order': 'latest_last_message',
-            'show_member': 'true',
-            'show_read_receipt': 'true',
+            'limit': limit,
+            'order': order,
+            'show_member': show_member,
+            'show_read_receipt': show_read_receipt,
             'show_delivery_receipt': 'true',
-            'show_empty': 'true',
-            # 'member_state_filter': 'invited_only',
-            'super_mode': 'all',
-            'public_mode': 'all',
-            'unread_filter': 'all',
-            'hidden_mode': 'unhidden_only',
-            'show_frozen': 'true',
-            **kwargs
+            'show_empty': show_empty,
+            'member_state_filter': member_state_filter,
+            'super_mode': super_mode,
+            'public_mode': public_mode,
+            'unread_filter': unread_filter,
+            'hidden_mode': hidden_mode,
+            'show_frozen': show_frozen,
         }
         url = f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels'
         response = self._handled_req(method='GET', uri=url, headers={'Session-Key': session_key}, params=params)
-        g_channels = convert_to_framemodel(response.text).channels
-        return g_channels
+        return [Channel.from_dict(channel, infer_missing=True) for channel in response.json()['channels']]
 
     def leave_chat(self, channel_url, session_key):
         data = json.dumps({
@@ -114,7 +113,7 @@ class Tools:
         response = self._handled_req(method='POST', uri=url,
                                      headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                                      data=data)
-        return convert_to_framemodel(response.text)
+        return Channel.from_json(response.text, infer_missing=True)
 
     def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide, session_key):
         data = json.dumps({
@@ -125,14 +124,14 @@ class Tools:
         self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
                           headers={'Session-Key': session_key}, data=data)
 
-    def get_older_messages(self, channel_url, prev_limit, next_limit, reverse, message_ts, session_key):
+    def get_older_messages(self, channel_url, prev_limit, next_limit, reverse, session_key):
         params = {
             'is_sdk': 'true',
             'prev_limit': prev_limit,
             'next_limit': next_limit,
             'include': 'false',
             'reverse': reverse,
-            'message_ts': message_ts,
+            'message_ts': 9007199254740991,
             'with_sorted_meta_array': 'false',
             'include_reactions': 'false',
             'include_thread_info': 'false',
@@ -142,4 +141,4 @@ class Tools:
 
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
                                      headers={'Session-Key': session_key}, params=params)
-        return convert_to_framemodel(response.text)
+        return [Message.from_dict(msg, infer_missing=True) for msg in response.json()['messages']]

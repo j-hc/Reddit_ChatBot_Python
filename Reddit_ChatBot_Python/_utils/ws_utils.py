@@ -17,7 +17,7 @@ def get_ws_url(user_id, access_token):
     return f"{socket_base}/?{urlencode(ws_params)}"
 
 
-def get_current_channels(channels: list, user_id: str):
+def pair_channel_and_names(channels: list, user_id: str):
     channelid_sub_pairs = {}
     for channel in channels:
         room_name = None

@@ -3,10 +3,16 @@ import pickle
 from .reddit_auth import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 from ._api.tools import Tools
+from ._api.models import Channel, Message
 from typing import Dict, List, Callable, Optional
 from ._utils.frame_model import FrameType, FrameModel
 
 _hook = Callable[[FrameModel], Optional[bool]]
+
+
+def _get_locals_without_self(locals_):
+    del locals_['self']
+    return locals_
 
 
 class ChatBot:
@@ -174,27 +180,30 @@ class ChatBot:
             self.WebSocketClient.logger.info('Auto Reconnecting...')
 
     def kick_user(self, channel_url: str, user_id: str, duration: int) -> None:
-        self._tools.kick_user(channel_url, user_id, duration)
+        self._tools.kick_user(**_get_locals_without_self(locals()))
 
     def delete_mesg(self, channel_url: str, msg_id: str) -> None:
-        self._tools.delete_message(channel_url, msg_id, session_key=self.WebSocketClient.session_key)
+        self._tools.delete_message(**_get_locals_without_self(locals()), session_key=self.WebSocketClient.session_key)
 
     def invite_user_to_channel(self, channel_url: str, nicknames: List[str]) -> None:
-        self._tools.invite_user(channel_url, nicknames)
+        self._tools.invite_user(**_get_locals_without_self(locals()))
 
-    def get_chat_invites(self) -> list:
-        return self._tools.get_channels(session_key=self.WebSocketClient.session_key,
-                                        member_state_filter="invited_only")
+    def get_chat_invites(self) -> List[Channel]:
+        return self.get_channels(member_state_filter="invited_only")
 
-    def get_channels(self, **kwargs) -> list:
-        return self._tools.get_channels(session_key=self.WebSocketClient.session_key, **kwargs)
+    def get_channels(self, limit=100, order='latest_last_message', show_member=True, show_read_receipt=True,
+                     show_empty=True, member_state_filter='joined_only', super_mode='all', public_mode='all',
+                     unread_filter='all', hidden_mode='unhidden_only', show_frozen=True) -> List[Channel]:
+        return self._tools.get_channels(**_get_locals_without_self(locals()),
+                                        session_key=self.WebSocketClient.session_key)
 
-    def get_older_messages(self, channel_url, prev_limit, next_limit, reverse, message_ts) -> FrameType:
-        return self._tools.get_older_messages(channel_url, prev_limit, next_limit, reverse, message_ts,
+    def get_older_messages(self, channel_url, prev_limit=40, next_limit=0, reverse=True) -> List[Message]:
+        return self._tools.get_older_messages(**_get_locals_without_self(locals()),
                                               session_key=self.WebSocketClient.session_key)
 
-    def create_channel(self, nicknames: List[str], group_name: str):
-        channel = self._tools.create_channel(nicknames, group_name, own_name=self.WebSocketClient.own_name)
+    def create_channel(self, nicknames: List[str], group_name: str) -> Channel:
+        channel = self._tools.create_channel(**_get_locals_without_self(locals()),
+                                             own_name=self.WebSocketClient.own_name)
         self.WebSocketClient.update_channelid_sub_pair()
         return channel
 
@@ -204,8 +213,7 @@ class ChatBot:
 
     def hide_chat(self, user_id: str, channel_url: str, hide_previous_messages: bool = False,
                   allow_auto_unhide: bool = True) -> None:
-        self._tools.hide_chat(user_id, channel_url, hide_previous_messages, allow_auto_unhide,
-                              session_key=self.WebSocketClient.session_key)
+        self._tools.hide_chat(**_get_locals_without_self(locals()), session_key=self.WebSocketClient.session_key)
 
     def enable_rate_limiter(self, max_calls: float, period: float) -> None:
         self.WebSocketClient.RateLimiter.is_enabled = True

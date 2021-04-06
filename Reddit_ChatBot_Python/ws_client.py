@@ -92,8 +92,12 @@ class WebSockClient:
             logi_err = None
         if logi_err is None:
             self.session_key = resp.key
-            self.current_channels = self._get_current_channels(session_key=self.session_key,
-                                                               member_state_filter="joined_only")
+            self.current_channels = self._get_current_channels(limit=100, order='latest_last_message', show_member=True,
+                                                               show_read_receipt=True, show_empty=True,
+                                                               member_state_filter='joined_only', super_mode='all',
+                                                               public_mode='all', unread_filter='all',
+                                                               hidden_mode='unhidden_only', show_frozen=True,
+                                                               session_key=self.session_key)
             self.update_channelid_sub_pair()
             self.own_name = resp.nickname
         else:
@@ -101,8 +105,8 @@ class WebSockClient:
             self.is_logi_err = True
 
     def update_channelid_sub_pair(self):
-        self.channelid_sub_pairs = ws_utils.get_current_channels(channels=self.current_channels,
-                                                                 user_id=self._user_id)
+        self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels,
+                                                                   user_id=self._user_id)
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:
