@@ -1,8 +1,10 @@
 from urllib.parse import urlencode
 from .consts import SB_User_Agent, SB_ai
+from .._api.models import Channel, CustomType
+from typing import List
 
 
-def get_ws_url(user_id, access_token):
+def get_ws_url(user_id: str, access_token: str):
     socket_base = "wss://sendbirdproxyk8s.chat.redditmedia.com"
     ws_params = {
         "user_id": user_id,
@@ -17,11 +19,11 @@ def get_ws_url(user_id, access_token):
     return f"{socket_base}/?{urlencode(ws_params)}"
 
 
-def pair_channel_and_names(channels: list, user_id: str):
+def pair_channel_and_names(channels: List[Channel], user_id: str):
     channelid_sub_pairs = {}
     for channel in channels:
         room_name = None
-        if channel.custom_type == "direct":
+        if channel.custom_type == CustomType.direct:
             for member in channel.members:
                 if member.user_id != user_id:
                     room_name = member.nickname
