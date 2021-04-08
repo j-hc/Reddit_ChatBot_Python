@@ -59,3 +59,15 @@ class Events:
                 return
             func(resp)
         self.on_any(FrameType.SYEV)(hook)
+
+    def on_user_typing(self, func: _hook) -> None:
+        def hook(resp: FrameModel) -> Optional[bool]:
+            try:
+                _ = resp.data.nickname
+                _ = resp.channel_url
+            except AttributeError:
+                return
+            if resp.cat != 10900:
+                return
+            func(resp)
+        self.on_any(FrameType.SYEV)(hook)

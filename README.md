@@ -13,7 +13,7 @@ re-authentication prior to auto re-connect is only possible with PasswordAuth
 Installation
 ------------
 
-    pip3 install Reddit-ChatBot-Python
+    pip install Reddit-ChatBot-Python
 
 required:
 
@@ -166,7 +166,7 @@ You access stuff like this with the dot operator:
     nickname = resp.user.name
 
 <details>
-  <summary>Instance of regular chat message Frame - on_message_hook()</summary>
+  <summary>Instance of regular chat message Frame - event.on_message</summary>
   
 ```json
 {
@@ -198,7 +198,7 @@ You access stuff like this with the dot operator:
 
 
 <details>
-  <summary>Instance of Invitation Frame - on_invitation_hook()</summary>
+  <summary>Instance of Invitation Frame - event.on_invitation</summary>
   
 ```json
 {
@@ -241,7 +241,7 @@ You access stuff like this with the dot operator:
 
 
 <details>
-  <summary>Instance of User Joined Frame - on_user_joined_hook()</summary>
+  <summary>Instance of User Joined Frame - event.on_user_joined</summary>
   
 ```json
 {
@@ -282,7 +282,7 @@ You access stuff like this with the dot operator:
 
 
 <details>
-  <summary>Instance of User Left Frame - on_user_left_hook()</summary>
+  <summary>Instance of User Left Frame - event.on_user_left</summary>
   
 ```json
 {
@@ -372,7 +372,7 @@ You access stuff like this with the dot operator:
 
 
 <details>
-  <summary>Instance of Deleted Message Frame - on_message_deleted_hook()</summary>
+  <summary>Instance of Deleted Message Frame - event.on_message_deleted</summary>
   
 ```json
 {
@@ -382,6 +382,32 @@ You access stuff like this with the dot operator:
   "channel_type": "group",
   "channel_id": 177623421,
   "sts": 1614266924885,
+  "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000"
+}
+```
+</details>
+
+<details>
+  <summary>Instance of User Typing Frame - event.on_user_typing</summary>
+  
+```json
+{
+  "is_super": false,
+  "data": {
+    "require_auth_for_profile_image": false,
+    "user_id": "t2_xxxxxx",
+    "nickname": "xxxx",
+    "profile_url": "",
+    "metadata": {
+      
+    }
+  },
+  "ts": 1617897296948,
+  "is_access_code_required": false,
+  "cat": 10900,
+  "channel_type": "group",
+  "channel_id": 11111111,
+  "sts": 1617897296948,
   "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000"
 }
 ```
