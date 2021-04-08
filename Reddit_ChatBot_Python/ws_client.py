@@ -67,10 +67,10 @@ class WebSockClient:
     def update_ws_app_urls_access_token(self, access_token):
         self.ws.url = ws_utils.get_ws_url(self._user_id, access_token)
 
-    def on_open(self, ws):
+    def on_open(self, _):
         self.logger.info("### successfully connected to the websocket ###")
 
-    def on_message(self, ws, message):
+    def on_message(self, _, message):
         resp = get_frame_data(message)
         if self.print_chat:
             _print_chat_(resp, self.channelid_sub_pairs)
@@ -105,8 +105,7 @@ class WebSockClient:
             self.is_logi_err = True
 
     def update_channelid_sub_pair(self):
-        self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels,
-                                                                   user_id=self._user_id)
+        self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels)
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:
@@ -137,9 +136,9 @@ class WebSockClient:
         payload = TPEN.format(channel_url=channel_url, time=int(time.time() * 1000))
         self.ws.send(payload)
 
-    def on_error(self, ws, error):
+    def on_error(self, _, error):
         self.logger.error(error)
         self.last_err = error
 
-    def on_close(self, ws):
+    def on_close(self, _):
         self.logger.warning("### websocket closed ###")
