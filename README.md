@@ -113,6 +113,11 @@ The event of a user joining to a chat the bot is in.
 ```
 The event of a user leaving a chat the bot is in.
 
+```python
+@chatbot.event.on_user_typing
+```
+The event of a user typing.
+
 ---
 
 All events receives a parsed frame as an argument. They are handled like this.:
@@ -417,7 +422,7 @@ Complete Example
 -------
 
 ```python
-from Reddit_ChatBot_Python import ChatBot, RedditAuthentication
+from Reddit_ChatBot_Python import ChatBot, RedditAuthentication, CustomType
 import random  # for a basic dice rolling game
 
 # create authentication with username and pass
@@ -488,9 +493,9 @@ chatbot.set_farewell_message("Too bad u/{nickname} left us :(", limited_to_chann
 # there are also other types of hooks like this one for invitations
 @chatbot.event.on_invitation
 def on_invit(resp):
-    if resp.channel_type == "group":
+    if resp.channel_type == CustomType.group:
         invit_type = "group chat"
-    elif resp.channel_type == "direct":
+    elif resp.channel_type == CustomType.direct:
         invit_type = "DM"
     else:
         invit_type = None
@@ -514,6 +519,7 @@ def report_channels(_):
 def check_invites(_):
     invites = chatbot.get_chat_invites()
     for invite in invites:
+        print(f"invited to chat by {invite.inviter} with the message {invite.last_message.message}")
         chatbot.accept_chat_invite(invite.channel_url)
     return True
 

@@ -64,7 +64,6 @@ class Events:
         def hook(resp: FrameModel) -> Optional[bool]:
             try:
                 _ = resp.data.nickname
-                _ = resp.channel_url
             except AttributeError:
                 return
             if resp.cat != 10900:
