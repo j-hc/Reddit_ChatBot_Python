@@ -116,7 +116,7 @@ The event of a user leaving a chat the bot is in.
 
 ---
 
-All events receives a parsed frame as an argumant. They are handled like this.:
+All events receives a parsed frame as an argument. They are handled like this.:
 ```python
 @chatbot.on_message_hook
 def greet(resp):
@@ -132,7 +132,7 @@ def greet(resp):
 - ```resp.channel_url``` is the url of the channel we want to send the message to (resp.channel_url in this case
   which is the channel in which the "Hi!" message was sent.)
   
-The argumant ```resp``` carries more data than just the user and the message string. The Instances of resp for
+The argument ```resp``` carries more data than just the user and the message string. The Instances of resp for
 all event are listed below.
 
 ---

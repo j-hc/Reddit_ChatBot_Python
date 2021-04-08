@@ -4,10 +4,9 @@ from .reddit_auth import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 from ._api.tools import Tools
 from ._api.models import Channel, Message
-from typing import Dict, List, Callable, Optional
+from typing import Dict, List, Optional
 from ._utils.frame_model import FrameType, FrameModel
-
-_hook = Callable[[FrameModel], Optional[bool]]
+from ._events import Events
 
 
 def _get_locals_without_self(locals_):
@@ -35,22 +34,10 @@ class ChatBot:
         self._tools = Tools(self._r_authentication)
         self.WebSocketClient._get_current_channels = self._tools.get_channels
 
+        self.event = Events(self.WebSocketClient)
+
     def get_chatroom_name_id_pairs(self) -> Dict[str, str]:
         return self.WebSocketClient.channelid_sub_pairs
-
-    def on_message_hook(self, func: _hook) -> None:
-        self.on_frame_hook(frame_type=FrameType.MESG)(func)
-
-    def on_ready_hook(self, func: _hook) -> None:
-        self.on_frame_hook(frame_type=FrameType.LOGI)(func)
-
-    def on_frame_hook(self, frame_type: FrameType = FrameType.MESG) -> Callable[[_hook], None]:
-        def on_frame_hook_append(func: _hook):
-            def hook(resp: FrameModel):
-                if resp.type_f == frame_type:
-                    func(resp)
-            self.WebSocketClient.after_message_hooks.append(hook)
-        return on_frame_hook_append
 
     def set_respond_hook(self, input_: str,
                          response: str,
@@ -80,33 +67,7 @@ class ChatBot:
                 self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.on_frame_hook(frame_type=FrameType.MESG)(hook)
-
-    def on_invitation_hook(self, func: _hook) -> None:
-        def hook(resp: FrameModel) -> Optional[bool]:
-            try:
-                _ = resp.data.inviter
-                invte = [invitee.nickname for invitee in resp.data.invitees]
-            except AttributeError:
-                return
-            if not (len(invte) == 1 and invte[0] == self.WebSocketClient.own_name):
-                return
-            func(resp)
-
-        self.on_frame_hook(frame_type=FrameType.SYEV)(hook)
-
-    def on_message_deleted_hook(self, func: _hook) -> None:
-        self.on_frame_hook(frame_type=FrameType.DELM)(func)
-
-    def on_user_joined_hook(self, func: _hook):
-        def hook(resp: FrameModel) -> Optional[bool]:
-            try:
-                _ = resp.data.users[0].nickname
-                _ = resp.data.users[0].inviter.nickname
-            except (AttributeError, IndexError):
-                return
-            func(resp)
-        self.on_frame_hook(FrameType.SYEV)(hook)
+        self.event.on_any(frame_type=FrameType.MESG)(hook)
 
     def set_welcome_message(self, message: str, limited_to_channels: List[str] = None) -> None:
         if limited_to_channels is None:
@@ -124,17 +85,7 @@ class ChatBot:
                 self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.on_user_joined_hook(hook)
-
-    def on_user_left_hook(self, func: _hook) -> None:
-        def hook(resp: FrameModel) -> Optional[bool]:
-            try:
-                _ = resp.channel.disappearing_message
-                _ = resp.data.nickname
-            except AttributeError:
-                return
-            func(resp)
-        self.on_frame_hook(FrameType.SYEV)(hook)
+        self.event.on_user_joined(hook)
 
     def set_farewell_message(self, message: str, limited_to_channels: List[str] = None) -> None:
         if limited_to_channels is None:
@@ -151,7 +102,7 @@ class ChatBot:
                 self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.on_user_left_hook(hook)
+        self.event.on_user_left(hook)
 
     def send_message(self, text: str, channel_url: str) -> None:
         self.WebSocketClient.ws_send_message(text, channel_url)
@@ -198,7 +149,8 @@ class ChatBot:
         return self._tools.get_channels(**_get_locals_without_self(locals()),
                                         session_key=self.WebSocketClient.session_key)
 
-    def get_older_messages(self, channel_url: str, prev_limit: int = 40, next_limit: int = 0, reverse: bool = True) -> List[Message]:
+    def get_older_messages(self, channel_url: str, prev_limit: int = 40,
+                           next_limit: int = 0, reverse: bool = True) -> List[Message]:
         return self._tools.get_older_messages(**_get_locals_without_self(locals()),
                                               session_key=self.WebSocketClient.session_key)
 
