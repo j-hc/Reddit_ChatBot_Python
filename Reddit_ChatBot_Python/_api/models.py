@@ -1,15 +1,24 @@
 from dataclasses import dataclass
-from dataclasses_json import dataclass_json
 from typing import Dict, Optional, List
 from enum import Enum
+from dacite import from_dict, Config
 
 
-@dataclass_json
+class CustomType(Enum):
+    group = 'group'
+    direct = 'direct'
+
+
+class MemberState(Enum):
+    joined = 'joined'
+    invited = 'invited'
+
+
 @dataclass(frozen=True)
 class _Channel:
     name: str
     member_count: int
-    custom_type: str
+    custom_type: CustomType
     channel_url: str
     created_at: int
     # cover_url: str
@@ -17,7 +26,6 @@ class _Channel:
     data: str
 
 
-@dataclass_json
 @dataclass(frozen=True)
 class _MentionedUser:
     nickname: str
@@ -27,7 +35,6 @@ class _MentionedUser:
     user_id: str
 
 
-@dataclass_json
 @dataclass(frozen=True)
 class _User:
     require_auth_for_profile_image: bool
@@ -40,7 +47,6 @@ class _User:
     # metadata: dict
 
 
-@dataclass_json
 @dataclass(frozen=True)
 class _CreatedBy:
     # require_auth_for_profile_image: bool
@@ -49,7 +55,25 @@ class _CreatedBy:
     # profile_url: str
 
 
-@dataclass_json
+@dataclass(frozen=True)
+class _Member:
+    is_blocking_me: Optional[bool]
+    user_id: str
+    is_muted: bool
+    friend_name: Optional[str]
+    is_active: Optional[bool]
+    is_blocked_by_me: bool
+    state: str
+    # friend_discovery_key: null
+    role: str
+    is_online: bool
+    require_auth_for_profile_image: bool
+    # last_seen_at: int
+    nickname: str
+    # profile_url:str
+    # metadata: dict
+
+
 @dataclass(frozen=True)
 class Message:
     # message_survival_seconds: int
@@ -72,38 +96,10 @@ class Message:
     channel_url: str
     message_id: int
 
+    @classmethod
+    def from_dict(cls, d):
+        return from_dict(data=d, data_class=cls)
 
-@dataclass_json
-@dataclass(frozen=True)
-class _Member:
-    is_blocking_me: Optional[bool]
-    user_id: str
-    is_muted: bool
-    friend_name: Optional[str]
-    is_active: Optional[bool]
-    is_blocked_by_me: bool
-    state: str
-    # friend_discovery_key: null
-    role: str
-    is_online: bool
-    require_auth_for_profile_image: bool
-    # last_seen_at: int
-    nickname: str
-    # profile_url:str
-    # metadata: dict
-
-
-class CustomType(Enum):
-    group = 'group'
-    direct = 'direct'
-
-
-class MemberState(Enum):
-    joined = 'joined'
-    invited = 'invited'
-
-
-@dataclass_json
 @dataclass(frozen=True)
 class Channel:
     invited_at: int
@@ -149,3 +145,7 @@ class Channel:
     max_length_message: int
     inviter: _CreatedBy
     count_preference: str
+
+    @classmethod
+    def from_dict(cls, d):
+        return from_dict(data=d, data_class=cls, config=Config(cast=[CustomType, MemberState]))

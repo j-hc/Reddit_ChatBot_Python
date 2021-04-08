@@ -92,7 +92,7 @@ class Tools:
         }
         url = f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels'
         response = self._handled_req(method='GET', uri=url, headers={'Session-Key': session_key}, params=params)
-        return [Channel.from_dict(channel, infer_missing=True) for channel in response.json()['channels']]
+        return [Channel.from_dict(channel) for channel in response.json()['channels']]
 
     def leave_chat(self, channel_url, session_key):
         data = json.dumps({
@@ -113,7 +113,7 @@ class Tools:
         response = self._handled_req(method='POST', uri=url,
                                      headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                                      data=data)
-        return Channel.from_json(response.text, infer_missing=True)
+        return Channel.from_dict(response.json())
 
     def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide, session_key):
         data = json.dumps({
@@ -141,4 +141,4 @@ class Tools:
 
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
                                      headers={'Session-Key': session_key}, params=params)
-        return [Message.from_dict(msg, infer_missing=True) for msg in response.json()['messages']]
+        return [Message.from_dict(msg) for msg in response.json()['messages']]

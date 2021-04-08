@@ -13,14 +13,13 @@ re-authentication prior to auto re-connect is only possible with PasswordAuth
 Installation
 ------------
 
-
     pip3 install Reddit-ChatBot-Python
 
 required:
 
     websocket_client
     requests
-    dataclasses-json
+    dacite
 
 
 There is a skip_utf8_validation parameter for run_4ever method which slows things down when set to False.
