@@ -34,7 +34,7 @@ Usage
 The module is multi-threaded and event-driven. You handle what's gonna happen on these events
 by writing your function with the specific event's decorator.
 
-First of all, for creating a instantiating a RedditAuthenticaton, there are two options
+First of all, for creating an instance of RedditAuthenticaton, there are two options
 
 Recommended way is to create a PasswordAuth:
 ```python
@@ -84,32 +84,32 @@ not necessary.
 
 The events:
 ```python
-@chatbot.on_message_hook
+@chatbot.event.on_message
 ```
 The event of a receving a normal chat message.
 
 ```python
-@chatbot.on_ready_hook
+@chatbot.event.on_ready
 ```
 The event of a connecting to the chats for the first time.
 
 ```python
-@chatbot.on_invitation_hook
+@chatbot.event.on_invitation
 ```
 The event of a receving a chat invitation whether direct or group.
 
 ```python
-@chatbot.on_message_deleted_hook
+@chatbot.event.on_message_deleted
 ```
 The event of a user deleting his/her message.
 
 ```python
-@chatbot.on_user_joined_hook
+@chatbot.event.on_user_joined
 ```
 The event of a user joining to a chat the bot is in.
 
 ```python
-@chatbot.on_user_left_hook
+@chatbot.event.on_user_left
 ```
 The event of a user leaving a chat the bot is in.
 
@@ -117,7 +117,7 @@ The event of a user leaving a chat the bot is in.
 
 All events receives a parsed frame as an argument. They are handled like this.:
 ```python
-@chatbot.on_message_hook
+@chatbot.event.on_message
 def greet(resp):
     if resp.user.name == "botsname":
         return True
@@ -396,7 +396,7 @@ import random  # for a basic dice rolling game
 
 # create authentication with username and pass
 reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="",
-                                                 twofa="")  # 2FA supported although not necessary obv..
+                                                          twofa="")  # 2FA supported although not necessary obv..
 
 # instantiate the chatbot
 chatbot = ChatBot(print_chat=True, store_session=True, log_websocket_frames=False,  # some parameters u might wanna know
@@ -409,7 +409,7 @@ chatbot.enable_rate_limiter(max_calls=23,  # how many messages will be sent by t
 
 
 # now you can add hooks which will be executed when a frame is received like so:
-@chatbot.on_message_hook
+@chatbot.event.on_message
 def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of the received frame
     messg_s = resp.message.split()
     if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
@@ -418,23 +418,24 @@ def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of
 
         rolled_number = random.randint(limit_bottom, limit_top)
         response_text = f"@{resp.user.name} {rolled_number}. Better luck next time!"
-        # a basic roll game
+        # a simple game
 
         # send typing indicator cuz why not? maybe they think you are a real person
         chatbot.send_typing_indicator(resp.channel_url)
         chatbot.send_message(response_text,
-                             resp.channel_url)  # and send the message, always add resp.channel_url as the second argument
+                             resp.channel_url)  # send the message, always add resp.channel_url as the second argument
         chatbot.stop_typing_indicator(resp.channel_url)
         chatbot.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not??
         return True  # return true if you want to be done with checking the other hooks, otherwise return None or False
-        # keep in mind that first added hooks gets executed first
+        # keep in mind that first added hooks get executed first
+
 
 # now everytime someone says "!roll 1 100", the bot will roll a dice between 1 and 100 and send the result!
 
 
 # there are also host actions availabe but ofc they require the bot account to be the host of the chatroom
-@chatbot.on_message_hook
-def keeper_of_decency(resp):  # WE WILL KEEP THE DECENCY IN THE CHAT BOIS
+@chatbot.event.on_message
+def keeper_of_decency(resp):
     if resp.message == "*some very bad slur word*":
         chatbot.kick_user(channel_url=resp.channel_url, user_id=resp.user.guest_id, duration=600)  # duration is in secs
         chatbot.send_message(f'i banned {resp.user.name} for 10 mins', resp.channel_url)
@@ -459,7 +460,7 @@ chatbot.set_farewell_message("Too bad u/{nickname} left us :(", limited_to_chann
 
 
 # there are also other types of hooks like this one for invitations
-@chatbot.on_invitation_hook
+@chatbot.event.on_invitation
 def on_invit(resp):
     if resp.channel_type == "group":
         invit_type = "group chat"
@@ -472,16 +473,18 @@ def on_invit(resp):
     chatbot.send_message("Hello! I accepted your invite", resp.channel_url)
     return True
 
+
 # or on ready hook
-@chatbot.on_ready_hook
+@chatbot.event.on_ready
 def report_channels(_):
     channels = chatbot.get_channels()
     print("up and running in these channels!: ")
     for channel in channels:
         print(channel.name)
 
+
 # wanna check invitations on start? i got you
-@chatbot.on_ready_hook
+@chatbot.event.on_ready
 def check_invites(_):
     invites = chatbot.get_chat_invites()
     for invite in invites:
