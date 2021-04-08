@@ -53,10 +53,10 @@ class WebSockClient:
 
     def _get_ws_app(self, ws_url):
         ws = websocket.WebSocketApp(ws_url,
-                                    on_message=lambda ws, msg: self.on_message(ws, msg),
-                                    on_error=lambda ws, msg: self.on_error(ws, msg),
-                                    on_close=lambda ws: self.on_close(ws),
-                                    on_open=lambda ws: self.on_open(ws),
+                                    on_message=self.on_message,
+                                    on_error=self.on_error,
+                                    on_close=self.on_close,
+                                    on_open=self.on_open,
                                     header={'User-Agent': MOBILE_USERAGENT}
                                     )
         return ws
