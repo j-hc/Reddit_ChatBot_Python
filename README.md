@@ -56,7 +56,7 @@ reddit_authentication = RedditAuthentication.TokenAuth(token="")
 
 then instantiating the chatbot with the reddit_authentication passed in
 ```python
-from Reddit_ChatBot_Python ChatBot
+from Reddit_ChatBot_Python import ChatBot
 
 chatbot = ChatBot(print_chat=True,
                   store_session=True,
@@ -538,7 +538,7 @@ Some other fun stuff you can do with this..
 ```python
 messages_f_handle = open('reddit-chat-msgs.txt', 'w')
 
-@chatbot.on_message_hook
+@chatbot.event.on_message
 def save_chat_messages_into_a_txt_file(resp):
     chatroom_name_id_pairs = chatbot.get_chatroom_name_id_pairs()
     message = resp.message
@@ -554,11 +554,11 @@ def save_chat_messages_into_a_txt_file(resp):
 ```python
 latest_messages = {}
 
-@chatbot.on_message_hook
+@chatbot.event.on_message
 def save_msg_ids(resp):
     latest_messages.update({resp.msg_id: resp.message})
 
-@chatbot.on_message_deleted_hook
+@chatbot.event.on_message_deleted
 def catch_deleted_messages(resp):
     chatbot.send_message(f"this message was deleted: {latest_messages.get(resp.msg_id)}", resp.channel_url)
 ```
