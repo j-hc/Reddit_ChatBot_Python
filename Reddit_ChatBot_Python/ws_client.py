@@ -96,7 +96,7 @@ class WebSockClient:
                                                                show_read_receipt=True, show_empty=True,
                                                                member_state_filter='joined_only', super_mode='all',
                                                                public_mode='all', unread_filter='all',
-                                                               hidden_mode='unhidden_only', show_frozen=True,
+                                                               hidden_mode='all', show_frozen=True,
                                                                session_key=self.session_key)
             self.update_channelid_sub_pair()
             self.own_name = resp.nickname
