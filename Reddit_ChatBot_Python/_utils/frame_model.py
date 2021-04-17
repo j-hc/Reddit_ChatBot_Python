@@ -35,7 +35,10 @@ def get_frame_data(data):
     # some presets
     if type_f == FrameType.MESG and data_j.message == "":
         wfdata = convert_to_framemodel(data_j.data)
-        data_j.message = wfdata.v1.snoomoji
+        try:
+            data_j.message = wfdata.v1.snoomoji
+        except AttributeError:
+            pass
     data_j.type_f = type_f
 
     return data_j
