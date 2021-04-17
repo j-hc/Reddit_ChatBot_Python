@@ -105,7 +105,8 @@ class WebSockClient:
             self.is_logi_err = True
 
     def update_channelid_sub_pair(self):
-        self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels)
+        self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels,
+                                                                   own_user_name=self.own_name)
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:
