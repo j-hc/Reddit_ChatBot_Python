@@ -38,7 +38,7 @@ First of all, for creating an instance of RedditAuthenticaton, there are two opt
 
 Recommended way is to create a PasswordAuth:
 ```python
-from Reddit_ChatBot_Python RedditAuthentication
+from Reddit_ChatBot_Python import RedditAuthentication
 
 reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="",
                                                           reddit_password="",
@@ -47,7 +47,7 @@ reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="",
 
 or you can go with your self-obtained api key. (not the one you get from your registered app)
 ```python
-from Reddit_ChatBot_Python RedditAuthentication
+from Reddit_ChatBot_Python import RedditAuthentication
 
 reddit_authentication = RedditAuthentication.TokenAuth(token="")
 ```
