@@ -25,7 +25,7 @@ required:
 There is a skip_utf8_validation parameter for run_4ever method which slows things down when set to False.
 If you want to set it to False, it is recommended that you install with extra modules:
 
-    pip3 install Reddit-ChatBot-Python[extra]
+    pip install Reddit-ChatBot-Python[extra]
 
 
 Usage
