@@ -19,13 +19,14 @@ def get_ws_url(user_id: str, access_token: str):
     return f"{socket_base}/?{urlencode(ws_params)}"
 
 
-def pair_channel_and_names(channels: List[Channel], own_user_name: str):
+def pair_channel_and_names(channels: List[Channel], own_user_id: str):
     channelid_sub_pairs = {}
     for channel in channels:
         chn_name = channel.name
         if chn_name == "":
             for mmbr in channel.members:
-                if mmbr.nickname != own_user_name:
+                if mmbr.nickname != own_user_id:
                     chn_name = mmbr.nickname
+                    break
         channelid_sub_pairs.update({channel.channel_url: chn_name})
     return channelid_sub_pairs
