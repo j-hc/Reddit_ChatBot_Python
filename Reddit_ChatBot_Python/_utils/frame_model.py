@@ -14,6 +14,7 @@ class FrameType(Enum):
     MACK = 'MACK'
     BRDM = 'BRDM'
     LOGI = 'LOGI'
+    EROR = 'EROR'
 
 
 class FrameModel(SimpleNamespace):
