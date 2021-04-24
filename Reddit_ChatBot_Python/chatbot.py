@@ -160,6 +160,12 @@ class ChatBot:
         self.WebSocketClient.update_channelid_sub_pair()
         return channel
 
+    def create_direct_channel(self, nickname: str) -> Channel:
+        channel = self._tools.create_channel(nicknames=[nickname], group_name="",
+                                             own_name=self.WebSocketClient.own_name)
+        self.WebSocketClient.update_channelid_sub_pair()
+        return channel
+
     def accept_chat_invite(self, channel_url: str) -> None:
         self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
         self.WebSocketClient.update_channelid_sub_pair()
