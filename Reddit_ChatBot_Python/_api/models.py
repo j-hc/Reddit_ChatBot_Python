@@ -39,7 +39,7 @@ class _MentionedUser:
 class _User:
     require_auth_for_profile_image: bool
     is_active: Optional[bool]
-    is_blocked_by_me: bool
+    is_blocked_by_me: Optional[bool]
     role: str
     user_id: str
     nickname: str
@@ -62,11 +62,11 @@ class _Member:
     is_muted: bool
     friend_name: Optional[str]
     is_active: Optional[bool]
-    is_blocked_by_me: bool
+    is_blocked_by_me: Optional[bool]
     state: str
     # friend_discovery_key: null
     role: str
-    is_online: bool
+    is_online: Optional[bool]
     require_auth_for_profile_image: bool
     # last_seen_at: int
     nickname: str
@@ -91,7 +91,7 @@ class Message:
     # silent: bool
     type: str
     created_at: int
-    req_id: str
+    req_id: Optional[str]
     mention_type: str
     channel_url: str
     message_id: int
@@ -99,6 +99,7 @@ class Message:
     @classmethod
     def from_dict(cls, d):
         return from_dict(data=d, data_class=cls)
+
 
 @dataclass(frozen=True)
 class Channel:
