@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 from .consts import SB_User_Agent, SB_ai
-from .._api.models import Channel
+from .._api.models import Channel, CustomType
 from typing import List
 
 
@@ -23,7 +23,7 @@ def pair_channel_and_names(channels: List[Channel], own_user_id: str):
     channelid_sub_pairs = {}
     for channel in channels:
         chn_name = channel.name
-        if chn_name == "":
+        if channel.custom_type == CustomType.direct:
             for mmbr in channel.members:
                 if mmbr.user_id != own_user_id:
                     chn_name = mmbr.nickname
