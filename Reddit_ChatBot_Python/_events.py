@@ -12,7 +12,8 @@ class Events:
         self.on_any(frame_type=FrameType.MESG)(func)
 
     def on_ready(self, func: _hook) -> None:
-        self.on_any(frame_type=FrameType.LOGI)(func)
+        if self.WebSocketClient.last_err is None:
+            self.on_any(frame_type=FrameType.LOGI)(func)
 
     def on_user_read(self, func: _hook) -> None:
         self.on_any(frame_type=FrameType.READ)(func)
