@@ -43,7 +43,6 @@ class WebSockClient:
         self.print_chat = print_chat
         self.log_websocket_frames = log_websocket_frames
         self.last_err = None
-        self.s_logi_seen = False
         self.is_logi_err = False
         self.session_key = None
 
@@ -92,7 +91,6 @@ class WebSockClient:
         except AttributeError:
             logi_err = None
         if logi_err is None:
-            self.s_logi_seen = True
             self.is_logi_err = False
             self.session_key = resp.key
             self.update_channelid_sub_pair()

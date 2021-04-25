@@ -128,7 +128,7 @@ class ChatBot:
                 self.WebSocketClient.update_ws_app_urls_access_token(sb_access_token)
             elif not (auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException)):
                 break
-            self.WebSocketClient.logger.info('Auto Reconnecting...')
+            self.WebSocketClient.logger.info('Auto Re-Connecting...')
 
     def kick_user(self, channel_url: str, user_id: str, duration: int) -> None:
         self._tools.kick_user(**_get_locals_without_self(locals()))

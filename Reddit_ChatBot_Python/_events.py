@@ -13,7 +13,12 @@ class Events:
 
     def on_ready(self, func: _hook) -> None:
         def hook(resp: FrameModel) -> Optional[bool]:
-            if not self.WebSocketClient.s_logi_seen:
+            try:
+                _ = resp.error
+                return
+            except AttributeError:
+                pass
+            if self.WebSocketClient.last_err is not None:
                 return
             return func(resp)
 
