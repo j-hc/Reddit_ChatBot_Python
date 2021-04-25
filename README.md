@@ -96,7 +96,7 @@ The event of a connecting to the chats for the first time.
 ```python
 @chatbot.event.on_invitation
 ```
-The event of a receving a chat invitation whether direct or group.
+The event of receving a chat invitation whether direct or group.
 
 ```python
 @chatbot.event.on_message_deleted

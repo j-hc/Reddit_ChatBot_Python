@@ -14,6 +14,9 @@ class Events:
     def on_ready(self, func: _hook) -> None:
         self.on_any(frame_type=FrameType.LOGI)(func)
 
+    def on_user_read(self, func: _hook) -> None:
+        self.on_any(frame_type=FrameType.READ)(func)
+
     def on_any(self, frame_type: FrameType = FrameType.MESG) -> Callable[[_hook], None]:
         def on_frame_hook_append(func: _hook):
             def hook(resp: FrameModel):
