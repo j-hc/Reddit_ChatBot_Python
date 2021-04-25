@@ -27,49 +27,20 @@ class _Channel:
 
 
 @dataclass(frozen=True)
-class _MentionedUser:
-    nickname: str
-    # metadata: dict
-    # require_auth_for_profile_image: bool
-    # profile_url: str
-    user_id: str
-
-
-@dataclass(frozen=True)
-class _User:
-    require_auth_for_profile_image: bool
-    is_active: Optional[bool]
-    is_blocked_by_me: Optional[bool]
-    role: str
-    user_id: str
-    nickname: str
-    # profile_url: str
-    # metadata: dict
-
-
-@dataclass(frozen=True)
-class _CreatedBy:
-    # require_auth_for_profile_image: bool
-    nickname: str
-    user_id: str
-    # profile_url: str
-
-
-@dataclass(frozen=True)
-class _Member:
+class User:
     is_blocking_me: Optional[bool]
-    user_id: str
-    is_muted: bool
+    user_id: Optional[str]
+    is_muted: Optional[bool]
     friend_name: Optional[str]
     is_active: Optional[bool]
     is_blocked_by_me: Optional[bool]
-    state: str
+    state: Optional[str]
     # friend_discovery_key: null
-    role: str
+    role: Optional[str]
     is_online: Optional[bool]
-    require_auth_for_profile_image: bool
+    require_auth_for_profile_image: Optional[bool]
     # last_seen_at: int
-    nickname: str
+    nickname: Optional[str]
     # profile_url:str
     # metadata: dict
 
@@ -78,12 +49,12 @@ class _Member:
 class Message:
     # message_survival_seconds: int
     # custom_type: str
-    mentioned_users: List[_MentionedUser]
+    mentioned_users: List[User]
     # translations: dict
     updated_at: int
     is_op_msg: bool
     is_removed: bool
-    user: _User
+    user: User
     # file: dict
     message: str
     data: str
@@ -109,7 +80,7 @@ class Channel:
     read_receipt: Dict[str, int]
     member_state: MemberState
     freeze: bool
-    created_by: Optional[_CreatedBy]
+    created_by: Optional[User]
     is_hidden: bool
     # disappearing_message: dict
     is_push_enabled: bool
@@ -133,7 +104,7 @@ class Channel:
     # is_muted: bool
     # hidden_state: str
     cover_url: str
-    members: List[_Member]
+    members: List[User]
     is_public: bool
     # data: str
     # ts_message_offset: int
@@ -144,7 +115,7 @@ class Channel:
     # is_access_code_required: bool
     # push_trigger_option: str
     max_length_message: int
-    inviter: _CreatedBy
+    inviter: User
     count_preference: str
 
     @classmethod
