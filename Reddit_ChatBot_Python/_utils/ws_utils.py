@@ -25,7 +25,7 @@ def pair_channel_and_names(channels: List[Channel], own_user_id: str):
         chn_name = channel.name
         if chn_name == "":
             for mmbr in channel.members:
-                if mmbr.nickname != own_user_id:
+                if mmbr.user_id != own_user_id:
                     chn_name = mmbr.nickname
                     break
         channelid_sub_pairs.update({channel.channel_url: chn_name})
