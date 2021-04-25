@@ -15,7 +15,7 @@ class Events:
         def hook(resp: FrameModel) -> Optional[bool]:
             if not self.WebSocketClient.s_logi_seen:
                 return
-            func(resp)
+            return func(resp)
 
         self.on_any(frame_type=FrameType.LOGI)(hook)
 
@@ -26,7 +26,7 @@ class Events:
         def on_frame_hook_append(func: _hook):
             def hook(resp: FrameModel):
                 if resp.type_f == frame_type:
-                    func(resp)
+                    return func(resp)
 
             self.WebSocketClient.after_message_hooks.append(hook)
 
@@ -41,7 +41,7 @@ class Events:
                 return
             if not (len(invte) == 1 and invte[0] == self.WebSocketClient.own_name):
                 return
-            func(resp)
+            return func(resp)
 
         self.on_any(frame_type=FrameType.SYEV)(hook)
 
@@ -55,7 +55,7 @@ class Events:
                 _ = resp.data.users[0].inviter.nickname
             except (AttributeError, IndexError):
                 return
-            func(resp)
+            return func(resp)
 
         self.on_any(FrameType.SYEV)(hook)
 
@@ -66,7 +66,7 @@ class Events:
                 _ = resp.data.nickname
             except AttributeError:
                 return
-            func(resp)
+            return func(resp)
 
         self.on_any(FrameType.SYEV)(hook)
 
@@ -78,6 +78,6 @@ class Events:
                 return
             if resp.cat != 10900:
                 return
-            func(resp)
+            return func(resp)
 
         self.on_any(FrameType.SYEV)(hook)
