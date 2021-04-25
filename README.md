@@ -91,7 +91,7 @@ The event of a receving a normal chat message.
 ```python
 @chatbot.event.on_ready
 ```
-The event of a connecting to the chats for the first time.
+The event of a connecting to the chats for the first time. Executed only once.
 
 ```python
 @chatbot.event.on_invitation
@@ -117,6 +117,11 @@ The event of a user leaving a chat the bot is in.
 @chatbot.event.on_user_typing
 ```
 The event of a user typing.
+
+```python
+@chatbot.event.on_user_read
+```
+The event of a user reading a message.
 
 ---
 
