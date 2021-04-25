@@ -30,9 +30,9 @@ class ChatBot:
             reddit_authentication = self._r_authentication.authenticate()
             sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
 
-        self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
         self._tools = Tools(self._r_authentication)
-        self.WebSocketClient._get_current_channels = self._tools.get_channels
+        self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id,
+                                             get_current_channels=self._tools.get_channels, **kwargs)
 
         self.event = Events(self.WebSocketClient)
 
@@ -157,13 +157,13 @@ class ChatBot:
     def create_channel(self, nicknames: List[str], group_name: str) -> Channel:
         channel = self._tools.create_channel(**_get_locals_without_self(locals()),
                                              own_name=self.WebSocketClient.own_name)
-        self.WebSocketClient.update_channelid_sub_pair()
+        self.WebSocketClient.add_channelid_sub_pair(channel)
         return channel
 
     def create_direct_channel(self, nickname: str) -> Channel:
         channel = self._tools.create_channel(nicknames=[nickname], group_name="",
                                              own_name=self.WebSocketClient.own_name)
-        self.WebSocketClient.update_channelid_sub_pair()
+        self.WebSocketClient.add_channelid_sub_pair(channel)
         return channel
 
     def accept_chat_invite(self, channel_url: str) -> None:

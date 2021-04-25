@@ -7,18 +7,17 @@ from threading import Thread
 from ._utils import ws_utils
 from ._utils.consts import MESG_regular, MESG_snoo, TPST, TPEN, MOBILE_USERAGENT
 
-
 logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
 
 
 def _print_chat_(resp, channelid_sub_pairs):
-    if resp.type_f == FrameType.MESG:
-        print(f"{resp.user.name}@{channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
+    print(f"{resp.user.name}@{channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
 
 
 class WebSockClient:
-    def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, log_websocket_frames=False,
-                 other_logging=True, global_blacklist_users=None, global_blacklist_words=None):
+    def __init__(self, access_token, user_id, get_current_channels, enable_trace=False, print_chat=True,
+                 log_websocket_frames=False, other_logging=True, global_blacklist_users=None,
+                 global_blacklist_words=None):
         self._user_id = user_id
         if global_blacklist_words is None:
             global_blacklist_words = set()
@@ -47,7 +46,8 @@ class WebSockClient:
         self.is_logi_err = False
         self.session_key = None
 
-        self._get_current_channels = None
+        self.get_current_channels = get_current_channels
+        self.current_channels = None
 
         self.after_message_hooks = []
 
@@ -72,7 +72,7 @@ class WebSockClient:
 
     def on_message(self, _, message):
         resp = get_frame_data(message)
-        if self.print_chat:
+        if self.print_chat and resp.type_f == FrameType.MESG:
             _print_chat_(resp, self.channelid_sub_pairs)
         if self.log_websocket_frames:
             self.logger.info(message)
@@ -92,12 +92,6 @@ class WebSockClient:
             logi_err = None
         if logi_err is None:
             self.session_key = resp.key
-            self.current_channels = self._get_current_channels(limit=100, order='latest_last_message', show_member=True,
-                                                               show_read_receipt=True, show_empty=True,
-                                                               member_state_filter='joined_only', super_mode='all',
-                                                               public_mode='all', unread_filter='all',
-                                                               hidden_mode='all', show_frozen=True,
-                                                               session_key=self.session_key)
             self.update_channelid_sub_pair()
             self.own_name = resp.nickname
         else:
@@ -105,6 +99,17 @@ class WebSockClient:
             self.is_logi_err = True
 
     def update_channelid_sub_pair(self):
+        self.current_channels = self.get_current_channels(limit=100, order='latest_last_message', show_member=True,
+                                                          show_read_receipt=True, show_empty=True,
+                                                          member_state_filter='joined_only', super_mode='all',
+                                                          public_mode='all', unread_filter='all',
+                                                          hidden_mode='all', show_frozen=True,
+                                                          session_key=self.session_key)
+        self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels,
+                                                                   own_user_id=self._user_id)
+
+    def add_channelid_sub_pair(self, channel):
+        self.current_channels.append(channel)
         self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels,
                                                                    own_user_id=self._user_id)
 
