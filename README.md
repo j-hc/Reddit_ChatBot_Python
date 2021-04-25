@@ -518,6 +518,17 @@ def report_channels(_):
     for channel in channels:
         print(channel.name)
 
+# starting a direct chat
+@chatbot.event.on_ready
+def dm(_):
+    dm_channel = chatbot.create_direct_channel("someuseridk")
+    chatbot.send_message("Hey what's up?", dm_channel.channel_url)
+
+# starting a group chat
+@chatbot.event.on_ready
+def dm(_):
+    dm_channel = chatbot.create_channel(nicknames=["user1", "user2"], group_name="my group")
+    chatbot.send_message("Hey guys what's up?", dm_channel.channel_url)
 
 # wanna check invitations on start? i got you
 @chatbot.event.on_ready
