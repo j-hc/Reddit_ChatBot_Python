@@ -38,6 +38,8 @@ class Tools:
                 new_headers.update({'Authorization': f'Bearer {new_access_token}'})
                 kwargs.update({'headers': new_headers})
                 continue
+            elif response.status_code != 200:
+                raise Exception(response.json())
             else:
                 return response
 
