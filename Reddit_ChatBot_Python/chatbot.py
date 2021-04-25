@@ -173,6 +173,12 @@ class ChatBot:
         self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
         self.WebSocketClient.update_channelid_sub_pair()
 
+    def rename_channel(self, name: str, channel_url: str) -> Channel:
+        channel = self._tools.rename_channel(**_get_locals_without_self(locals()),
+                                             session_key=self.WebSocketClient.session_key)
+        self.WebSocketClient.update_channelid_sub_pair()
+        return channel
+
     def hide_chat(self, user_id: str, channel_url: str, hide_previous_messages: bool = False,
                   allow_auto_unhide: bool = True) -> None:
         self._tools.hide_chat(**_get_locals_without_self(locals()), session_key=self.WebSocketClient.session_key)

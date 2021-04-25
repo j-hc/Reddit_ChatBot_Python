@@ -43,6 +43,16 @@ class Tools:
             else:
                 return response
 
+    def rename_channel(self, name, channel_url, session_key):
+        data = json.dumps({
+            # 'cover_url': '',
+            'name': name,
+            # 'data': ''
+        })
+        uri = f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}"
+        response = self._handled_req(method='PUT', uri=uri, data=data, headers={'Session-Key': session_key})
+        return Channel.from_dict(response.json())
+
     def delete_message(self, channel_url, msg_id, session_key):
         uri = f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages/{msg_id}"
         self._handled_req(method='DELETE', uri=uri, headers={'Session-Key': session_key})
