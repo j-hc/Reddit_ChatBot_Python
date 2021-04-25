@@ -12,8 +12,12 @@ class Events:
         self.on_any(frame_type=FrameType.MESG)(func)
 
     def on_ready(self, func: _hook) -> None:
-        if self.WebSocketClient.last_err is None:
-            self.on_any(frame_type=FrameType.LOGI)(func)
+        def hook(resp: FrameModel) -> Optional[bool]:
+            if not self.WebSocketClient.s_logi_seen:
+                return
+            func(resp)
+
+        self.on_any(frame_type=FrameType.LOGI)(hook)
 
     def on_user_read(self, func: _hook) -> None:
         self.on_any(frame_type=FrameType.READ)(func)
@@ -52,6 +56,7 @@ class Events:
             except (AttributeError, IndexError):
                 return
             func(resp)
+
         self.on_any(FrameType.SYEV)(hook)
 
     def on_user_left(self, func: _hook) -> None:
@@ -62,6 +67,7 @@ class Events:
             except AttributeError:
                 return
             func(resp)
+
         self.on_any(FrameType.SYEV)(hook)
 
     def on_user_typing(self, func: _hook) -> None:
@@ -73,4 +79,5 @@ class Events:
             if resp.cat != 10900:
                 return
             func(resp)
+
         self.on_any(FrameType.SYEV)(hook)
