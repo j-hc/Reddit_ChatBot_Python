@@ -16,13 +16,15 @@ def _get_user_id(username):
 
 class Tools:
     def __init__(self, reddit_auth):
+        self._reddit_auth = reddit_auth
+
         self._req_sesh = requests.Session()
         self._req_sesh.headers = {
             'User-Agent': USER_AGENT,
             'SendBird': f'Android,29,3.0.82,{SB_ai}',
-            'SB-User-Agent': SB_User_Agent
+            'SB-User-Agent': SB_User_Agent,
+            'Authorization': f'Bearer {self._reddit_auth.api_token}'
         }
-        self._reddit_auth = reddit_auth
         try:
             _ = self._reddit_auth.reddit_username
             self._is_reauthable = True
@@ -64,8 +66,7 @@ class Tools:
             'duration': duration
         })
         uri = f'{S_REDDIT}/api/v1/channel/kick/user'
-        self._handled_req(method='POST', uri=uri, headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
-                          data=data)
+        self._handled_req(method='POST', uri=uri, data=data)
 
     def invite_user(self, channel_url, nicknames):
         assert isinstance(nicknames, list)
@@ -76,8 +77,7 @@ class Tools:
             'users': users
         })
         url = f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite'
-        self._handled_req(method='POST', uri=url, headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
-                          data=data)
+        self._handled_req(method='POST', uri=url, data=data)
 
     def accept_chat_invite(self, channel_url, session_key):
         data = json.dumps({
@@ -122,9 +122,7 @@ class Tools:
             'name': group_name
         })
         url = f'{S_REDDIT}/api/v1/sendbird/group_channels'
-        response = self._handled_req(method='POST', uri=url,
-                                     headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
-                                     data=data)
+        response = self._handled_req(method='POST', uri=url, data=data)
         return Channel.from_dict(response.json())
 
     def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide, session_key):
