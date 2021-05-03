@@ -205,7 +205,10 @@ class ChatBot:
             self._r_authentication.authenticate()
             pickle.dump(self._r_authentication, session_store_f)
         else:
-            self._r_authentication = pickle.load(session_store_f)
+            try:
+                self._r_authentication = pickle.load(session_store_f)
+            except EOFError:
+                return self._load_session(pkl_name, force_reauth=True)
         session_store_f.close()
 
         return self._r_authentication.sb_access_token, self._r_authentication.user_id
