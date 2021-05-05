@@ -20,8 +20,7 @@ class Tools:
         self._req_sesh.headers = {
             'User-Agent': USER_AGENT,
             'SendBird': f'Android,29,3.0.82,{SB_ai}',
-            'SB-User-Agent': SB_User_Agent,
-            'Authorization': f'Bearer {self._reddit_auth.api_token}'
+            'SB-User-Agent': SB_User_Agent
         }
         try:
             _ = self._reddit_auth.reddit_username
@@ -62,7 +61,9 @@ class Tools:
             'user_id': user_id,
             'duration': duration
         })
-        self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/channel/kick/user', data=data)
+        self._handled_req(method='POST', uri= f'{S_REDDIT}/api/v1/channel/kick/user',
+                          headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
+                          data=data)
 
     def invite_user(self, channel_url, nicknames):
         assert isinstance(nicknames, list)
@@ -72,7 +73,8 @@ class Tools:
         data = json.dumps({
             'users': users
         })
-        self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite',
+        self._handled_req(method='POST', uri= f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite',
+                          headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                           data=data)
 
     def accept_chat_invite(self, channel_url, session_key):
@@ -118,7 +120,9 @@ class Tools:
             'users': users,
             'name': group_name
         })
-        response = self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels', data=data)
+        response = self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels',
+                                     headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
+                                     data=data)
         return Channel.from_dict(response.json())
 
     def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide, session_key):
