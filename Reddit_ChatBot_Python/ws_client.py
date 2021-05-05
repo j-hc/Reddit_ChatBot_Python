@@ -61,8 +61,8 @@ class WebSockClient:
                                     )
         return ws
 
-    def ws_run_forever(self, skip_utf8_validation):
-        self.ws.run_forever(ping_interval=15, ping_timeout=5, skip_utf8_validation=skip_utf8_validation)
+    def ws_run_forever(self, skip_utf8_validation, sslopt):
+        self.ws.run_forever(ping_interval=15, ping_timeout=5, skip_utf8_validation=skip_utf8_validation, sslopt=sslopt)
 
     def update_ws_app_urls_access_token(self, access_token):
         self.ws.url = ws_utils.get_ws_url(self._user_id, access_token)

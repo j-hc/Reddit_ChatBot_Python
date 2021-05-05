@@ -53,7 +53,7 @@ class Events:
     def on_message_deleted(self, func: _hook) -> None:
         self.on_any(frame_type=FrameType.DELM)(func)
 
-    def on_user_joined(self, func: _hook):
+    def on_user_joined(self, func: _hook) -> None:
         def hook(resp: FrameModel) -> Optional[bool]:
             try:
                 _ = resp.data.users[0].nickname

@@ -116,9 +116,16 @@ class ChatBot:
     def stop_typing_indicator(self, channel_url: str) -> None:
         self.WebSocketClient.ws_stop_typing_indicator(channel_url)
 
-    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500, skip_utf8_validation=True) -> None:
+    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500, disable_ssl_verification: bool = False,
+                  skip_utf8_validation=True) -> None:
+        if disable_ssl_verification:
+            import ssl
+            sslopt = {"cert_reqs": ssl.CERT_NONE}
+        else:
+            sslopt = None
+
         for _ in range(max_retries):
-            self.WebSocketClient.ws_run_forever(skip_utf8_validation=skip_utf8_validation)
+            self.WebSocketClient.ws_run_forever(skip_utf8_validation=skip_utf8_validation, sslopt=sslopt)
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
                 self.WebSocketClient.logger.info('Re-Authenticating...')
                 if self._store_session:

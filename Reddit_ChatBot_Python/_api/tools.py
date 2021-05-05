@@ -5,8 +5,7 @@ from .models import Channel, Message
 
 
 def _get_user_id(username):
-    response = requests.get(f"{WWW_REDDIT}/user/{username}/about.json",
-                            headers={'user-agent': WEB_USERAGENT}).json()
+    response = requests.get(f"{WWW_REDDIT}/user/{username}/about.json", headers={'user-agent': WEB_USERAGENT}).json()
     u_id = response.get('data', {}).get('id')
     if u_id is None:
         return None
@@ -17,7 +16,6 @@ def _get_user_id(username):
 class Tools:
     def __init__(self, reddit_auth):
         self._reddit_auth = reddit_auth
-
         self._req_sesh = requests.Session()
         self._req_sesh.headers = {
             'User-Agent': USER_AGENT,
@@ -47,17 +45,16 @@ class Tools:
 
     def rename_channel(self, name, channel_url, session_key):
         data = json.dumps({
-            # 'cover_url': '',
             'name': name,
-            # 'data': ''
         })
         uri = f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}"
         response = self._handled_req(method='PUT', uri=uri, data=data, headers={'Session-Key': session_key})
         return Channel.from_dict(response.json())
 
     def delete_message(self, channel_url, msg_id, session_key):
-        uri = f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages/{msg_id}"
-        self._handled_req(method='DELETE', uri=uri, headers={'Session-Key': session_key})
+        self._handled_req(method='DELETE',
+                          uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages/{msg_id}",
+                          headers={'Session-Key': session_key})
 
     def kick_user(self, channel_url, user_id, duration):
         data = json.dumps({
@@ -65,8 +62,7 @@ class Tools:
             'user_id': user_id,
             'duration': duration
         })
-        uri = f'{S_REDDIT}/api/v1/channel/kick/user'
-        self._handled_req(method='POST', uri=uri, data=data)
+        self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/channel/kick/user', data=data)
 
     def invite_user(self, channel_url, nicknames):
         assert isinstance(nicknames, list)
@@ -76,15 +72,15 @@ class Tools:
         data = json.dumps({
             'users': users
         })
-        url = f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite'
-        self._handled_req(method='POST', uri=url, data=data)
+        self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite',
+                          data=data)
 
     def accept_chat_invite(self, channel_url, session_key):
         data = json.dumps({
             'user_id': self._reddit_auth.user_id
         })
-        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept'
-        self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data)
+        self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept',
+                          headers={'Session-Key': session_key}, data=data)
 
     def get_channels(self, limit, order, show_member, show_read_receipt, show_empty, member_state_filter, super_mode,
                      public_mode, unread_filter, hidden_mode, show_frozen, session_key):
@@ -102,16 +98,17 @@ class Tools:
             'hidden_mode': hidden_mode,
             'show_frozen': show_frozen,
         }
-        url = f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels'
-        response = self._handled_req(method='GET', uri=url, headers={'Session-Key': session_key}, params=params)
+        response = self._handled_req(method='GET',
+                                     uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels',
+                                     headers={'Session-Key': session_key}, params=params)
         return [Channel.from_dict(channel) for channel in response.json()['channels']]
 
     def leave_chat(self, channel_url, session_key):
         data = json.dumps({
             'user_id': self._reddit_auth.user_id
         })
-        url = f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/leave'
-        self._handled_req(method='PUT', uri=url, headers={'Session-Key': session_key}, data=data)
+        self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/leave',
+                          headers={'Session-Key': session_key}, data=data)
 
     def create_channel(self, nicknames, group_name, own_name):
         users = [{"user_id": self._reddit_auth.user_id, "nickname": own_name}]
@@ -121,8 +118,7 @@ class Tools:
             'users': users,
             'name': group_name
         })
-        url = f'{S_REDDIT}/api/v1/sendbird/group_channels'
-        response = self._handled_req(method='POST', uri=url, data=data)
+        response = self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels', data=data)
         return Channel.from_dict(response.json())
 
     def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide, session_key):
@@ -141,7 +137,7 @@ class Tools:
             'next_limit': next_limit,
             'include': 'false',
             'reverse': reverse,
-            'message_ts': 9007199254740991,
+            'message_ts': '9007199254740991',
             'with_sorted_meta_array': 'false',
             'include_reactions': 'false',
             'include_thread_info': 'false',
