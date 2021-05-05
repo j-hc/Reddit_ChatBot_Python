@@ -1,7 +1,7 @@
 import requests
 from .._utils.consts import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT, WWW_REDDIT
 import json
-from .models import Channel, Message
+from .models import Channel, Message, Members
 
 
 def _get_user_id(username):
@@ -46,8 +46,9 @@ class Tools:
         data = json.dumps({
             'name': name,
         })
-        uri = f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}"
-        response = self._handled_req(method='PUT', uri=uri, data=data, headers={'Session-Key': session_key})
+        response = self._handled_req(method='PUT', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
+                                     headers={'Session-Key': session_key},
+                                     data=data)
         return Channel.from_dict(response.json())
 
     def delete_message(self, channel_url, msg_id, session_key):
@@ -104,6 +105,21 @@ class Tools:
                                      uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels',
                                      headers={'Session-Key': session_key}, params=params)
         return [Channel.from_dict(channel) for channel in response.json()['channels']]
+
+    def get_members(self, channel_url, next, limit, order, member_state_filter, session_key):
+        params = {
+            'token': next,
+            'limit': limit,
+            'order': order,
+            'muted_member_filter': 'all',
+            'member_state_filter': member_state_filter,
+            'show_member_is_muted': 'true',
+            'show_read_receipt': 'true',
+            'show_delivery_receipt': 'true',
+        }
+        response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/members',
+                                     headers={'Session-Key': session_key}, params=params)
+        return Members.from_dict(response.json())
 
     def leave_chat(self, channel_url, session_key):
         data = json.dumps({

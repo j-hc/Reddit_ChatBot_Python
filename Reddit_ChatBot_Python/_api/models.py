@@ -32,7 +32,9 @@ class User:
     user_id: Optional[str]
     is_muted: Optional[bool]
     friend_name: Optional[str]
+    joined_ts: Optional[int]
     is_active: Optional[bool]
+    read_ts = Optional[int]
     is_blocked_by_me: Optional[bool]
     state: Optional[str]
     # friend_discovery_key: null
@@ -43,6 +45,16 @@ class User:
     nickname: Optional[str]
     # profile_url:str
     # metadata: dict
+
+
+@dataclass(frozen=True)
+class Members:
+    members: List[User]
+    next: str
+
+    @classmethod
+    def from_dict(cls, d):
+        return from_dict(data=d, data_class=cls)
 
 
 @dataclass(frozen=True)

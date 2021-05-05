@@ -149,12 +149,17 @@ class ChatBot:
     def get_chat_invites(self) -> List[Channel]:
         return self.get_channels(member_state_filter="invited_only")
 
-    def get_channels(self, limit: int = 100, order: str = 'latest_last_message', show_member: bool = True,
-                     show_read_receipt: bool = True, show_empty: bool = True, member_state_filter: str = 'joined_only',
+    def get_channels(self, limit: int = 100, order: str = "latest_last_message", show_member: bool = True,
+                     show_read_receipt: bool = True, show_empty: bool = True, member_state_filter: str = "joined_only",
                      super_mode: str = 'all', public_mode: str = 'all', unread_filter: str = 'all',
                      hidden_mode: str = 'unhidden_only', show_frozen: bool = True) -> List[Channel]:
         return self._tools.get_channels(**_get_locals_without_self(locals()),
                                         session_key=self.WebSocketClient.session_key)
+
+    def get_members(self, channel_url: str, next: str = None, limit: int = 20,
+                    order: str = "member_nickname_alphabetical", member_state_filter: str = "all"):
+        return self._tools.get_members(**_get_locals_without_self(locals()),
+                                       session_key=self.WebSocketClient.session_key)
 
     def get_current_channels(self) -> List[Channel]:
         return self.WebSocketClient.current_channels
