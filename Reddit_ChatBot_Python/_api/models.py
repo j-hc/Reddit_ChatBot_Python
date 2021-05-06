@@ -1,21 +1,19 @@
-from dataclasses import dataclass
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Union
 from enum import Enum
-from dacite import from_dict, Config
+from pydantic import BaseModel, Json
 
 
-class CustomType(Enum):
+class CustomType(str, Enum):
     group = 'group'
     direct = 'direct'
 
 
-class MemberState(Enum):
+class MemberState(str, Enum):
     joined = 'joined'
     invited = 'invited'
 
 
-@dataclass(frozen=True)
-class _Channel:
+class _Channel(BaseModel):
     name: str
     member_count: int
     custom_type: CustomType
@@ -23,18 +21,20 @@ class _Channel:
     created_at: int
     # cover_url: str
     max_length_message: int
-    data: str
+    data: Union[Json, str]
+
+    class Config:
+        allow_mutation = False
 
 
-@dataclass(frozen=True)
-class User:
+class User(BaseModel):
     is_blocking_me: Optional[bool]
     user_id: Optional[str]
     is_muted: Optional[bool]
     friend_name: Optional[str]
     joined_ts: Optional[int]
     is_active: Optional[bool]
-    read_ts = Optional[int]
+    read_ts: Optional[int]
     is_blocked_by_me: Optional[bool]
     state: Optional[str]
     # friend_discovery_key: null
@@ -46,19 +46,23 @@ class User:
     # profile_url:str
     # metadata: dict
 
+    class Config:
+        allow_mutation = False
 
-@dataclass(frozen=True)
-class Members:
+
+class Members(BaseModel):
     members: List[User]
     next: str
 
+    class Config:
+        allow_mutation = False
+
     @classmethod
     def from_dict(cls, d):
-        return from_dict(data=d, data_class=cls)
+        return cls(**d)
 
 
-@dataclass(frozen=True)
-class Message:
+class Message(BaseModel):
     # message_survival_seconds: int
     # custom_type: str
     mentioned_users: List[User]
@@ -79,13 +83,15 @@ class Message:
     channel_url: str
     message_id: int
 
+    class Config:
+        allow_mutation = False
+
     @classmethod
     def from_dict(cls, d):
-        return from_dict(data=d, data_class=cls)
+        return cls(**d)
 
 
-@dataclass(frozen=True)
-class Channel:
+class Channel(BaseModel):
     invited_at: int
     custom_type: CustomType
     # is_ephemeral: bool
@@ -130,6 +136,9 @@ class Channel:
     inviter: User
     count_preference: str
 
+    class Config:
+        allow_mutation = False
+
     @classmethod
     def from_dict(cls, d):
-        return from_dict(data=d, data_class=cls, config=Config(cast=[CustomType, MemberState]))
+        return cls(**d)

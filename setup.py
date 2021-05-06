@@ -23,7 +23,7 @@ setup(
     install_requires=[
         "requests",
         "websocket_client==0.58.0",
-        "dacite"
+        "pydantic"
     ],
     extras_require={"extra": ["numpy", "wsaccel"]}
 )
