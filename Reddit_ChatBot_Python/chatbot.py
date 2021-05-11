@@ -110,6 +110,9 @@ class ChatBot:
     def send_snoomoji(self, snoomoji: str, channel_url: str) -> None:
         self.WebSocketClient.ws_send_snoomoji(snoomoji, channel_url)
 
+    def send_gif(self, gif_url: str, channel_url: str) -> None:
+        self.WebSocketClient.ws_send_gif(gif_url, channel_url)
+
     def send_typing_indicator(self, channel_url: str) -> None:
         self.WebSocketClient.ws_send_typing_indicator(channel_url)
 
@@ -117,7 +120,7 @@ class ChatBot:
         self.WebSocketClient.ws_stop_typing_indicator(channel_url)
 
     def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500, disable_ssl_verification: bool = False,
-                  skip_utf8_validation=True) -> None:
+                  skip_utf8_validation=True, **kwargs) -> None:
         if disable_ssl_verification:
             import ssl
             sslopt = {"cert_reqs": ssl.CERT_NONE}
@@ -125,7 +128,7 @@ class ChatBot:
             sslopt = None
 
         for _ in range(max_retries):
-            self.WebSocketClient.ws_run_forever(skip_utf8_validation=skip_utf8_validation, sslopt=sslopt)
+            self.WebSocketClient.ws_run_forever(skip_utf8_validation=skip_utf8_validation, sslopt=sslopt, **kwargs)
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
                 self.WebSocketClient.logger.info('Re-Authenticating...')
                 if self._store_session:
@@ -156,7 +159,7 @@ class ChatBot:
         return self._tools.get_channels(**_get_locals_without_self(locals()),
                                         session_key=self.WebSocketClient.session_key)
 
-    def get_members(self, channel_url: str, next: str = None, limit: int = 20,
+    def get_members(self, channel_url: str, next_token: str = None, limit: int = 20,
                     order: str = "member_nickname_alphabetical", member_state_filter: str = "all"):
         return self._tools.get_members(**_get_locals_without_self(locals()),
                                        session_key=self.WebSocketClient.session_key)

@@ -5,7 +5,7 @@ from ._utils.frame_model import get_frame_data, FrameType
 import logging
 from threading import Thread
 from ._utils import ws_utils
-from ._utils.consts import MESG_regular, MESG_snoo, TPST, TPEN, MOBILE_USERAGENT
+from ._utils.consts import MESG_regular, MESG_snoo, MESG_gif, TPST, TPEN, USER_AGENT
 
 logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
 
@@ -23,8 +23,7 @@ class WebSockClient:
             global_blacklist_words = set()
         if global_blacklist_users is None:
             global_blacklist_users = set()
-        assert isinstance(global_blacklist_words, set), "blacklists must be set()s"
-        assert isinstance(global_blacklist_users, set), "blacklists must be set()s"
+
         self.global_blacklist_words = global_blacklist_words
         self.global_blacklist_users = global_blacklist_users
 
@@ -57,12 +56,15 @@ class WebSockClient:
                                     on_error=self.on_error,
                                     on_close=self.on_close,
                                     on_open=self.on_open,
-                                    header={'User-Agent': MOBILE_USERAGENT}
+                                    header={'User-Agent': USER_AGENT}
                                     )
         return ws
 
-    def ws_run_forever(self, skip_utf8_validation, sslopt):
-        self.ws.run_forever(ping_interval=15, ping_timeout=5, skip_utf8_validation=skip_utf8_validation, sslopt=sslopt)
+    def ws_run_forever(self, **kwargs):
+        self.ws.run_forever(ping_interval=15, ping_timeout=5,
+                            **kwargs
+                            # ping_payload="{active:1}"
+                            )
 
     def update_ws_app_urls_access_token(self, access_token):
         self.ws.url = ws_utils.get_ws_url(self._user_id, access_token)
@@ -134,6 +136,10 @@ class WebSockClient:
         payload = MESG_snoo.format(channel_url=channel_url, snoomoji=snoomoji, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1
+
+    def ws_send_gif(self, gif_url, channel_url):
+        payload = MESG_gif.format(gif_url=gif_url, channel_url=channel_url)
+        self.ws.send(payload)
 
     def ws_send_typing_indicator(self, channel_url):
         payload = TPST.format(channel_url=channel_url, time=int(time.time() * 1000))

@@ -74,7 +74,7 @@ class Tools:
         data = json.dumps({
             'users': users
         })
-        self._handled_req(method='POST', uri= f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite',
+        self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite',
                           headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                           data=data)
 
@@ -106,9 +106,9 @@ class Tools:
                                      headers={'Session-Key': session_key}, params=params)
         return [Channel.from_dict(channel) for channel in response.json()['channels']]
 
-    def get_members(self, channel_url, next, limit, order, member_state_filter, session_key):
+    def get_members(self, channel_url, next_token, limit, order, member_state_filter, session_key):
         params = {
-            'token': next,
+            'token': next_token,
             'limit': limit,
             'order': order,
             'muted_member_filter': 'all',
