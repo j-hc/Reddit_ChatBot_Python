@@ -39,6 +39,9 @@ class ChatBot:
     def get_chatroom_name_id_pairs(self) -> Dict[str, str]:
         return self.WebSocketClient.channelid_sub_pairs
 
+    def get_channelurl_by_name(self, channel_name: str):
+        return next(key for key, val in self.WebSocketClient.channelid_sub_pairs.items() if val == channel_name)
+
     def set_respond_hook(self, input_: str,
                          response: str,
                          limited_to_users: List[str] = None,
@@ -130,7 +133,7 @@ class ChatBot:
         for _ in range(max_retries):
             self.WebSocketClient.ws_run_forever(skip_utf8_validation=skip_utf8_validation, sslopt=sslopt, **kwargs)
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
-                self.WebSocketClient.logger.info('Re-Authenticating...')
+                self.WebSocketClient.logger.info("Re-Authenticating...")
                 if self._store_session:
                     sb_access_token, _ = self._load_session(self._r_authentication.reddit_username, force_reauth=True)
                 else:
@@ -138,7 +141,7 @@ class ChatBot:
                 self.WebSocketClient.update_ws_app_urls_access_token(sb_access_token)
             elif not (auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException)):
                 break
-            self.WebSocketClient.logger.info('Auto Re-Connecting...')
+            self.WebSocketClient.logger.info("Auto Re-Connecting...")
 
     def kick_user(self, channel_url: str, user_id: str, duration: int) -> None:
         self._tools.kick_user(**_get_locals_without_self(locals()))
@@ -154,8 +157,8 @@ class ChatBot:
 
     def get_channels(self, limit: int = 100, order: str = "latest_last_message", show_member: bool = True,
                      show_read_receipt: bool = True, show_empty: bool = True, member_state_filter: str = "joined_only",
-                     super_mode: str = 'all', public_mode: str = 'all', unread_filter: str = 'all',
-                     hidden_mode: str = 'unhidden_only', show_frozen: bool = True) -> List[Channel]:
+                     super_mode: str = "all", public_mode: str = "all", unread_filter: str = "all",
+                     hidden_mode: str = "unhidden_only", show_frozen: bool = True) -> List[Channel]:
         return self._tools.get_channels(**_get_locals_without_self(locals()),
                                         session_key=self.WebSocketClient.session_key)
 
@@ -209,7 +212,7 @@ class ChatBot:
     def _load_session(self, pkl_name, force_reauth=False):
         def get_store_file_handle(pkl_name_, mode_):
             try:
-                return open(f'{pkl_name_}-stored.pkl', mode_)
+                return open(f"{pkl_name_}-stored.pkl", mode_)
             except FileNotFoundError:
                 return None
 
