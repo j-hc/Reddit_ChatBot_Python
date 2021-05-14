@@ -62,7 +62,7 @@ class Tools:
             'user_id': user_id,
             'duration': duration
         })
-        self._handled_req(method='POST', uri= f'{S_REDDIT}/api/v1/channel/kick/user',
+        self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/channel/kick/user',
                           headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                           data=data)
 
@@ -150,14 +150,14 @@ class Tools:
         self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
                           headers={'Session-Key': session_key}, data=data)
 
-    def get_older_messages(self, channel_url, prev_limit, next_limit, reverse, session_key):
+    def get_older_messages(self, channel_url, message_ts, prev_limit, reverse, session_key):
         params = {
             'is_sdk': 'true',
             'prev_limit': prev_limit,
-            'next_limit': next_limit,
+            'next_limit': '0',
             'include': 'false',
             'reverse': reverse,
-            'message_ts': '9007199254740991',
+            'message_ts': message_ts,
             'with_sorted_meta_array': 'false',
             'include_reactions': 'false',
             'include_thread_info': 'false',

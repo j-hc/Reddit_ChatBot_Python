@@ -4,7 +4,7 @@ from .reddit_auth import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 from ._api.tools import Tools
 from ._api.models import Channel, Message
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from ._utils.frame_model import FrameType, FrameModel
 from ._events import Events
 
@@ -170,8 +170,8 @@ class ChatBot:
     def get_current_channels(self) -> List[Channel]:
         return self.WebSocketClient.current_channels
 
-    def get_older_messages(self, channel_url: str, prev_limit: int = 40,
-                           next_limit: int = 0, reverse: bool = True) -> List[Message]:
+    def get_older_messages(self, channel_url: str, message_ts: int = 9007199254740991, prev_limit: int = 40,
+                           reverse: bool = True) -> List[Message]:
         return self._tools.get_older_messages(**_get_locals_without_self(locals()),
                                               session_key=self.WebSocketClient.session_key)
 
