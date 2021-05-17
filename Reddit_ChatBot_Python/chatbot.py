@@ -4,7 +4,7 @@ from .reddit_auth import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 from ._api.tools import Tools
 from ._api.models import Channel, Message
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 from ._utils.frame_model import FrameType, FrameModel
 from ._events import Events
 
