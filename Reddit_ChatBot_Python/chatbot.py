@@ -131,7 +131,12 @@ class ChatBot:
             sslopt = None
 
         for _ in range(max_retries):
-            self.WebSocketClient.ws_run_forever(skip_utf8_validation=skip_utf8_validation, sslopt=sslopt, **kwargs)
+            self.WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5,
+                                                skip_utf8_validation=skip_utf8_validation,
+                                                sslopt=sslopt,
+                                                **kwargs
+                                                # ping_payload="{active:1}"
+                                                )
             if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
                 self.WebSocketClient.logger.info("Re-Authenticating...")
                 if self._store_session:
