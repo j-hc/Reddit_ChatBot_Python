@@ -148,6 +148,9 @@ class ChatBot:
                 break
             self.WebSocketClient.logger.info("Auto Re-Connecting...")
 
+    def close(self):
+        self.WebSocketClient.ws.close()
+
     def kick_user(self, channel_url: str, user_id: str, duration: int) -> None:
         self._tools.kick_user(**_get_locals_without_self(locals()))
 
