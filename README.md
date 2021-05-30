@@ -61,9 +61,7 @@ from Reddit_ChatBot_Python import ChatBot
 chatbot = ChatBot(print_chat=True,
                   store_session=True,
                   log_websocket_frames=False,
-                  authentication=reddit_authentication,
-                  global_blacklist_user={"user1", "user2"},
-                  global_blacklist_words={"badword1", "badword2"}
+                  authentication=reddit_authentication
                   )
 ```
 ```print_chat``` is for ```print```ing the chat messages on console
@@ -76,22 +74,18 @@ not necessary.
 
 ```authentication``` is the ```RedditAuthentication``` you instantiated before
 
-```global_blacklist_users``` is the ```set``` of users that events doesn't get executed on
-
-```global_blacklist_words``` is the ```set``` of words(like n-word) that event doesn't get executed on
-
 ---
 
 The events:
 ```python
 @chatbot.event.on_message
 ```
-The event of a receving a normal chat message.
+The event of receving a normal chat message.
 
 ```python
 @chatbot.event.on_ready
 ```
-The event of a connecting to the chats for the first time. Executed only once.
+The event of connecting to the chats for the first time. Executed only once.
 
 ```python
 @chatbot.event.on_invitation

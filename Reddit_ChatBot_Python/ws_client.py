@@ -16,16 +16,8 @@ def _print_chat_(resp, channelid_sub_pairs):
 
 class WebSockClient:
     def __init__(self, access_token, user_id, get_current_channels, enable_trace=False, print_chat=True,
-                 log_websocket_frames=False, other_logging=True, global_blacklist_users=None,
-                 global_blacklist_words=None):
+                 log_websocket_frames=False, other_logging=True):
         self._user_id = user_id
-        if global_blacklist_words is None:
-            global_blacklist_words = set()
-        if global_blacklist_users is None:
-            global_blacklist_users = set()
-
-        self.global_blacklist_words = global_blacklist_words
-        self.global_blacklist_users = global_blacklist_users
 
         self.channelid_sub_pairs = {}
         self.RateLimiter = RateLimiter
@@ -76,9 +68,6 @@ class WebSockClient:
             self.logger.info(message)
             self._logi(resp)
 
-        if resp.type_f == FrameType.MESG and resp.user.name in self.global_blacklist_users:
-            return
-
         Thread(target=self._response_loop, args=(resp,), daemon=True).start()
 
     def _logi(self, resp):
@@ -117,8 +106,6 @@ class WebSockClient:
 
     def ws_send_message(self, text, channel_url):
         if self.RateLimiter.is_enabled and self.RateLimiter.check():
-            return
-        if any(blacklist_word in text.lower() for blacklist_word in self.global_blacklist_words):
             return
         payload = MESG_regular.format(channel_url=channel_url, text=text, req_id=self.req_id)
         self.ws.send(payload)
