@@ -48,7 +48,7 @@ class WebSockClient:
                                     on_error=self.on_error,
                                     on_close=self.on_close,
                                     on_open=self.on_open,
-                                    header={'User-Agent': USER_AGENT}
+                                    header={'User-Agent': USER_AGENT, 'Accept-Encoding': 'gzip'}
                                     )
         return ws
 
