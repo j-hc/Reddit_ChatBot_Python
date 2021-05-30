@@ -147,5 +147,5 @@ class WebSockClient:
         self.logger.error(error)
         self.last_err = error
 
-    def on_close(self, _):
+    def on_close(self, *_):
         self.logger.warning("### websocket closed ###")
