@@ -4,7 +4,7 @@ from .reddit_auth import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 from ._api.tools import Tools
 from ._api.models import Channel, Message
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Callable
 from ._utils.frame_model import FrameType, FrameModel
 from ._events import Events
 
@@ -12,6 +12,8 @@ from ._events import Events
 def _get_locals_without_self(locals_):
     del locals_['self']
     return locals_
+
+_hook = Callable[[FrameModel], Optional[bool]]
 
 
 class ChatBot:
@@ -106,6 +108,9 @@ class ChatBot:
                 return True
 
         self.event.on_user_left(hook)
+
+    def remove_event_callback(self, func: _hook):
+        self.WebSocketClient.after_message_hooks.remove(func)
 
     def send_message(self, text: str, channel_url: str) -> None:
         self.WebSocketClient.ws_send_message(text, channel_url)
