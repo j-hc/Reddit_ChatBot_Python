@@ -165,6 +165,9 @@ class ChatBot:
     def invite_user_to_channel(self, channel_url: str, nicknames: List[str]) -> None:
         self._tools.invite_user(**_get_locals_without_self(locals()))
 
+    def leave_chat(self, channel_url: str):
+        self._tools.leave_chat(**_get_locals_without_self(locals()), session_key=self.WebSocketClient.session_key)
+
     def get_chat_invites(self) -> List[Channel]:
         return self.get_channels(member_state_filter="invited_only")
 
