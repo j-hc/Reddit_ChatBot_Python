@@ -38,6 +38,9 @@ class ChatBot:
 
         self.event = Events(self.WebSocketClient)
 
+    def get_own_name(self) -> str:
+        return self.WebSocketClient.own_name
+
     def get_chatroom_name_id_pairs(self) -> Dict[str, str]:
         return self.WebSocketClient.channelid_sub_pairs
 
