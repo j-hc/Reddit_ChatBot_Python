@@ -77,6 +77,7 @@ class WebSockClient:
             logi_err = None
         if logi_err is None:
             self.is_logi_err = False
+            self.last_err = None
             self.session_key = resp.key
             self.update_channelid_sub_pair()
             self.own_name = resp.nickname

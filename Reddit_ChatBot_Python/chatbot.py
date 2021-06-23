@@ -13,12 +13,13 @@ def _get_locals_without_self(locals_):
     del locals_['self']
     return locals_
 
+
 _hook = Callable[[FrameModel], Optional[bool]]
 
 
 class ChatBot:
     def __init__(self, authentication: _RedditAuthBase, store_session: bool = True, **kwargs):
-        self._r_authentication = authentication
+        self.__r_authentication = authentication
         self._store_session = store_session
         if store_session:
             if isinstance(authentication, TokenAuth):
@@ -29,23 +30,23 @@ class ChatBot:
                 pkl_n = None
             sb_access_token, user_id = self._load_session(pkl_n)
         else:
-            reddit_authentication = self._r_authentication.authenticate()
+            reddit_authentication = self.__r_authentication.authenticate()
             sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
 
-        self._tools = Tools(self._r_authentication)
-        self.WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id,
-                                             get_current_channels=self._tools.get_channels, **kwargs)
+        self.__tools = Tools(self.__r_authentication)
+        self.__WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id,
+                                               get_current_channels=self.__tools.get_channels, **kwargs)
 
-        self.event = Events(self.WebSocketClient)
+        self.event = Events(self.__WebSocketClient)
 
     def get_own_name(self) -> str:
-        return self.WebSocketClient.own_name
+        return self.__WebSocketClient.own_name
 
     def get_chatroom_name_id_pairs(self) -> Dict[str, str]:
-        return self.WebSocketClient.channelid_sub_pairs
+        return self.__WebSocketClient.channelid_sub_pairs
 
     def get_channelurl_by_name(self, channel_name: str):
-        return next(key for key, val in self.WebSocketClient.channelid_sub_pairs.items() if val == channel_name)
+        return next(key for key, val in self.__WebSocketClient.channelid_sub_pairs.items() if val == channel_name)
 
     def set_respond_hook(self, input_: str,
                          response: str,
@@ -67,12 +68,12 @@ class ChatBot:
         def hook(resp: FrameModel) -> Optional[bool]:
             sent_message = resp.message.lower() if lower_the_input else resp.message
             if (resp.user.name in limited_to_users or not bool(limited_to_users)) \
-                    and (exclude_itself and resp.user.name != self.WebSocketClient.own_name) \
+                    and (exclude_itself and resp.user.name != self.__WebSocketClient.own_name) \
                     and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)) \
-                    and (self.WebSocketClient.channelid_sub_pairs.get(
+                    and (self.__WebSocketClient.channelid_sub_pairs.get(
                 resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                 response_prepped = response.format(nickname=resp.user.name)
-                self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
+                self.__WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
         self.event.on_any(frame_type=FrameType.MESG)(hook)
@@ -86,11 +87,11 @@ class ChatBot:
             raise Exception("Keys should be {nickname} and {inviter}") from e
 
         def hook(resp: FrameModel) -> Optional[bool]:
-            if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
+            if self.__WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
                     not bool(limited_to_channels):
                 response_prepped = message.format(nickname=resp.data.users[0].nickname,
                                                   inviter=resp.data.users[0].inviter.nickname)
-                self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
+                self.__WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
         self.event.on_user_joined(hook)
@@ -104,31 +105,31 @@ class ChatBot:
             raise Exception("Key should be {nickname}") from e
 
         def hook(resp: FrameModel) -> Optional[bool]:
-            if self.WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
+            if self.__WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
                     not bool(limited_to_channels):
                 response_prepped = message.format(nickname=resp.data.nickname)
-                self.WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
+                self.__WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
         self.event.on_user_left(hook)
 
     def remove_event_callback(self, func: _hook):
-        self.WebSocketClient.after_message_hooks.remove(func)
+        self.__WebSocketClient.after_message_hooks.remove(func)
 
     def send_message(self, text: str, channel_url: str) -> None:
-        self.WebSocketClient.ws_send_message(text, channel_url)
+        self.__WebSocketClient.ws_send_message(text, channel_url)
 
     def send_snoomoji(self, snoomoji: str, channel_url: str) -> None:
-        self.WebSocketClient.ws_send_snoomoji(snoomoji, channel_url)
+        self.__WebSocketClient.ws_send_snoomoji(snoomoji, channel_url)
 
     def send_gif(self, gif_url: str, channel_url: str) -> None:
-        self.WebSocketClient.ws_send_gif(gif_url, channel_url)
+        self.__WebSocketClient.ws_send_gif(gif_url, channel_url)
 
     def send_typing_indicator(self, channel_url: str) -> None:
-        self.WebSocketClient.ws_send_typing_indicator(channel_url)
+        self.__WebSocketClient.ws_send_typing_indicator(channel_url)
 
     def stop_typing_indicator(self, channel_url: str) -> None:
-        self.WebSocketClient.ws_stop_typing_indicator(channel_url)
+        self.__WebSocketClient.ws_stop_typing_indicator(channel_url)
 
     def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500, disable_ssl_verification: bool = False,
                   skip_utf8_validation=True, **kwargs) -> None:
@@ -139,37 +140,39 @@ class ChatBot:
             sslopt = None
 
         for _ in range(max_retries):
-            self.WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5,
-                                                skip_utf8_validation=skip_utf8_validation,
-                                                sslopt=sslopt,
-                                                **kwargs
-                                                # ping_payload="{active:1}"
-                                                )
-            if self.WebSocketClient.is_logi_err and isinstance(self._r_authentication, PasswordAuth):
-                self.WebSocketClient.logger.info("Re-Authenticating...")
+            self.__WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5,
+                                                  skip_utf8_validation=skip_utf8_validation,
+                                                  sslopt=sslopt,
+                                                  **kwargs
+                                                  # ping_payload="{active:1}"
+                                                  )
+            if self.__WebSocketClient.is_logi_err and isinstance(self.__r_authentication, PasswordAuth):
+                self.__WebSocketClient.logger.info("Re-Authenticating...")
                 if self._store_session:
-                    sb_access_token, _ = self._load_session(self._r_authentication.reddit_username, force_reauth=True)
+                    sb_access_token, _ = self._load_session(self.__r_authentication.reddit_username, force_reauth=True)
                 else:
-                    sb_access_token = self._r_authentication.authenticate()['sb_access_token']
-                self.WebSocketClient.update_ws_app_urls_access_token(sb_access_token)
-            elif not (auto_reconnect and isinstance(self.WebSocketClient.last_err, WebSocketConnectionClosedException)):
+                    sb_access_token = self.__r_authentication.authenticate()['sb_access_token']
+                self.__WebSocketClient.update_ws_app_urls_access_token(sb_access_token)
+            elif not (
+                    auto_reconnect and isinstance(self.__WebSocketClient.last_err, WebSocketConnectionClosedException)):
                 break
-            self.WebSocketClient.logger.info("Auto Re-Connecting...")
+            self.__WebSocketClient.logger.info("Auto Re-Connecting...")
 
     def close(self):
-        self.WebSocketClient.ws.close()
+        self.__WebSocketClient.ws.close()
 
     def kick_user(self, channel_url: str, user_id: str, duration: int) -> None:
-        self._tools.kick_user(**_get_locals_without_self(locals()))
+        self.__tools.kick_user(**_get_locals_without_self(locals()))
 
     def delete_mesg(self, channel_url: str, msg_id: str) -> None:
-        self._tools.delete_message(**_get_locals_without_self(locals()), session_key=self.WebSocketClient.session_key)
+        self.__tools.delete_message(**_get_locals_without_self(locals()),
+                                    session_key=self.__WebSocketClient.session_key)
 
     def invite_user_to_channel(self, channel_url: str, nicknames: List[str]) -> None:
-        self._tools.invite_user(**_get_locals_without_self(locals()))
+        self.__tools.invite_user(**_get_locals_without_self(locals()))
 
     def leave_chat(self, channel_url: str):
-        self._tools.leave_chat(**_get_locals_without_self(locals()), session_key=self.WebSocketClient.session_key)
+        self.__tools.leave_chat(**_get_locals_without_self(locals()), session_key=self.__WebSocketClient.session_key)
 
     def get_chat_invites(self) -> List[Channel]:
         return self.get_channels(member_state_filter="invited_only")
@@ -178,55 +181,55 @@ class ChatBot:
                      show_read_receipt: bool = True, show_empty: bool = True, member_state_filter: str = "joined_only",
                      super_mode: str = "all", public_mode: str = "all", unread_filter: str = "all",
                      hidden_mode: str = "unhidden_only", show_frozen: bool = True) -> List[Channel]:
-        return self._tools.get_channels(**_get_locals_without_self(locals()),
-                                        session_key=self.WebSocketClient.session_key)
+        return self.__tools.get_channels(**_get_locals_without_self(locals()),
+                                         session_key=self.__WebSocketClient.session_key)
 
     def get_members(self, channel_url: str, next_token: str = None, limit: int = 20,
                     order: str = "member_nickname_alphabetical", member_state_filter: str = "all"):
-        return self._tools.get_members(**_get_locals_without_self(locals()),
-                                       session_key=self.WebSocketClient.session_key)
+        return self.__tools.get_members(**_get_locals_without_self(locals()),
+                                        session_key=self.__WebSocketClient.session_key)
 
     def get_current_channels(self) -> List[Channel]:
-        return self.WebSocketClient.current_channels
+        return self.__WebSocketClient.current_channels
 
     def get_older_messages(self, channel_url: str, message_ts: int = 9007199254740991, prev_limit: int = 40,
                            next_limit: int = 0, reverse: bool = True) -> List[Message]:
-        return self._tools.get_older_messages(**_get_locals_without_self(locals()),
-                                              session_key=self.WebSocketClient.session_key)
+        return self.__tools.get_older_messages(**_get_locals_without_self(locals()),
+                                               session_key=self.__WebSocketClient.session_key)
 
     def create_channel(self, nicknames: List[str], group_name: str) -> Channel:
-        channel = self._tools.create_channel(**_get_locals_without_self(locals()),
-                                             own_name=self.WebSocketClient.own_name)
-        self.WebSocketClient.add_channelid_sub_pair(channel)
+        channel = self.__tools.create_channel(**_get_locals_without_self(locals()),
+                                              own_name=self.__WebSocketClient.own_name)
+        self.__WebSocketClient.add_channelid_sub_pair(channel)
         return channel
 
     def create_direct_channel(self, nickname: str) -> Channel:
-        channel = self._tools.create_channel(nicknames=[nickname], group_name="",
-                                             own_name=self.WebSocketClient.own_name)
-        self.WebSocketClient.add_channelid_sub_pair(channel)
+        channel = self.__tools.create_channel(nicknames=[nickname], group_name="",
+                                              own_name=self.__WebSocketClient.own_name)
+        self.__WebSocketClient.add_channelid_sub_pair(channel)
         return channel
 
     def accept_chat_invite(self, channel_url: str) -> None:
-        self._tools.accept_chat_invite(channel_url, session_key=self.WebSocketClient.session_key)
-        self.WebSocketClient.update_channelid_sub_pair()
+        self.__tools.accept_chat_invite(channel_url, session_key=self.__WebSocketClient.session_key)
+        self.__WebSocketClient.update_channelid_sub_pair()
 
     def rename_channel(self, name: str, channel_url: str) -> Channel:
-        channel = self._tools.rename_channel(**_get_locals_without_self(locals()),
-                                             session_key=self.WebSocketClient.session_key)
-        self.WebSocketClient.update_channelid_sub_pair()
+        channel = self.__tools.rename_channel(**_get_locals_without_self(locals()),
+                                              session_key=self.__WebSocketClient.session_key)
+        self.__WebSocketClient.update_channelid_sub_pair()
         return channel
 
     def hide_chat(self, user_id: str, channel_url: str, hide_previous_messages: bool = False,
                   allow_auto_unhide: bool = True) -> None:
-        self._tools.hide_chat(**_get_locals_without_self(locals()), session_key=self.WebSocketClient.session_key)
+        self.__tools.hide_chat(**_get_locals_without_self(locals()), session_key=self.__WebSocketClient.session_key)
 
     def enable_rate_limiter(self, max_calls: float, period: float) -> None:
-        self.WebSocketClient.RateLimiter.is_enabled = True
-        self.WebSocketClient.RateLimiter.max_calls = max_calls
-        self.WebSocketClient.RateLimiter.period = period
+        self.__WebSocketClient.RateLimiter.is_enabled = True
+        self.__WebSocketClient.RateLimiter.max_calls = max_calls
+        self.__WebSocketClient.RateLimiter.period = period
 
     def disable_rate_limiter(self) -> None:
-        self.WebSocketClient.RateLimiter.is_enabled = False
+        self.__WebSocketClient.RateLimiter.is_enabled = False
 
     def _load_session(self, pkl_name, force_reauth=False):
         def get_store_file_handle(pkl_name_, mode_):
@@ -239,13 +242,13 @@ class ChatBot:
 
         if session_store_f is None or force_reauth:
             session_store_f = get_store_file_handle(pkl_name, 'wb+')
-            self._r_authentication.authenticate()
-            pickle.dump(self._r_authentication, session_store_f)
+            self.__r_authentication.authenticate()
+            pickle.dump(self.__r_authentication, session_store_f)
         else:
             try:
-                self._r_authentication = pickle.load(session_store_f)
+                self.__r_authentication = pickle.load(session_store_f)
             except EOFError:
                 return self._load_session(pkl_name, force_reauth=True)
         session_store_f.close()
 
-        return self._r_authentication.sb_access_token, self._r_authentication.user_id
+        return self.__r_authentication.sb_access_token, self.__r_authentication.user_id

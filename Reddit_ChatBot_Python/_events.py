@@ -6,7 +6,8 @@ _hook = Callable[[FrameModel], Optional[bool]]
 
 class Events:
     def __init__(self, ws_client):
-        self.WebSocketClient = ws_client
+        self.__WebSocketClient = ws_client
+        self.__ready_executed = False
 
     def on_message(self, func: _hook) -> None:
         self.on_any(frame_type=FrameType.MESG)(func)
@@ -18,8 +19,10 @@ class Events:
                 return
             except AttributeError:
                 pass
-            if self.WebSocketClient.last_err is not None:
+            if self.__ready_executed:
                 return
+            else:
+                self.__ready_executed = True
             return func(resp)
 
         self.on_any(frame_type=FrameType.LOGI)(hook)
@@ -33,7 +36,7 @@ class Events:
                 if resp.type_f == frame_type:
                     return func(resp)
 
-            self.WebSocketClient.after_message_hooks.append(hook)
+            self.__WebSocketClient.after_message_hooks.append(hook)
 
         return on_frame_hook_append
 
@@ -44,7 +47,7 @@ class Events:
                 invte = [invitee.nickname for invitee in resp.data.invitees]
             except AttributeError:
                 return
-            if not (len(invte) == 1 and invte[0] == self.WebSocketClient.own_name):
+            if not (len(invte) == 1 and invte[0] == self.__WebSocketClient.own_name):
                 return
             return func(resp)
 
