@@ -139,21 +139,6 @@ The argument ```resp``` carries more data than just the user and the message str
 all event are listed below.
 
 ---
-Other parts of the API is also implemented:
-```python
-chatbot.delete_message(channel_url, msg_id)
-chatbot.kick_user(channel_url, user_id, duration)
-chatbot.invite_user(channel_url, nicknames)
-chatbot.accept_chat_invite(channel_url)
-chatbot.get_channels(limit, order, show_member, show_read_receipt, show_empty, member_state_filter,
-                     super_mode,public_mode, unread_filter, hidden_mode, show_frozen)
-chatbot.leave_chat(channel_url)
-chatbot.create_channel(nicknames, group_name, own_name)
-chatbot.hide_chat(user_id, channel_url, hide_previous_messages, allow_auto_unhide)
-chatbot.get_older_messages(channel_url, prev_limit, next_limit, reverse)
-```
-
----
 All there is left is starting the chatbot:
 ```python
 chatbot.run_4ever(auto_reconnect=True)
