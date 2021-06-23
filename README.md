@@ -22,7 +22,7 @@ required:
     pydantic
 
 
-There is a skip_utf8_validation parameter for run_4ever method which slows things down when set to False.
+skip_utf8_validation parameter of run_4ever slows things down when set to False.
 If you want to set it to False, it is recommended that you install with extra modules:
 
     pip install Reddit-ChatBot-Python[extra]
@@ -123,7 +123,7 @@ All events receives a parsed frame as an argument. They are handled like this.:
 ```python
 @chatbot.event.on_message
 def greet(resp):
-    if resp.user.name == "botsname":
+    if resp.user.name == chatbot.get_own_name():  # return if the message is from the bot
         return True
     if resp.message == "Hi!":
         chatbot.send_message("Hello!", resp.channel_url)

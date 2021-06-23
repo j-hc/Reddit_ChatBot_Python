@@ -58,7 +58,7 @@ class Members(BaseModel):
         allow_mutation = False
 
     @classmethod
-    def from_dict(cls, d):
+    def _from_dict(cls, d):
         return cls(**d)
 
 
@@ -87,7 +87,7 @@ class Message(BaseModel):
         allow_mutation = False
 
     @classmethod
-    def from_dict(cls, d):
+    def _from_dict(cls, d):
         return cls(**d)
 
 
@@ -140,5 +140,5 @@ class Channel(BaseModel):
         allow_mutation = False
 
     @classmethod
-    def from_dict(cls, d):
+    def _from_dict(cls, d):
         return cls(**d)
