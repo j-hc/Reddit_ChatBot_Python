@@ -7,7 +7,19 @@ from threading import Thread
 from ._utils import ws_utils
 from ._utils.consts import MESG_regular, MESG_snoo, MESG_gif, TPST, TPEN, USER_AGENT
 
-logging.basicConfig(level=logging.INFO, datefmt='%H:%M', format='%(asctime)s, %(levelname)s: %(message)s')
+
+def _configure_loggers():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    sh = logging.StreamHandler()
+    sh.setLevel(logging.INFO)
+    sh.setFormatter(logging.Formatter(fmt="%(asctime)s, %(levelname)s: %(message)s", datefmt="%H:%M"))
+    ws_logger = logging.getLogger("websocket")
+    ws_logger.propagate = False
+    ws_logger.addHandler(sh)
+    logger.addHandler(sh)
+    return logger
 
 
 def _print_chat_(resp, channelid_sub_pairs):
@@ -22,12 +34,11 @@ class WebSockClient:
         self.channelid_sub_pairs = {}
         self.RateLimiter = RateLimiter
 
-        self.logger = logging.getLogger(__name__)
+        self.logger = _configure_loggers()
         self.logger.disabled = not other_logging
         websocket.enableTrace(enable_trace)
 
-        ws_url = ws_utils.get_ws_url(self._user_id, access_token)
-        self.ws = self._get_ws_app(ws_url)
+        self.ws = self._get_ws_app(ws_utils.get_ws_url(self._user_id, access_token))
 
         self.req_id = int(time.time() * 1000)
         self.own_name = None

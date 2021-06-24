@@ -36,7 +36,6 @@ class ChatBot:
         self.__tools = Tools(self.__r_authentication)
         self.__WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id,
                                                get_current_channels=self.__tools.get_channels, **kwargs)
-
         self.event = Events(self.__WebSocketClient)
 
     def get_own_name(self) -> str:
