@@ -18,7 +18,7 @@ _hook = Callable[[FrameModel], Optional[bool]]
 
 
 class ChatBot:
-    def __init__(self, authentication: _RedditAuthBase, store_session: bool = True, **kwargs):
+    def __init__(self, authentication: _RedditAuthBase, store_session: bool = True, log_error_frames=True, **kwargs):
         self.__r_authentication = authentication
         self._store_session = store_session
         if store_session:
@@ -37,6 +37,9 @@ class ChatBot:
         self.__WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id,
                                                get_current_channels=self.__tools.get_channels, **kwargs)
         self.event = Events(self.__WebSocketClient)
+
+        if log_error_frames:
+            self.event.on_any(frame_type=FrameType.EROR)(lambda resp: self.__WebSocketClient.logger.error(resp))
 
     def get_own_name(self) -> str:
         return self.__WebSocketClient.own_name
