@@ -67,21 +67,21 @@ class Message(BaseModel):
     # custom_type: str
     mentioned_users: List[User]
     # translations: dict
-    updated_at: int
-    is_op_msg: bool
-    is_removed: bool
-    user: User
+    updated_at: Optional[int]
+    is_op_msg: Optional[bool]
+    is_removed: Optional[bool]
+    user: Optional[User]
     # file: dict
     message: str
-    data: str
+    data: Optional[str]
     # message_retention_hour: int
     # silent: bool
-    type: str
-    created_at: int
+    type: Optional[str]
+    created_at: Optional[int]
     req_id: Optional[str]
-    mention_type: str
+    mention_type: Optional[str]
     channel_url: str
-    message_id: int
+    message_id: Optional[int]
 
     class Config:
         allow_mutation = False
@@ -92,24 +92,24 @@ class Message(BaseModel):
 
 
 class Channel(BaseModel):
-    invited_at: int
+    invited_at: Optional[int]
     custom_type: CustomType
     # is_ephemeral: bool
     read_receipt: Dict[str, int]
     member_state: MemberState
-    freeze: bool
+    freeze: Optional[bool]
     created_by: Optional[User]
-    is_hidden: bool
+    is_hidden: Optional[bool]
     # disappearing_message: dict
-    is_push_enabled: bool
+    is_push_enabled: Optional[bool]
     joined_ts: Optional[int]
     is_created: Optional[bool]
-    member_count: int
+    member_count: Optional[int]
     # my_role: str
     # is_broadcast: bool
     last_message: Optional[Message]
-    user_last_read: int
-    unread_mention_count: int
+    user_last_read: Optional[int]
+    unread_mention_count: Optional[int]
     # sms_fallback: dict
     # is_discoverable: bool
     # ignore_profanity_filter: bool
@@ -117,24 +117,24 @@ class Channel(BaseModel):
     # operators: list
     channel: _Channel
     # message_survival_seconds: int
-    unread_message_count: int
+    unread_message_count: Optional[int]
     # is_distinct: bool
     # is_muted: bool
     # hidden_state: str
-    cover_url: str
+    cover_url: Optional[str]
     members: List[User]
-    is_public: bool
+    is_public: Optional[bool]
     # data: str
     # ts_message_offset: int
-    joined_member_count: int
-    is_super: bool
-    name: str
-    created_at: int
+    joined_member_count: Optional[int]
+    is_super: Optional[bool]
+    name: Optional[str]
+    created_at: Optional[int]
     # is_access_code_required: bool
     # push_trigger_option: str
-    max_length_message: int
-    inviter: User
-    count_preference: str
+    max_length_message: Optional[int]
+    inviter: Optional[User]
+    count_preference: Optional[str]
 
     class Config:
         allow_mutation = False
