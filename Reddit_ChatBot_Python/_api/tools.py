@@ -1,7 +1,7 @@
 import requests
 from .._utils.consts import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT, WWW_REDDIT
 import json
-from .._utils.frame_model import convert_to_framemodel
+from .models import Channel, Message, Members
 
 
 def _get_user_id(username):
@@ -49,7 +49,7 @@ class Tools:
         response = self._handled_req(method='PUT', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
                                      headers={'Session-Key': session_key},
                                      data=data)
-        return convert_to_framemodel(response.text)
+        return Channel._from_dict(response.json())
 
     def delete_message(self, channel_url, msg_id, session_key):
         self._handled_req(method='DELETE',
@@ -104,7 +104,7 @@ class Tools:
         response = self._handled_req(method='GET',
                                      uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels',
                                      headers={'Session-Key': session_key}, params=params)
-        return convert_to_framemodel(response.text).channels
+        return [Channel._from_dict(channel) for channel in response.json()['channels']]
 
     def get_members(self, channel_url, next_token, limit, order, member_state_filter, session_key):
         params = {
@@ -119,7 +119,7 @@ class Tools:
         }
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/members',
                                      headers={'Session-Key': session_key}, params=params)
-        return convert_to_framemodel(response.text)
+        return Members._from_dict(response.json())
 
     def leave_chat(self, channel_url, session_key):
         data = json.dumps({
@@ -139,7 +139,7 @@ class Tools:
         response = self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels',
                                      headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                                      data=data)
-        return convert_to_framemodel(response.text)
+        return Channel._from_dict(response.json())
 
     def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide, session_key):
         data = json.dumps({
@@ -167,4 +167,4 @@ class Tools:
 
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
                                      headers={'Session-Key': session_key}, params=params)
-        return convert_to_framemodel(response.text).messages
+        return [Message._from_dict(msg) for msg in response.json()['messages']]

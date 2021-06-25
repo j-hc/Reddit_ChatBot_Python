@@ -1,5 +1,6 @@
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Union
 from enum import Enum
+from pydantic import BaseModel, Json
 
 
 class CustomType(str, Enum):
@@ -12,7 +13,7 @@ class MemberState(str, Enum):
     invited = 'invited'
 
 
-class _Channel:
+class _Channel(BaseModel):
     name: str
     member_count: int
     custom_type: CustomType
@@ -20,10 +21,13 @@ class _Channel:
     created_at: int
     # cover_url: str
     max_length_message: int
-    data: str
+    data: Union[Json, str]
+
+    class Config:
+        allow_mutation = False
 
 
-class User:
+class User(BaseModel):
     is_blocking_me: Optional[bool]
     user_id: Optional[str]
     is_muted: Optional[bool]
@@ -42,13 +46,23 @@ class User:
     # profile_url:str
     # metadata: dict
 
+    class Config:
+        allow_mutation = False
 
-class Members:
+
+class Members(BaseModel):
     members: List[User]
     next: str
 
+    class Config:
+        allow_mutation = False
 
-class Message:
+    @classmethod
+    def _from_dict(cls, d):
+        return cls(**d)
+
+
+class Message(BaseModel):
     # message_survival_seconds: int
     # custom_type: str
     mentioned_users: List[User]
@@ -69,8 +83,15 @@ class Message:
     channel_url: str
     message_id: int
 
+    class Config:
+        allow_mutation = False
 
-class Channel:
+    @classmethod
+    def _from_dict(cls, d):
+        return cls(**d)
+
+
+class Channel(BaseModel):
     invited_at: int
     custom_type: CustomType
     # is_ephemeral: bool
@@ -114,3 +135,10 @@ class Channel:
     max_length_message: int
     inviter: User
     count_preference: str
+
+    class Config:
+        allow_mutation = False
+
+    @classmethod
+    def _from_dict(cls, d):
+        return cls(**d)

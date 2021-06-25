@@ -19,6 +19,7 @@ required:
 
     websocket_client
     requests
+    pydantic
 
 
 skip_utf8_validation parameter of run_4ever slows things down when set to False.
