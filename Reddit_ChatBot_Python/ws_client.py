@@ -2,28 +2,9 @@ import websocket
 from ._utils.rate_limiter import RateLimiter
 import time
 from ._utils.frame_model import get_frame_data, FrameType
-import logging
 from threading import Thread
-from ._utils import ws_utils
+from ._utils.ws_utils import get_ws_url, print_chat_, configure_loggers, pair_channel_and_names
 from ._utils.consts import MESG_regular, MESG_snoo, MESG_gif, TPST, TPEN, USER_AGENT
-
-
-def _configure_loggers():
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    logger.propagate = False
-    sh = logging.StreamHandler()
-    sh.setLevel(logging.INFO)
-    sh.setFormatter(logging.Formatter(fmt="%(asctime)s, %(levelname)s: %(message)s", datefmt="%H:%M"))
-    ws_logger = logging.getLogger("websocket")
-    ws_logger.propagate = False
-    ws_logger.addHandler(sh)
-    logger.addHandler(sh)
-    return logger
-
-
-def _print_chat_(resp, channelid_sub_pairs):
-    print(f"{resp.user.name}@{channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
 
 
 class WebSockClient:
@@ -34,11 +15,11 @@ class WebSockClient:
         self.channelid_sub_pairs = {}
         self.RateLimiter = RateLimiter
 
-        self.logger = _configure_loggers()
+        self.logger = configure_loggers()
         self.logger.disabled = not other_logging
         websocket.enableTrace(enable_trace)
 
-        self.ws = self._get_ws_app(ws_utils.get_ws_url(self._user_id, access_token))
+        self.ws = self._get_ws_app(get_ws_url(self._user_id, access_token))
 
         self.req_id = int(time.time() * 1000)
         self.own_name = None
@@ -64,7 +45,7 @@ class WebSockClient:
         return ws
 
     def update_ws_app_urls_access_token(self, access_token):
-        self.ws.url = ws_utils.get_ws_url(self._user_id, access_token)
+        self.ws.url = get_ws_url(self._user_id, access_token)
 
     def on_open(self, _):
         self.logger.info("### successfully connected to the websocket ###")
@@ -72,7 +53,7 @@ class WebSockClient:
     def on_message(self, _, message):
         resp = get_frame_data(message)
         if self.print_chat and resp.type_f == FrameType.MESG:
-            _print_chat_(resp, self.channelid_sub_pairs)
+            print_chat_(resp, self.channelid_sub_pairs)
         if self.log_websocket_frames:
             self.logger.info(message)
         if resp.type_f == FrameType.LOGI:
@@ -103,12 +84,12 @@ class WebSockClient:
                                                           public_mode='all', unread_filter='all',
                                                           hidden_mode='all', show_frozen=True,
                                                           session_key=self.session_key)
-        self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels,
+        self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
                                                                    own_user_id=self._user_id)
 
     def add_channelid_sub_pair(self, channel):
         self.current_channels.append(channel)
-        self.channelid_sub_pairs = ws_utils.pair_channel_and_names(channels=self.current_channels,
+        self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
                                                                    own_user_id=self._user_id)
 
     def _response_loop(self, resp):
