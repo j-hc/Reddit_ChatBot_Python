@@ -38,7 +38,7 @@ class Tools:
                 kwargs.update({'headers': new_headers})
                 continue
             elif response.status_code != 200:
-                raise Exception(response.json())
+                raise Exception(response.text)
             else:
                 return response
 
