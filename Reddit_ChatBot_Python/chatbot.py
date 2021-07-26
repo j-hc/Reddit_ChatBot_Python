@@ -141,6 +141,7 @@ class ChatBot:
         else:
             sslopt = None
 
+        self.__tools._is_running = True
         for _ in range(max_retries):
             self.__WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5,
                                                   skip_utf8_validation=skip_utf8_validation,

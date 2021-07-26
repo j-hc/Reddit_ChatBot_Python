@@ -15,6 +15,8 @@ def _get_user_id(username):
 
 class Tools:
     def __init__(self, reddit_auth):
+        self._is_running = False
+
         self._reddit_auth = reddit_auth
         self._req_sesh = requests.Session()
         self._req_sesh.headers = {
@@ -29,7 +31,7 @@ class Tools:
             self._is_reauthable = False
 
     def _handled_req(self, method, uri, **kwargs):
-        while True:
+        while self._is_running:
             response = self._req_sesh.request(method, uri, **kwargs)
             if response.status_code == 401 and self._is_reauthable:
                 new_access_token = self._reddit_auth.refresh_api_token()
@@ -41,6 +43,7 @@ class Tools:
                 raise Exception(response.text)
             else:
                 return response
+        raise Exception("Cannot do that without running the bot first")
 
     def rename_channel(self, name, channel_url, session_key):
         data = json.dumps({
