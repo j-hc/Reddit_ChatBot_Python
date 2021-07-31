@@ -134,7 +134,7 @@ class ChatBot:
         self.__WebSocketClient.ws_stop_typing_indicator(channel_url)
 
     def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500, disable_ssl_verification: bool = False,
-                  skip_utf8_validation=True, **kwargs) -> None:
+                  skip_utf8_validation: bool = True, **kwargs) -> None:
         if disable_ssl_verification:
             import ssl
             sslopt = {"cert_reqs": ssl.CERT_NONE}
