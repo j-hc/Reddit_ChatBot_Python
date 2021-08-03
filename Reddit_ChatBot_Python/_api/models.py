@@ -73,7 +73,7 @@ class Message(BaseModel):
     user: Optional[User]
     # file: dict
     message: str
-    data: Optional[str]
+    data: Union[Json, str]
     # message_retention_hour: int
     # silent: bool
     type: Optional[str]
@@ -124,7 +124,7 @@ class Channel(BaseModel):
     cover_url: Optional[str]
     members: List[User]
     is_public: Optional[bool]
-    # data: str
+    # data: Union[Json, str]
     # ts_message_offset: int
     joined_member_count: Optional[int]
     is_super: Optional[bool]

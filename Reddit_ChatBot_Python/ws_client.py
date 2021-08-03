@@ -85,12 +85,12 @@ class WebSockClient:
                                                           hidden_mode='all', show_frozen=True,
                                                           session_key=self.session_key)
         self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
-                                                                   own_user_id=self._user_id)
+                                                          own_user_id=self._user_id)
 
     def add_channelid_sub_pair(self, channel):
         self.current_channels.append(channel)
         self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
-                                                                   own_user_id=self._user_id)
+                                                          own_user_id=self._user_id)
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:
