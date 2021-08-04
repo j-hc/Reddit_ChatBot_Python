@@ -496,6 +496,14 @@ def report_channels(_):
     print("up and running in these channels!: ")
     for channel in channels:
         print(channel.name)
+    
+# reading last 50 messages from a channel
+@chatbot.event.on_ready
+def report_channels(_):
+    channels = chatbot.get_channels()
+    for channel in channels:
+        if channel.name == "My Channel":
+          last_fifty_message = chatbot.get_older_messages(channel_url=channel.channel_url, prev_limit=50)
 
 # starting a direct chat
 @chatbot.event.on_ready
