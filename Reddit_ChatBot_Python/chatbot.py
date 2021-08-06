@@ -195,8 +195,9 @@ class ChatBot:
     def get_current_channels(self) -> List[Channel]:
         return self.__WebSocketClient.current_channels
 
-    def get_older_messages(self, channel_url: str, message_ts: Union[int, str] = 9007199254740991, prev_limit: int = 40,
-                           next_limit: int = 0, reverse: bool = True) -> List[Message]:
+    def get_older_messages(self, channel_url: str, message_ts: Union[int, str] = 9007199254740991,
+                           custom_types: str = '*', prev_limit: int = 40, next_limit: int = 0,
+                           reverse: bool = True) -> List[Message]:
         return self.__tools.get_older_messages(**_get_locals_without_self(locals()),
                                                session_key=self.__WebSocketClient.session_key)
 

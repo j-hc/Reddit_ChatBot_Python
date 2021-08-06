@@ -153,7 +153,7 @@ class Tools:
         self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
                           headers={'Session-Key': session_key}, data=data)
 
-    def get_older_messages(self, channel_url, message_ts, prev_limit, next_limit, reverse, session_key):
+    def get_older_messages(self, channel_url, message_ts, custom_types, prev_limit, next_limit, reverse, session_key):
         params = {
             'is_sdk': 'true',
             'prev_limit': prev_limit,
@@ -161,6 +161,7 @@ class Tools:
             'include': 'false',
             'reverse': reverse,
             'message_ts': message_ts,
+            'custom_types': custom_types,
             'with_sorted_meta_array': 'false',
             'include_reactions': 'false',
             'include_thread_info': 'false',
