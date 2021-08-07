@@ -89,7 +89,7 @@ class Tools:
                           headers={'Session-Key': session_key}, data=data)
 
     def get_channels(self, limit, order, show_member, show_read_receipt, show_empty, member_state_filter, super_mode,
-                     public_mode, unread_filter, hidden_mode, show_frozen, session_key):
+                     public_mode, unread_filter, hidden_mode, show_frozen, custom_types, session_key):
         params = {
             'limit': limit,
             'order': order,
@@ -103,13 +103,14 @@ class Tools:
             'unread_filter': unread_filter,
             'hidden_mode': hidden_mode,
             'show_frozen': show_frozen,
+            'custom_types': custom_types
         }
         response = self._handled_req(method='GET',
                                      uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels',
                                      headers={'Session-Key': session_key}, params=params)
         return [Channel._from_dict(channel) for channel in response.json()['channels']]
 
-    def get_members(self, channel_url, next_token, limit, order, member_state_filter, session_key):
+    def get_members(self, channel_url, next_token, limit, order, member_state_filter, nickname_startswith, session_key):
         params = {
             'token': next_token,
             'limit': limit,
@@ -119,6 +120,7 @@ class Tools:
             'show_member_is_muted': 'true',
             'show_read_receipt': 'true',
             'show_delivery_receipt': 'true',
+            'nickname_startswith': nickname_startswith
         }
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/members',
                                      headers={'Session-Key': session_key}, params=params)

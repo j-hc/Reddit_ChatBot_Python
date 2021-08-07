@@ -83,7 +83,7 @@ class WebSockClient:
                                                           member_state_filter='joined_only', super_mode='all',
                                                           public_mode='all', unread_filter='all',
                                                           hidden_mode='all', show_frozen=True,
-                                                          session_key=self.session_key)
+                                                          custom_types='direct,group', session_key=self.session_key)
         self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
                                                           own_user_id=self._user_id)
 
