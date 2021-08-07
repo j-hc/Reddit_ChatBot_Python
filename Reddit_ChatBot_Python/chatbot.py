@@ -3,7 +3,7 @@ import pickle
 from .reddit_auth import _RedditAuthBase, TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 from ._api.tools import Tools
-from ._api.models import Channel, Message
+from ._api.models import Channel, Message, BannedUsers
 from typing import Dict, List, Optional, Callable, Union
 from ._utils.frame_model import FrameType, FrameModel
 from ._events import Events
@@ -193,6 +193,10 @@ class ChatBot:
                     nickname_startswith: str = ''):
         return self.__tools.get_members(**_get_locals_without_self(locals()),
                                         session_key=self.__WebSocketClient.session_key)
+
+    def get_banned_members(self, channel_url, limit: int = 100) -> BannedUsers:
+        return self.__tools.get_banned_members(**_get_locals_without_self(locals()),
+                                               session_key=self.__WebSocketClient.session_key)
 
     def get_current_channels(self) -> List[Channel]:
         return self.__WebSocketClient.current_channels

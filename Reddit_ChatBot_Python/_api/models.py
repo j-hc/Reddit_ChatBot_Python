@@ -62,6 +62,28 @@ class Members(BaseModel):
         return cls(**d)
 
 
+class BannedUser(BaseModel):
+    description: str
+    start_at: int
+    user: User
+    end_at: int
+
+    class Config:
+        allow_mutation = False
+
+
+class BannedUsers(BaseModel):
+    banned_list: List[BannedUser]
+    next: str
+
+    class Config:
+        allow_mutation = False
+
+    @classmethod
+    def _from_dict(cls, d):
+        return cls(**d)
+
+
 class Message(BaseModel):
     # message_survival_seconds: int
     # custom_type: str

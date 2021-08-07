@@ -1,7 +1,7 @@
 import requests
 from .._utils.consts import SB_PROXY_CHATMEDIA, S_REDDIT, USER_AGENT, SB_User_Agent, SB_ai, WEB_USERAGENT, WWW_REDDIT
 import json
-from .models import Channel, Message, Members
+from .models import Channel, Message, Members, BannedUsers
 
 
 def _get_user_id(username):
@@ -125,6 +125,14 @@ class Tools:
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/members',
                                      headers={'Session-Key': session_key}, params=params)
         return Members._from_dict(response.json())
+
+    def get_banned_members(self, channel_url, limit, session_key):
+        params = {
+            'limit': limit
+        }
+        response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/ban',
+                                     headers={'Session-Key': session_key}, params=params)
+        return BannedUsers._from_dict(response.json())
 
     def leave_chat(self, channel_url, session_key):
         data = json.dumps({
