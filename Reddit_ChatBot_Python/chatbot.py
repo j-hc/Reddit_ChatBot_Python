@@ -167,7 +167,7 @@ class ChatBot:
     def kick_user(self, channel_url: str, user_id: str, duration: int) -> None:
         self.__tools.kick_user(**_get_locals_without_self(locals()))
 
-    def delete_mesg(self, channel_url: str, msg_id: str) -> None:
+    def delete_mesg(self, channel_url: str, msg_id: int) -> None:
         self.__tools.delete_message(**_get_locals_without_self(locals()),
                                     session_key=self.__WebSocketClient.session_key)
 
