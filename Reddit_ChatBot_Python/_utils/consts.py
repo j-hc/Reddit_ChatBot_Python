@@ -13,6 +13,6 @@ ACCOUNTS_REDDIT = 'https://accounts.reddit.com'
 # ws payloads
 MESG_regular = 'MESG{{"channel_url":"{channel_url}","message":"{text}","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{}},\\"hidden\\":false,\\"highlights\\":[],\\"message_body\\":\\"{text}\\"}}}}","mention_type":"users","req_id":"{req_id}"}}\n'
 MESG_snoo = 'MESG{{"channel_url":"{channel_url}","message":"","data":"{{\\"v1\\":{{\\"preview_collapsed\\":false,\\"embed_data\\":{{\\"site_name\\":\\"Reddit\\"}},\\"hidden\\":false,\\"snoomoji\\":\\"{snoomoji}\\"}}}}","mention_type":"users","req_id":"{req_id}"}}\n'
-MESG_gif = 'MESG{{"channel_url":"{channel_url}","message":"{gif_url}","data":"{{\\"v1\\":{{\\"highlights\\":[],\\"gif\\":{{\\"url\\":\\"{gif_url}\\",\\"height\\":200,\\"width\\":200}}}}}}","mention_type":"users"}}\n'
+MESG_gif = 'MESG{{"channel_url":"{channel_url}","message":"{gif_url}","data":"{{\\"v1\\":{{\\"highlights\\":[],\\"gif\\":{{\\"url\\":\\"{gif_url}\\",\\"height\\":{height},\\"width\\":{width}}}}}}}","mention_type":"users"}}\n'
 TPST = 'TPST{{"channel_url":"{channel_url}","time":{time},"req_id":""}}\n'
 TPEN = 'TPEN{{"channel_url":"{channel_url}","time":{time},"req_id":""}}\n'

@@ -111,8 +111,8 @@ class WebSockClient:
         self.ws.send(payload)
         self.req_id += 1
 
-    def ws_send_gif(self, gif_url, channel_url):
-        payload = MESG_gif.format(gif_url=gif_url, channel_url=channel_url)
+    def ws_send_gif(self, gif_url, channel_url, height, width):
+        payload = MESG_gif.format(gif_url=gif_url, channel_url=channel_url, height=height, width=width)
         self.ws.send(payload)
 
     def ws_send_typing_indicator(self, channel_url):
