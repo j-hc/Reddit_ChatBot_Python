@@ -243,6 +243,10 @@ class ChatBot:
         self.__tools.set_channel_frozen_status(**_get_locals_without_self(locals()),
                                                session_key=self.__WebSocketClient.session_key)
 
+    def delete_channel(self, channel_url: str):
+        self.__tools.delete_channel(**_get_locals_without_self(locals()),
+                                    session_key=self.__WebSocketClient.session_key)
+
     def enable_rate_limiter(self, max_calls: float, period: float) -> None:
         self.__WebSocketClient.RateLimiter.is_enabled = True
         self.__WebSocketClient.RateLimiter.max_calls = max_calls

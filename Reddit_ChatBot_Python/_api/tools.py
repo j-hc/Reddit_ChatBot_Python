@@ -203,3 +203,8 @@ class Tools:
         self._handled_req(method='PUT',
                           uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/freeze",
                           headers={'Session-Key': session_key}, data=data)
+
+    def delete_channel(self, channel_url, session_key):
+        self._handled_req(method='DELETE',
+                          uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
+                          headers={'Session-Key': session_key})
