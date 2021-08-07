@@ -233,11 +233,15 @@ class ChatBot:
                   allow_auto_unhide: bool = True) -> None:
         self.__tools.hide_chat(**_get_locals_without_self(locals()), session_key=self.__WebSocketClient.session_key)
 
-    def mute_user(self, channel_url, user_id, duration, description):
+    def mute_user(self, channel_url: str, user_id: str, duration: int, description: str):
         self.__tools.mute_user(**_get_locals_without_self(locals()), session_key=self.__WebSocketClient.session_key)
 
-    def unmute_user(self, channel_url, user_id):
+    def unmute_user(self, channel_url: str, user_id: str):
         self.__tools.unmute_user(**_get_locals_without_self(locals()), session_key=self.__WebSocketClient.session_key)
+
+    def set_channel_frozen_status(self, channel_url: str, is_frozen: bool):
+        self.__tools.set_channel_frozen_status(**_get_locals_without_self(locals()),
+                                               session_key=self.__WebSocketClient.session_key)
 
     def enable_rate_limiter(self, max_calls: float, period: float) -> None:
         self.__WebSocketClient.RateLimiter.is_enabled = True

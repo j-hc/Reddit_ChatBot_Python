@@ -195,3 +195,11 @@ class Tools:
     def unmute_user(self, channel_url, user_id, session_key):
         self._handled_req(method='DELETE', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/mute/{user_id}",
                           headers={'Session-Key': session_key})
+
+    def set_channel_frozen_status(self, channel_url, is_frozen, session_key):
+        data = json.dumps({
+            'freeze': is_frozen,
+        })
+        self._handled_req(method='PUT',
+                          uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/freeze",
+                          headers={'Session-Key': session_key}, data=data)
