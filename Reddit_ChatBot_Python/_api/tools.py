@@ -182,3 +182,16 @@ class Tools:
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
                                      headers={'Session-Key': session_key}, params=params)
         return [Message._from_dict(msg) for msg in response.json()['messages']]
+
+    def mute_user(self, channel_url, user_id, duration, description, session_key):
+        data = json.dumps({
+            'user_id': user_id,
+            'seconds': duration,
+            'description': description
+        })
+        self._handled_req(method='POST', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/mute",
+                          headers={'Session-Key': session_key}, data=data)
+
+    def unmute_user(self, channel_url, user_id, session_key):
+        self._handled_req(method='DELETE', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/mute/{user_id}",
+                          headers={'Session-Key': session_key})
