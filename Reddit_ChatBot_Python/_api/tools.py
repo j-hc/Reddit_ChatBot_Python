@@ -70,7 +70,8 @@ class Tools:
                           data=data)
 
     def invite_user(self, channel_url, nicknames):
-        assert isinstance(nicknames, list)
+        if isinstance(nicknames, str):
+            nicknames = [nicknames]
         users = []
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})

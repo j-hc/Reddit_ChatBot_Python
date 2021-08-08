@@ -171,7 +171,7 @@ class ChatBot:
         self.__tools.delete_message(**_get_locals_without_self(locals()),
                                     session_key=self.__WebSocketClient.session_key)
 
-    def invite_user_to_channel(self, channel_url: str, nicknames: List[str]) -> None:
+    def invite_user_to_channel(self, channel_url: str, nicknames: Union[str, List[str]]) -> None:
         self.__tools.invite_user(**_get_locals_without_self(locals()))
 
     def leave_chat(self, channel_url: str):
