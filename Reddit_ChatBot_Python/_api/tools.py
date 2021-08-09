@@ -90,7 +90,7 @@ class Tools:
                           headers={'Session-Key': session_key}, data=data)
 
     def get_channels(self, limit, order, show_member, show_read_receipt, show_empty, member_state_filter, super_mode,
-                     public_mode, unread_filter, hidden_mode, show_frozen, custom_types, session_key):
+                     public_mode, unread_filter, hidden_mode, show_frozen, session_key):
         params = {
             'limit': limit,
             'order': order,
@@ -104,7 +104,6 @@ class Tools:
             'unread_filter': unread_filter,
             'hidden_mode': hidden_mode,
             'show_frozen': show_frozen,
-            'custom_types': custom_types
         }
         response = self._handled_req(method='GET',
                                      uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels',
