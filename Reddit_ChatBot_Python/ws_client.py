@@ -2,7 +2,7 @@ import websocket
 from ._utils.rate_limiter import RateLimiter
 import time
 from ._utils.frame_model import get_frame_data, FrameType
-from threading import Thread
+from _thread import start_new_thread
 from ._utils.ws_utils import get_ws_url, print_chat_, configure_loggers, pair_channel_and_names
 from ._utils.consts import MESG_regular, MESG_snoo, MESG_gif, TPST, TPEN, USER_AGENT
 
@@ -60,7 +60,7 @@ class WebSockClient:
             self.logger.info(message)
             self._logi(resp)
 
-        Thread(target=self._response_loop, args=(resp,), daemon=True).start()
+        start_new_thread(self._response_loop, (resp,))
 
     def _logi(self, resp):
         try:
