@@ -1,6 +1,6 @@
 from .ws_client import WebSockClient
 import pickle
-from .reddit_auth import _RedditAuthBase, TokenAuth, PasswordAuth
+from .reddit_auth import TokenAuth, PasswordAuth
 from websocket import WebSocketConnectionClosedException
 from ._api.tools import Tools
 from ._api.models import Channel, Message, BannedUsers
@@ -18,7 +18,8 @@ _hook = Callable[[FrameModel], Optional[bool]]
 
 
 class ChatBot:
-    def __init__(self, authentication: _RedditAuthBase, store_session: bool = True, log_error_frames=True, **kwargs):
+    def __init__(self, authentication: Union[TokenAuth, PasswordAuth], store_session: bool = True,
+                 log_error_frames=True, **kwargs):
         self.__r_authentication = authentication
         self._store_session = store_session
         if store_session:
@@ -149,7 +150,7 @@ class ChatBot:
                                                   **kwargs,
                                                   ping_payload="{active:1}"
                                                   )
-            if self.__WebSocketClient.is_logi_err and isinstance(self.__r_authentication, PasswordAuth):
+            if self.__WebSocketClient.is_logi_err and self.__r_authentication.is_reauthable:
                 self.__WebSocketClient.logger.info("Re-Authenticating...")
                 if self._store_session:
                     sb_access_token, _ = self._load_session(self.__r_authentication.reddit_username, force_reauth=True)

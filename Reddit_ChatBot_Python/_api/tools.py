@@ -24,11 +24,7 @@ class Tools:
             'SendBird': f'Android,29,3.0.82,{SB_ai}',
             'SB-User-Agent': SB_User_Agent
         }
-        try:
-            _ = self._reddit_auth.reddit_username
-            self._is_reauthable = True
-        except AttributeError:
-            self._is_reauthable = False
+        self._is_reauthable = self._reddit_auth.is_reauthable
 
     def _handled_req(self, method, uri, **kwargs):
         while self._is_running:
