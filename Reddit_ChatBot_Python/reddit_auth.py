@@ -62,12 +62,12 @@ class PasswordAuth(_RedditAuthBase):
             self._reddit_session = self._do_login()
             if self._reddit_session is None:
                 raise Exception("Wrong username or password")
-            self.api_token = self._get_api_token(self._reddit_session)
+            self.api_token = self._get_api_token()
 
         return super(PasswordAuth, self).authenticate()
 
-    def _get_api_token(self, reddit_session):
-        cookies = {'reddit_session': reddit_session}
+    def _get_api_token(self):
+        cookies = {'reddit_session': self._reddit_session}
         headers = {
             'Authorization': f'Basic {OAUTH_CLIENT_ID_B64}',
             'User-Agent': MOBILE_USERAGENT,
@@ -81,6 +81,9 @@ class PasswordAuth(_RedditAuthBase):
     def _do_login(self):
         headers = {
             'User-Agent': WEB_USERAGENT,
+            'Accept': 'application/json, text/javascript, */*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Sec-Fetch-Dest': 'empty',
         }
         data = {
             'op': 'login',
