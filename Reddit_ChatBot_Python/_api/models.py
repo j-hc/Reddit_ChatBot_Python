@@ -136,7 +136,7 @@ class Channel(BaseModel):
     # is_discoverable: bool
     # ignore_profanity_filter: bool
     channel_url: str
-    # operators: list
+    operators: Optional[List[User]]
     channel: _Channel
     # message_survival_seconds: int
     unread_message_count: Optional[int]

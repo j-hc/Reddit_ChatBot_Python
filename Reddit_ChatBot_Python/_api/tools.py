@@ -82,8 +82,9 @@ class Tools:
         data = json.dumps({
             'user_id': self._reddit_auth.user_id
         })
-        self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept',
-                          headers={'Session-Key': session_key}, data=data)
+        response = self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept',
+                                     headers={'Session-Key': session_key}, data=data)
+        return Channel._from_dict(response.json())
 
     def get_channels(self, limit, order, show_member, show_read_receipt, show_empty, member_state_filter, super_mode,
                      public_mode, unread_filter, hidden_mode, show_frozen, session_key):

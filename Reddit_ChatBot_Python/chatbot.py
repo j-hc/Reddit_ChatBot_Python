@@ -221,9 +221,10 @@ class ChatBot:
         self.__WebSocketClient.add_channelid_sub_pair(channel)
         return channel
 
-    def accept_chat_invite(self, channel_url: str) -> None:
-        self.__tools.accept_chat_invite(channel_url, session_key=self.__WebSocketClient.session_key)
+    def accept_chat_invite(self, channel_url: str) -> Channel:
+        group = self.__tools.accept_chat_invite(channel_url, session_key=self.__WebSocketClient.session_key)
         self.__WebSocketClient.update_channelid_sub_pair()
+        return group
 
     def rename_channel(self, name: str, channel_url: str) -> Channel:
         channel = self.__tools.rename_channel(**_get_locals_without_self(locals()),
