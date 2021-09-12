@@ -83,7 +83,10 @@ class PasswordAuth(_RedditAuthBase):
             'User-Agent': WEB_USERAGENT,
             'Accept': 'application/json, text/javascript, */*',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
             'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
         }
         data = {
             'op': 'login',
