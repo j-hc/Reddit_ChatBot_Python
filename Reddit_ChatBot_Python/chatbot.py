@@ -40,7 +40,8 @@ class ChatBot:
         self.event = Events(self.__WebSocketClient)
 
         if log_error_frames:
-            self.event.on_any(frame_type=FrameType.EROR)(lambda resp: self.__WebSocketClient.logger.error(resp))
+            self.event.on_any(func=lambda resp: self.__WebSocketClient.logger.error(resp), frame_type=FrameType.EROR,
+                              run_parallel=True)
 
     def get_own_name(self) -> str:
         return self.__WebSocketClient.own_name
@@ -79,7 +80,7 @@ class ChatBot:
                 self.__WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True
 
-        self.event.on_any(frame_type=FrameType.MESG)(hook)
+        self.event.on_message(func=hook)
 
     def set_welcome_message(self, message: str, limited_to_channels: List[str] = None) -> None:
         if limited_to_channels is None:

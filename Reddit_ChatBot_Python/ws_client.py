@@ -33,6 +33,7 @@ class WebSockClient:
         self.current_channels = None
 
         self.after_message_hooks = []
+        self.parralel_hooks = []
 
     def _get_ws_app(self, ws_url):
         ws = websocket.WebSocketApp(ws_url,
@@ -60,6 +61,9 @@ class WebSockClient:
             self.logger.info(message)
             self._logi(resp)
 
+        for func in self.parralel_hooks:
+            start_new_thread(func, (resp,))
+
         start_new_thread(self._response_loop, (resp,))
 
     def _logi(self, resp):
@@ -74,7 +78,7 @@ class WebSockClient:
             self.update_channelid_sub_pair()
             self.own_name = resp.nickname
         else:
-            self.logger.error(f"err: {resp.message}")
+            self.logger.error(resp.message)
             self.is_logi_err = True
 
     def update_channelid_sub_pair(self):
