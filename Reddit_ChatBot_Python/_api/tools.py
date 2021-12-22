@@ -26,7 +26,7 @@ class Tools:
         }
         self._is_reauthable = self._reddit_auth.is_reauthable
 
-    def _handled_req(self, method, uri, **kwargs):
+    def _handled_req(self, method, uri, **kwargs) -> requests.Response:
         while self._is_running:
             response = self._req_sesh.request(method, uri, **kwargs)
             if response.status_code == 401 and self._is_reauthable:
@@ -48,7 +48,7 @@ class Tools:
         response = self._handled_req(method='PUT', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
                                      headers={'Session-Key': session_key},
                                      data=data)
-        return Channel._from_dict(response.json())
+        return Channel.construct(**response.json())
 
     def delete_message(self, channel_url, msg_id, session_key):
         self._handled_req(method='DELETE',
@@ -71,9 +71,7 @@ class Tools:
         users = []
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
-        data = json.dumps({
-            'users': users
-        })
+        data = json.dumps({'users': users})
         self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite',
                           headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                           data=data)
@@ -84,7 +82,7 @@ class Tools:
         })
         response = self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept',
                                      headers={'Session-Key': session_key}, data=data)
-        return Channel._from_dict(response.json())
+        return Channel.construct(**response.json())
 
     def get_channels(self, limit, order, show_member, show_read_receipt, show_empty, member_state_filter, super_mode,
                      public_mode, unread_filter, hidden_mode, show_frozen, session_key):
@@ -105,7 +103,7 @@ class Tools:
         response = self._handled_req(method='GET',
                                      uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels',
                                      headers={'Session-Key': session_key}, params=params)
-        return [Channel._from_dict(channel) for channel in response.json()['channels']]
+        return [Channel.construct(**channel) for channel in response.json()['channels']]
 
     def get_members(self, channel_url, next_token, limit, order, member_state_filter, nickname_startswith, session_key):
         params = {
@@ -121,7 +119,7 @@ class Tools:
         }
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/members',
                                      headers={'Session-Key': session_key}, params=params)
-        return Members._from_dict(response.json())
+        return Members.construct(**response.json())
 
     def get_banned_members(self, channel_url, limit, session_key):
         params = {
@@ -129,7 +127,7 @@ class Tools:
         }
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/ban',
                                      headers={'Session-Key': session_key}, params=params)
-        return BannedUsers._from_dict(response.json())
+        return BannedUsers.construct(**response.json())
 
     def leave_chat(self, channel_url, session_key):
         data = json.dumps({
@@ -149,7 +147,7 @@ class Tools:
         response = self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels',
                                      headers={'Authorization': f'Bearer {self._reddit_auth.api_token}'},
                                      data=data)
-        return Channel._from_dict(response.json())
+        return Channel.construct(**response.json())
 
     def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide, session_key):
         data = json.dumps({
@@ -178,7 +176,7 @@ class Tools:
 
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
                                      headers={'Session-Key': session_key}, params=params)
-        return [Message._from_dict(msg) for msg in response.json()['messages']]
+        return [Message.construct(**msg) for msg in response.json()['messages']]
 
     def mute_user(self, channel_url, user_id, duration, description, session_key):
         data = json.dumps({

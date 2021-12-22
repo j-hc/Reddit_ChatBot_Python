@@ -1,6 +1,49 @@
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List
 from enum import Enum
-from pydantic import BaseModel, Json
+from pydantic import BaseModel as PydanticBaseModel, BaseConfig as PydanticBaseConfig
+
+
+class BaseConfig(PydanticBaseConfig):
+    allow_mutation = False
+    frozen = True
+
+
+class BaseModel(PydanticBaseModel):
+    Config = BaseConfig
+
+    @classmethod
+    def construct(cls, **values):
+        m = cls.__new__(cls)
+        fields_values = {}
+
+        config = cls.__config__
+
+        for name, field in cls.__fields__.items():
+            key = field.alias
+            if key not in values and config.allow_population_by_field_name:
+                key = name
+            if key in values:
+                if values[key] is None and not field.required:
+                    fields_values[name] = field.get_default()
+                else:
+                    if issubclass(field.type_, BaseModel):
+                        if field.shape == 2:
+                            fields_values[name] = [
+                                field.type_.construct(**e)
+                                for e in values[key]
+                            ]
+                        else:
+                            fields_values[name] = field.outer_type_.construct(**values[key])
+                    else:
+                        fields_values[name] = values[key]
+            elif not field.required:
+                fields_values[name] = field.get_default()
+
+        object.__setattr__(m, '__dict__', fields_values)
+        _fields_set = set(values.keys())
+        object.__setattr__(m, '__fields_set__', _fields_set)
+        m._init_private_attributes()
+        return m
 
 
 class CustomType(str, Enum):
@@ -21,10 +64,7 @@ class _Channel(BaseModel):
     created_at: int
     # cover_url: str
     max_length_message: int
-    data: Union[Json, str]
-
-    class Config:
-        allow_mutation = False
+    data: str
 
 
 class User(BaseModel):
@@ -46,20 +86,10 @@ class User(BaseModel):
     # profile_url:str
     # metadata: dict
 
-    class Config:
-        allow_mutation = False
-
 
 class Members(BaseModel):
     members: List[User]
     next: str
-
-    class Config:
-        allow_mutation = False
-
-    @classmethod
-    def _from_dict(cls, d):
-        return cls(**d)
 
 
 class BannedUser(BaseModel):
@@ -68,20 +98,10 @@ class BannedUser(BaseModel):
     user: User
     end_at: int
 
-    class Config:
-        allow_mutation = False
-
 
 class BannedUsers(BaseModel):
     banned_list: List[BannedUser]
     next: str
-
-    class Config:
-        allow_mutation = False
-
-    @classmethod
-    def _from_dict(cls, d):
-        return cls(**d)
 
 
 class Message(BaseModel):
@@ -95,7 +115,7 @@ class Message(BaseModel):
     user: Optional[User]
     # file: dict
     message: str
-    data: Union[Json, str]
+    data: str
     # message_retention_hour: int
     # silent: bool
     type: Optional[str]
@@ -104,13 +124,6 @@ class Message(BaseModel):
     mention_type: Optional[str]
     channel_url: str
     message_id: Optional[int]
-
-    class Config:
-        allow_mutation = False
-
-    @classmethod
-    def _from_dict(cls, d):
-        return cls(**d)
 
 
 class Channel(BaseModel):
@@ -157,10 +170,3 @@ class Channel(BaseModel):
     max_length_message: Optional[int]
     inviter: Optional[User]
     count_preference: Optional[str]
-
-    class Config:
-        allow_mutation = False
-
-    @classmethod
-    def _from_dict(cls, d):
-        return cls(**d)

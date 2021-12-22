@@ -1,6 +1,6 @@
 from .ws_client import WebSockClient
 import pickle
-from .reddit_auth import TokenAuth, PasswordAuth
+from .reddit_auth import _RedditAuthBase
 from websocket import WebSocketConnectionClosedException
 from ._api.tools import Tools
 from ._api.models import Channel, Message, BannedUsers
@@ -18,18 +18,12 @@ _hook = Callable[[FrameModel], Optional[bool]]
 
 
 class ChatBot:
-    def __init__(self, authentication: Union[TokenAuth, PasswordAuth], store_session: bool = True,
+    def __init__(self, authentication: _RedditAuthBase, store_session: bool = True,
                  log_error_frames=True, **kwargs):
         self.__r_authentication = authentication
         self._store_session = store_session
         if store_session:
-            if isinstance(authentication, TokenAuth):
-                pkl_n = authentication.api_token
-            elif isinstance(authentication, PasswordAuth):
-                pkl_n = authentication.reddit_username
-            else:
-                pkl_n = None
-            sb_access_token, user_id = self._load_session(pkl_n)
+            sb_access_token, user_id = self._load_session(authentication._get_repr_pkl())
         else:
             reddit_authentication = self.__r_authentication.authenticate()
             sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
@@ -136,7 +130,7 @@ class ChatBot:
         self.__WebSocketClient.ws_stop_typing_indicator(channel_url)
 
     def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500, disable_ssl_verification: bool = False,
-                  skip_utf8_validation: bool = True, **kwargs) -> None:
+                  **kwargs) -> None:
         if disable_ssl_verification:
             import ssl
             sslopt = {"cert_reqs": ssl.CERT_NONE}
@@ -146,7 +140,7 @@ class ChatBot:
         self.__tools._is_running = True
         for _ in range(max_retries):
             self.__WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5,
-                                                  skip_utf8_validation=skip_utf8_validation,
+                                                  skip_utf8_validation=True,
                                                   sslopt=sslopt,
                                                   **kwargs,
                                                   ping_payload="{active:1}"
@@ -154,7 +148,7 @@ class ChatBot:
             if self.__WebSocketClient.is_logi_err and self.__r_authentication.is_reauthable:
                 self.__WebSocketClient.logger.info("Re-Authenticating...")
                 if self._store_session:
-                    sb_access_token, _ = self._load_session(self.__r_authentication.reddit_username, force_reauth=True)
+                    sb_access_token, _ = self._load_session(self.__r_authentication._get_repr_pkl(), force_reauth=True)
                 else:
                     sb_access_token = self.__r_authentication.authenticate()['sb_access_token']
                 self.__WebSocketClient.update_ws_app_urls_access_token(sb_access_token)

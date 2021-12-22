@@ -90,6 +90,29 @@ def report_channels(_):
         print(channel.name)
 
 
+# reading last 50 messages from a channel
+@chatbot.event.on_ready
+def report_channels(_):
+    channels = chatbot.get_channels()
+    for channel in channels:
+        if channel.name == "My Channel":
+            last_fifty_message = chatbot.get_older_messages(channel_url=channel.channel_url, prev_limit=50)
+
+
+# starting a direct chat
+@chatbot.event.on_ready
+def dm(_):
+    dm_channel = chatbot.create_direct_channel("someuseridk")
+    chatbot.send_message("Hey what's up?", dm_channel.channel_url)
+
+
+# starting a group chat
+@chatbot.event.on_ready
+def dm(_):
+    dm_channel = chatbot.create_channel(nicknames=["user1", "user2"], group_name="my group")
+    chatbot.send_message("Hey guys what's up?", dm_channel.channel_url)
+
+
 # wanna check invitations on start? i got you
 @chatbot.event.on_ready
 def check_invites(_):

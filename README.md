@@ -1,13 +1,9 @@
-Reddit ChatRoom
+Reddit Chatbot
 ---------------
 
 a fully featured, event-driven chatbot library for reddit chatrooms in python!
 
-no selenium no bullsh*t, just directly websocket
-
 works either with reddit username & password or the api token (not a regular one you get from your registered app as it's not fully scoped)
-
-re-authentication prior to auto re-connect is only possible with PasswordAuth
 
 
 Installation
@@ -21,20 +17,13 @@ required:
     requests
     pydantic
 
-
-skip_utf8_validation parameter of run_4ever slows things down when set to False.
-If you want to set it to False, it is recommended that you install with extra modules:
-
-    pip install Reddit-ChatBot-Python[extra]
-
-
 Usage
 -------
 
-The module is multi-threaded and event-driven. You handle what's gonna happen on these events
-by writing your function with the specific event's decorator.
+The module is multithreaded and event-driven. You handle what will happen on these events
+by writing your function with the corresponding event's decorator.
 
-First of all, for creating an instance of RedditAuthenticaton, there are two options
+For creating an instance of RedditAuthenticaton, there are two options
 
 Recommended way is to create a PasswordAuth:
 ```python
@@ -80,7 +69,7 @@ The events:
 ```python
 @chatbot.event.on_message
 ```
-The event of receving a normal chat message.
+The event of receving a regular chat message.
 
 ```python
 @chatbot.event.on_ready
@@ -95,7 +84,7 @@ The event of receving a chat invitation whether direct or group.
 ```python
 @chatbot.event.on_message_deleted
 ```
-The event of a user deleting his/her message.
+The event of a user deleting their message.
 
 ```python
 @chatbot.event.on_user_joined

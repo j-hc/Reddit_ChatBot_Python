@@ -1,6 +1,7 @@
 import requests
 import uuid
-from ._utils.consts import MOBILE_USERAGENT, OAUTH_REDDIT, S_REDDIT, WEB_USERAGENT, OAUTH_CLIENT_ID_B64, WWW_REDDIT, ACCOUNTS_REDDIT
+from ._utils.consts import *
+from functools import cached_property
 
 
 class _RedditAuthBase:
@@ -10,9 +11,12 @@ class _RedditAuthBase:
         self.user_id = None
         self._reddit_session = reddit_session
 
-    @property
+    @cached_property
     def is_reauthable(self):
         return self._reddit_session is not None and self.api_token is not None
+
+    def _get_repr_pkl(self):
+        pass
 
     def authenticate(self):
         self._get_userid_sb_token()
@@ -98,7 +102,13 @@ class PasswordAuth(_RedditAuthBase):
         reddit_session = response.cookies.get("reddit_session")
         return reddit_session
 
+    def _get_repr_pkl(self):
+        return self.reddit_username
+
 
 class TokenAuth(_RedditAuthBase):
     def __init__(self, token, reddit_session=None):
         super().__init__(token, reddit_session)
+
+    def _get_repr_pkl(self):
+        return self.api_token
