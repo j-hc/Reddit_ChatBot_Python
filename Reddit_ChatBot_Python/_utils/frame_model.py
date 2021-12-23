@@ -16,6 +16,7 @@ class FrameType(Enum):
     LOGI = 'LOGI'
     EROR = 'EROR'
     MEDI = 'MEDI'
+    MRCT = 'MRCT'
 
 
 class FrameModel(SimpleNamespace):

@@ -1,7 +1,7 @@
 import requests
 import uuid
 from ._utils.consts import *
-from functools import cached_property
+import abc
 
 
 class _RedditAuthBase:
@@ -11,10 +11,11 @@ class _RedditAuthBase:
         self.user_id = None
         self._reddit_session = reddit_session
 
-    @cached_property
+    @property
     def is_reauthable(self):
         return self._reddit_session is not None and self.api_token is not None
 
+    @abc.abstractmethod
     def _get_repr_pkl(self):
         pass
 

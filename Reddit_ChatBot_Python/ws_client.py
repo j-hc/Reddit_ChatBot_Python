@@ -27,13 +27,16 @@ class WebSockClient:
         self.log_websocket_frames = log_websocket_frames
         self.last_err = None
         self.is_logi_err = False
-        self.session_key = None
+        self.__session_key = None
 
         self.get_current_channels = get_current_channels
         self.current_channels = None
 
         self.after_message_hooks = []
         self.parralel_hooks = []
+
+    def session_key_getter(self):
+        return self.__session_key
 
     def _get_ws_app(self, ws_url):
         ws = websocket.WebSocketApp(ws_url,
@@ -74,7 +77,7 @@ class WebSockClient:
         if logi_err is None:
             self.is_logi_err = False
             self.last_err = None
-            self.session_key = resp.key
+            self.__session_key = resp.key
             self.update_channelid_sub_pair()
             self.own_name = resp.nickname
         else:
@@ -88,7 +91,7 @@ class WebSockClient:
                                                           public_mode='all', unread_filter='all',
                                                           hidden_mode='all', show_frozen=True,
                                                           # custom_types='direct,group',
-                                                          session_key=self.session_key)
+                                                          )
         self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
                                                           own_user_id=self._user_id)
 
