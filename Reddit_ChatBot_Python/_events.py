@@ -18,6 +18,15 @@ class Events:
         else:
             self.__WebSocketClient.after_message_hooks.append(hook)
 
+    def on_reaction(self, func: _hook = None, run_parralel=False):
+        def wrap(func):
+            return self.on_any(func, FrameType.MRCT, run_parralel)
+
+        if func is None:
+            return wrap
+
+        return wrap(func)
+
     def on_message(self, func: _hook = None, run_parallel=False):
         def wrap(func):
             return self.on_any(func, FrameType.MESG, run_parallel)
