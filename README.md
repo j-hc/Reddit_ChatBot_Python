@@ -30,7 +30,7 @@ from Reddit_ChatBot_Python import RedditAuthentication
 
 reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="",
                                                           reddit_password="",
-                                                          twofa="")
+                                                          twofa=None)
 ```
 
 or you can go with your self-obtained api key. (not the one you get from your registered app)
@@ -105,6 +105,16 @@ The event of a user typing.
 ```
 The event of a user reading a message.
 
+```python
+@chatbot.event.on_broadcast
+```
+The event of receiving a broadcast like upon user join
+
+```python
+@chatbot.event.on_reaction
+```
+The event of a user sending a reaction
+
 ---
 
 All events receives a parsed frame as an argument. They are handled like this.:
@@ -118,7 +128,7 @@ def greet(resp):
         return True
 ```
 
-- Returning ```True``` from events means that handling of the other events won't be carried out.
+- **Returning ```True``` from events means that handling of the other events won't be carried out!**
 
 - ```resp.channel_url``` is the url of the channel we want to send the message to (resp.channel_url in this case
   which is the channel in which the "Hi!" message was sent.)
@@ -394,12 +404,13 @@ Complete Example
 -------
 
 ```python
-from Reddit_ChatBot_Python import ChatBot, RedditAuthentication, CustomType
+from Reddit_ChatBot_Python import ChatBot, RedditAuthentication
+from Reddit_ChatBot_Python import CustomType, Snoo, Reaction
 import random  # for a basic dice rolling game
 
 # create authentication with username and pass
 reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="", reddit_password="",
-                                                          twofa="")  # 2FA supported although not necessary obv..
+                                                          twofa=None)  # 2FA supported, default'd to None
 
 # instantiate the chatbot
 chatbot = ChatBot(print_chat=True, store_session=True, log_websocket_frames=False,  # some parameters u might wanna know
@@ -416,19 +427,20 @@ chatbot.enable_rate_limiter(max_calls=23,  # how many messages will be sent by t
 def dice_roller(resp):  # resp is a SimpleNamespace that carries all the data of the received frame
     messg_s = resp.message.split()
     if messg_s[0] == "!roll" and len(messg_s) == 3:  # if received message says !roll
+        chatbot.send_reaction(Reaction.REACT4, resp.msg_id, resp.channel_url)  # send a reaction
+
         limit_bottom = int(messg_s[1])
         limit_top = int(messg_s[2])
 
         rolled_number = random.randint(limit_bottom, limit_top)
-        response_text = f"@{resp.user.name} {rolled_number}. Better luck next time!"
-        # a simple game
+        response_text = f"@{resp.user.name} rolled {rolled_number}. Better luck next time!"
 
         # send typing indicator cuz why not? maybe they think you are a real person
         chatbot.send_typing_indicator(resp.channel_url)
         chatbot.send_message(response_text,
                              resp.channel_url)  # send the message, always add resp.channel_url as the second argument
         chatbot.stop_typing_indicator(resp.channel_url)
-        chatbot.send_snoomoji('partyparrot', resp.channel_url)  # and send a snoomoji cuz why not??
+        chatbot.send_snoomoji(Snoo.PARTYPARROT, resp.channel_url)  # and send a snoomoji cuz why not??
         return True  # return true if you want to be done with checking the other hooks, otherwise return None or False
         # keep in mind that first added hooks get executed first
 
@@ -442,11 +454,9 @@ def keeper_of_decency(resp):
     if resp.message == "*some very bad slur word*":
         chatbot.kick_user(channel_url=resp.channel_url, user_id=resp.user.guest_id, duration=600)  # duration is in secs
         chatbot.send_message(f'i banned {resp.user.name} for 10 mins', resp.channel_url)
-        return True
     elif resp.message == "*another bad word*":
         chatbot.delete_mesg(channel_url=resp.channel_url, msg_id=resp.msg_id)
         chatbot.send_message(f"i deleted {resp.user.name}'s message", resp.channel_url)
-        return True
 
 
 # or you can add a basic response hook directly like so:
@@ -469,8 +479,6 @@ def on_invit(resp):
         invit_type = "group chat"
     elif resp.channel_type == CustomType.direct:
         invit_type = "DM"
-    else:
-        invit_type = None
     print(f"got invited to {invit_type} by {resp.data.inviter.nickname}")
     chatbot.accept_chat_invite(resp.channel_url)
     chatbot.send_message("Hello! I accepted your invite", resp.channel_url)
@@ -484,14 +492,23 @@ def report_channels(_):
     print("up and running in these channels!: ")
     for channel in channels:
         print(channel.name)
-    
-# reading last 50 messages from a channel
+
+
+# reading last 130 messages from a channel
 @chatbot.event.on_ready
 def report_channels(_):
     channels = chatbot.get_channels()
+    my_channel = None
     for channel in channels:
         if channel.name == "My Channel":
-          last_fifty_message = chatbot.get_older_messages(channel_url=channel.channel_url, prev_limit=50)
+            my_channel = channel
+
+    last_hundred_messages = chatbot.get_older_messages(channel_url=my_channel.channel_url,
+                                                       prev_limit=100)
+    remaining_thirty = chatbot.get_older_messages(channel_url=my_channel.channel_url,
+                                                  message_ts=last_hundred_messages[-1].created_at,
+                                                  prev_limit=30)
+
 
 # starting a direct chat
 @chatbot.event.on_ready
@@ -499,11 +516,14 @@ def dm(_):
     dm_channel = chatbot.create_direct_channel("someuseridk")
     chatbot.send_message("Hey what's up?", dm_channel.channel_url)
 
+
 # starting a group chat
 @chatbot.event.on_ready
 def dm(_):
     dm_channel = chatbot.create_channel(nicknames=["user1", "user2"], group_name="my group")
     chatbot.send_message("Hey guys what's up?", dm_channel.channel_url)
+    chatbot.invite_user_to_channel(dm_channel.channel_url, nicknames=["someotheruser"])
+
 
 # wanna check invitations on start? i got you
 @chatbot.event.on_ready
