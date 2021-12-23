@@ -4,7 +4,7 @@ import time
 from ._utils.frame_model import get_frame_data, FrameType
 from _thread import start_new_thread
 from ._utils.ws_utils import get_ws_url, print_chat_, configure_loggers, pair_channel_and_names
-from ._utils.consts import MESG_regular, MESG_snoo, MESG_gif, TPST, TPEN, USER_AGENT
+from ._utils.consts import *
 
 
 class WebSockClient:
@@ -118,6 +118,11 @@ class WebSockClient:
 
     def ws_send_gif(self, gif_url, channel_url, height, width):
         payload = MESG_gif.format(gif_url=gif_url, channel_url=channel_url, height=height, width=width)
+        self.ws.send(payload)
+
+    def ws_send_img(self, img_url, channel_url, height, width, mimetype):
+        payload = MESG_img.format(img_url=img_url, channel_url=channel_url, height=height,
+                                  width=width, mimetype=mimetype)
         self.ws.send(payload)
 
     def ws_send_typing_indicator(self, channel_url):

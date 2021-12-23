@@ -123,6 +123,10 @@ class ChatBot:
     def send_gif(self, gif_url: str, channel_url: str, height: int = 200, width: int = 200) -> None:
         self.__WebSocketClient.ws_send_gif(gif_url, channel_url, height, width)
 
+    def send_img(self, img_url: str, channel_url: str, height: int = 200, width: int = 200,
+                 mimetype: str = "JPEG") -> None:
+        self.__WebSocketClient.ws_send_img(img_url, channel_url, height, width, mimetype)
+
     def send_typing_indicator(self, channel_url: str) -> None:
         self.__WebSocketClient.ws_send_typing_indicator(channel_url)
 
