@@ -15,7 +15,6 @@ required:
 
     websocket_client
     requests
-    pydantic
 
 Usage
 -------

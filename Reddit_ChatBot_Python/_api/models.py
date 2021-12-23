@@ -1,49 +1,7 @@
 from typing import Dict, Optional, List
 from enum import Enum
-from pydantic import BaseModel as PydanticBaseModel, BaseConfig as PydanticBaseConfig
 
-
-class BaseConfig(PydanticBaseConfig):
-    allow_mutation = False
-    frozen = True
-
-
-class BaseModel(PydanticBaseModel):
-    Config = BaseConfig
-
-    @classmethod
-    def construct(cls, **values):
-        m = cls.__new__(cls)
-        fields_values = {}
-
-        config = cls.__config__
-
-        for name, field in cls.__fields__.items():
-            key = field.alias
-            if key not in values and config.allow_population_by_field_name:
-                key = name
-            if key in values:
-                if values[key] is None and not field.required:
-                    fields_values[name] = field.get_default()
-                else:
-                    if issubclass(field.type_, BaseModel):
-                        if field.shape == 2:
-                            fields_values[name] = [
-                                field.type_.construct(**e)
-                                for e in values[key]
-                            ]
-                        else:
-                            fields_values[name] = field.outer_type_.construct(**values[key])
-                    else:
-                        fields_values[name] = values[key]
-            elif not field.required:
-                fields_values[name] = field.get_default()
-
-        object.__setattr__(m, '__dict__', fields_values)
-        _fields_set = set(values.keys())
-        object.__setattr__(m, '__fields_set__', _fields_set)
-        m._init_private_attributes()
-        return m
+# AUTO GENERATED
 
 
 class CustomType(str, Enum):
@@ -56,117 +14,98 @@ class MemberState(str, Enum):
     invited = 'invited'
 
 
-class _Channel(BaseModel):
-    name: str
-    member_count: int
-    custom_type: CustomType
-    channel_url: str
-    created_at: int
-    # cover_url: str
-    max_length_message: int
-    data: str
+class _Channel:
+    def __init__(self, in_data: dict):
+        self.name: str = in_data.get('name')
+        self.member_count: int = in_data.get('member_count')
+        self.custom_type: CustomType = CustomType[in_data.get('custom_type')]
+        self.channel_url: str = in_data.get('channel_url')
+        self.created_at: int = in_data.get('created_at')
+        self.max_length_message: int = in_data.get('max_length_message')
+        self.data: str = in_data.get('data')
 
 
-class User(BaseModel):
-    is_blocking_me: Optional[bool]
-    user_id: Optional[str]
-    is_muted: Optional[bool]
-    friend_name: Optional[str]
-    joined_ts: Optional[int]
-    is_active: Optional[bool]
-    read_ts: Optional[int]
-    is_blocked_by_me: Optional[bool]
-    state: Optional[str]
-    # friend_discovery_key: null
-    role: Optional[str]
-    is_online: Optional[bool]
-    require_auth_for_profile_image: Optional[bool]
-    # last_seen_at: int
-    nickname: Optional[str]
-    # profile_url:str
-    # metadata: dict
+class User:
+    def __init__(self, in_data: dict):
+        self.is_blocking_me: Optional[bool] = in_data.get('is_blocking_me')
+        self.user_id: Optional[str] = in_data.get('user_id')
+        self.is_muted: Optional[bool] = in_data.get('is_muted')
+        self.friend_name: Optional[str] = in_data.get('friend_name')
+        self.joined_ts: Optional[int] = in_data.get('joined_ts')
+        self.is_active: Optional[bool] = in_data.get('is_active')
+        self.read_ts: Optional[int] = in_data.get('read_ts')
+        self.is_blocked_by_me: Optional[bool] = in_data.get('is_blocked_by_me')
+        self.state: Optional[str] = in_data.get('state')
+        self.role: Optional[str] = in_data.get('role')
+        self.is_online: Optional[bool] = in_data.get('is_online')
+        self.require_auth_for_profile_image: Optional[bool] = in_data.get('require_auth_for_profile_image')
+        self.nickname: Optional[str] = in_data.get('nickname')
 
 
-class Members(BaseModel):
-    members: List[User]
-    next: str
+class Members:
+    def __init__(self, in_data: dict):
+        self.members: List[User] = list(map(lambda n: User(n), in_data.get('members')))
+        self.next: str = in_data.get('next')
 
 
-class BannedUser(BaseModel):
-    description: str
-    start_at: int
-    user: User
-    end_at: int
+class BannedUser:
+    def __init__(self, in_data: dict):
+        self.description: str = in_data.get('description')
+        self.start_at: int = in_data.get('start_at')
+        self.user: User = User(in_data.get('user'))
+        self.end_at: int = in_data.get('end_at')
 
 
-class BannedUsers(BaseModel):
-    banned_list: List[BannedUser]
-    next: str
+class BannedUsers:
+    def __init__(self, in_data: dict):
+        self.banned_list: List[BannedUser] = list(map(lambda n: BannedUser(n), in_data.get('banned_list')))
+        self.next: str = in_data.get('next')
 
 
-class Message(BaseModel):
-    # message_survival_seconds: int
-    # custom_type: str
-    mentioned_users: List[User]
-    # translations: dict
-    updated_at: Optional[int]
-    is_op_msg: Optional[bool]
-    is_removed: Optional[bool]
-    user: Optional[User]
-    # file: dict
-    message: str
-    data: str
-    # message_retention_hour: int
-    # silent: bool
-    type: Optional[str]
-    created_at: Optional[int]
-    req_id: Optional[str]
-    mention_type: Optional[str]
-    channel_url: str
-    message_id: Optional[int]
+class Message:
+    def __init__(self, in_data: dict):
+        self.mentioned_users: List[User] = list(map(lambda n: User(n), in_data.get('mentioned_users')))
+        self.updated_at: Optional[User] = in_data.get('updated_at')
+        self.is_op_msg: Optional[User] = in_data.get('is_op_msg')
+        self.is_removed: Optional[User] = in_data.get('is_removed')
+        self.user: Optional[User] = in_data.get('user')
+        self.message: str = in_data.get('message')
+        self.data: str = in_data.get('data')
+        self.type: Optional[User] = in_data.get('type')
+        self.created_at: Optional[User] = in_data.get('created_at')
+        self.req_id: Optional[User] = in_data.get('req_id')
+        self.mention_type: Optional[User] = in_data.get('mention_type')
+        self.channel_url: str = in_data.get('channel_url')
+        self.message_id: Optional[User] = in_data.get('message_id')
 
 
-class Channel(BaseModel):
-    invited_at: Optional[int]
-    custom_type: CustomType
-    # is_ephemeral: bool
-    read_receipt: Dict[str, int]
-    member_state: MemberState
-    freeze: Optional[bool]
-    created_by: Optional[User]
-    is_hidden: Optional[bool]
-    # disappearing_message: dict
-    is_push_enabled: Optional[bool]
-    joined_ts: Optional[int]
-    is_created: Optional[bool]
-    member_count: Optional[int]
-    # my_role: str
-    # is_broadcast: bool
-    last_message: Optional[Message]
-    user_last_read: Optional[int]
-    unread_mention_count: Optional[int]
-    # sms_fallback: dict
-    # is_discoverable: bool
-    # ignore_profanity_filter: bool
-    channel_url: str
-    operators: Optional[List[User]]
-    channel: _Channel
-    # message_survival_seconds: int
-    unread_message_count: Optional[int]
-    # is_distinct: bool
-    # is_muted: bool
-    # hidden_state: str
-    cover_url: Optional[str]
-    members: List[User]
-    is_public: Optional[bool]
-    # data: Union[Json, str]
-    # ts_message_offset: int
-    joined_member_count: Optional[int]
-    is_super: Optional[bool]
-    name: Optional[str]
-    created_at: Optional[int]
-    # is_access_code_required: bool
-    # push_trigger_option: str
-    max_length_message: Optional[int]
-    inviter: Optional[User]
-    count_preference: Optional[str]
+class Channel:
+    def __init__(self, in_data: dict):
+        self.invited_at: Optional[int] = in_data.get('invited_at')
+        self.custom_type: CustomType = CustomType[in_data.get('custom_type')]
+        self.read_receipt: Dict[str] = in_data.get('read_receipt')
+        self.member_state: MemberState = MemberState[in_data.get('member_state')]
+        self.freeze: Optional[bool] = in_data.get('freeze')
+        self.created_by: Optional[User] = in_data.get('created_by')
+        self.is_hidden: Optional[bool] = in_data.get('is_hidden')
+        self.is_push_enabled: Optional[bool] = in_data.get('is_push_enabled')
+        self.joined_ts: Optional[int] = in_data.get('joined_ts')
+        self.is_created: Optional[bool] = in_data.get('is_created')
+        self.member_count: Optional[int] = in_data.get('member_count')
+        self.last_message: Optional[Message] = in_data.get('last_message')
+        self.user_last_read: Optional[int] = in_data.get('user_last_read')
+        self.unread_mention_count: Optional[int] = in_data.get('unread_mention_count')
+        self.channel_url: str = in_data.get('channel_url')
+        self.operators: Optional[List] = in_data.get('operators')
+        self.channel: _Channel = _Channel(in_data.get('channel'))
+        self.unread_message_count: Optional[int] = in_data.get('unread_message_count')
+        self.cover_url: Optional[str] = in_data.get('cover_url')
+        self.members: List[User] = [User(n) for n in in_data.get('members')]
+        self.is_public: Optional[bool] = in_data.get('is_public')
+        self.joined_member_count: Optional[int] = in_data.get('joined_member_count')
+        self.is_super: Optional[bool] = in_data.get('is_super')
+        self.name: Optional[str] = in_data.get('name')
+        self.created_at: Optional[int] = in_data.get('created_at')
+        self.max_length_message: Optional[int] = in_data.get('max_length_message')
+        self.inviter: Optional[User] = in_data.get('inviter')
+        self.count_preference: Optional[str] = in_data.get('count_preference')

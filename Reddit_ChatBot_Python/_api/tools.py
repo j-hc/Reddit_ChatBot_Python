@@ -3,6 +3,7 @@ from .._utils.consts import *
 import json
 from .models import Channel, Message, Members, BannedUsers
 from typing import Callable, Optional
+import logging
 
 
 def _get_user_id(username):
@@ -47,7 +48,7 @@ class Tools:
                 headers.update({'Authorization': f'Bearer {new_access_token}'})
                 continue
             elif response.status_code != 200:
-                raise Exception(response.text)
+                raise logging.error(response.json())
             else:
                 return response
         raise Exception("Cannot do that without running the bot first")
@@ -81,7 +82,7 @@ class Tools:
         response = self._handled_req(method='PUT', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
                                      chatmedia=True,
                                      data=data)
-        return Channel.construct(**response.json())
+        return Channel(response.json())
 
     def delete_message(self, channel_url, msg_id):
         self._handled_req(method='DELETE',
@@ -115,7 +116,7 @@ class Tools:
         })
         response = self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept',
                                      chatmedia=True, data=data)
-        return Channel.construct(**response.json())
+        return Channel(response.json())
 
     def get_channels(self, limit, order, show_member, show_read_receipt, show_empty, member_state_filter, super_mode,
                      public_mode, unread_filter, hidden_mode, show_frozen):
@@ -136,7 +137,7 @@ class Tools:
         response = self._handled_req(method='GET',
                                      uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels',
                                      chatmedia=True, params=params)
-        return [Channel.construct(**channel) for channel in response.json()['channels']]
+        return [Channel(channel) for channel in response.json()['channels']]
 
     def get_members(self, channel_url, next_token, limit, order, member_state_filter, nickname_startswith):
         params = {
@@ -152,7 +153,7 @@ class Tools:
         }
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/members',
                                      chatmedia=True, params=params)
-        return Members.construct(**response.json())
+        return Members(response.json())
 
     def get_banned_members(self, channel_url, limit):
         params = {
@@ -160,7 +161,7 @@ class Tools:
         }
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/ban',
                                      chatmedia=True, params=params)
-        return BannedUsers.construct(**response.json())
+        return BannedUsers(response.json())
 
     def leave_chat(self, channel_url):
         data = json.dumps({
@@ -180,7 +181,7 @@ class Tools:
         response = self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels',
                                      chatmedia=False,
                                      data=data)
-        return Channel.construct(**response.json())
+        return Channel(response.json())
 
     def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide):
         data = json.dumps({
@@ -209,7 +210,7 @@ class Tools:
 
         response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
                                      chatmedia=True, params=params)
-        return [Message.construct(**msg) for msg in response.json()['messages']]
+        return [Message(msg) for msg in response.json()['messages']]
 
     def mute_user(self, channel_url, user_id, duration, description):
         data = json.dumps({

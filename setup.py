@@ -19,11 +19,10 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     install_requires=[
         "requests>=2.26.0",
         "websocket_client>=1.2.3",
-        "pydantic>=1.8.2"
     ],
-    extras_require={"extra": ["wsaccel"]}
 )
