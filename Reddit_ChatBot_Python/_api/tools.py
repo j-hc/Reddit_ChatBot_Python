@@ -183,14 +183,18 @@ class Tools:
                                      data=data)
         return Channel(response.json())
 
-    def hide_chat(self, user_id, channel_url, hide_previous_messages, allow_auto_unhide):
+    def hide_chat(self, channel_url, hide_previous_messages, allow_auto_unhide):
         data = json.dumps({
-            'user_id': user_id,
+            'user_id': self._reddit_auth.user_id,
             'hide_previous_messages': hide_previous_messages,
             'allow_auto_unhide': allow_auto_unhide
         })
         self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
                           chatmedia=True, data=data)
+
+    def unhide_chat(self, channel_url):
+        self._handled_req(method='DELETE', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
+                          chatmedia=True)
 
     def get_older_messages(self, channel_url, message_ts, custom_types, prev_limit, next_limit, reverse):
         params = {

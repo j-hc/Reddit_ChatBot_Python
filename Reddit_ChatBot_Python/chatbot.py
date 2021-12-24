@@ -227,9 +227,12 @@ class ChatBot:
         self.__WebSocketClient.update_channelid_sub_pair()
         return channel
 
-    def hide_chat(self, user_id: str, channel_url: str, hide_previous_messages: bool = False,
+    def hide_chat(self, channel_url: str, hide_previous_messages: bool = False,
                   allow_auto_unhide: bool = True) -> None:
         self.__tools.hide_chat(**_get_locals_without_self(locals()))
+
+    def unhide_chat(self, channel_url: str) -> None:
+        self.__tools.unhide_chat(**_get_locals_without_self(locals()))
 
     def mute_user(self, channel_url: str, user_id: str, duration: int, description: str) -> None:
         self.__tools.mute_user(**_get_locals_without_self(locals()))
