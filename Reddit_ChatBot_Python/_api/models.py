@@ -42,7 +42,7 @@ class Channel:
         self.joined_ts: Optional[int] = in_data.get('joined_ts')
         self.is_created: Optional[bool] = in_data.get('is_created')
         self.member_count: Optional[int] = in_data.get('member_count')
-        self.last_message: Optional[Message] = in_data.get('last_message')
+        self.last_message: Optional[Message] = Message(in_data.get('last_message'))
         self.user_last_read: Optional[int] = in_data.get('user_last_read')
         self.unread_mention_count: Optional[int] = in_data.get('unread_mention_count')
         self.channel_url: str = in_data.get('channel_url')
@@ -57,7 +57,7 @@ class Channel:
         self.name: Optional[str] = in_data.get('name')
         self.created_at: Optional[int] = in_data.get('created_at')
         self.max_length_message: Optional[int] = in_data.get('max_length_message')
-        self.inviter: Optional[User] = in_data.get('inviter')
+        self.inviter: Optional[User] = User(in_data.get('inviter'))
         self.count_preference: Optional[str] = in_data.get('count_preference')
 
 
@@ -73,7 +73,7 @@ class Message:
         self.updated_at: Optional[int] = in_data.get('updated_at')
         self.is_op_msg: Optional[bool] = in_data.get('is_op_msg')
         self.is_removed: Optional[bool] = in_data.get('is_removed')
-        self.user: Optional[User] = in_data.get('user')
+        self.user: Optional[User] = User(in_data.get('user'))
         self.message: str = in_data.get('message')
         self.data: str = in_data.get('data')
         self.type: Optional[str] = in_data.get('type')
