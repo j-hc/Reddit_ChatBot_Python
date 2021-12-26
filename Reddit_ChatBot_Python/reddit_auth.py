@@ -79,9 +79,8 @@ class PasswordAuth(_RedditAuthBase):
             'client-vendor-id': self._client_vendor_uuid,
         }
         data = '{"scopes":["*"]}'
-        response = requests.post(f'{ACCOUNTS_REDDIT}/api/access_token', headers=headers, cookies=cookies, data=data).json()
-        api_token = response['access_token']
-        return api_token
+        response = requests.post(f'{ACCOUNTS_REDDIT}/api/access_token', headers=headers, cookies=cookies, data=data)
+        return response.json()['access_token']
 
     def _do_login(self):
         headers = {

@@ -36,13 +36,13 @@ class Channel:
         self.read_receipt: Dict[str] = in_data.get('read_receipt')
         self.member_state: MemberState = MemberState[in_data.get('member_state')]
         self.freeze: Optional[bool] = in_data.get('freeze')
-        self.created_by: Optional[User] = in_data.get('created_by')
+        self.created_by: User = User(in_data.get('created_by'))
         self.is_hidden: Optional[bool] = in_data.get('is_hidden')
         self.is_push_enabled: Optional[bool] = in_data.get('is_push_enabled')
         self.joined_ts: Optional[int] = in_data.get('joined_ts')
         self.is_created: Optional[bool] = in_data.get('is_created')
         self.member_count: Optional[int] = in_data.get('member_count')
-        self.last_message: Optional[Message] = Message(in_data.get('last_message'))
+        self.last_message: Optional[Message] = Message(in_data['last_message']) if in_data.get('last_message') is not None else None
         self.user_last_read: Optional[int] = in_data.get('user_last_read')
         self.unread_mention_count: Optional[int] = in_data.get('unread_mention_count')
         self.channel_url: str = in_data.get('channel_url')
@@ -73,7 +73,7 @@ class Message:
         self.updated_at: Optional[int] = in_data.get('updated_at')
         self.is_op_msg: Optional[bool] = in_data.get('is_op_msg')
         self.is_removed: Optional[bool] = in_data.get('is_removed')
-        self.user: Optional[User] = User(in_data.get('user'))
+        self.user: Optional[User] = User(in_data['user']) if in_data.get('user') is not None else None
         self.message: str = in_data.get('message')
         self.data: str = in_data.get('data')
         self.type: Optional[str] = in_data.get('type')

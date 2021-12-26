@@ -2,8 +2,9 @@ import requests
 from .._utils.consts import *
 import json
 from .models import Channel, Message, Members, BannedUsers
-from typing import Callable, Optional
+from typing import Callable, Optional, Union, List
 import logging
+from .iconkeys import Reaction
 
 
 def _get_user_id(username):
@@ -16,110 +17,111 @@ def _get_user_id(username):
 
 
 class Tools:
-    def __init__(self, reddit_auth):
-        self._is_running = False
-        self._reddit_auth = reddit_auth
-        self._req_sesh = requests.Session()
-        self.session_key_getter: Optional[Callable[[], str]] = None
-        self._req_sesh.headers = {
-            'User-Agent': USER_AGENT,
-            'SendBird': f'Android,31,3.0.168,{SB_ai}',
-            'SB-User-Agent': SB_User_Agent,
-        }
+    def __init__(self, reddit_auth, session_key_getter: Callable[[], str], is_running_getter: Callable[[], bool],
+                 own_name: str):
+        self.own_name = own_name
+        self.__reddit_auth = reddit_auth
+        self.__req_sesh = requests.Session()
+        self.__session_key_getter: Optional[Callable[[], str]] = session_key_getter
+        self.__is_running_getter: Callable[[], bool] = is_running_getter
 
-    def _handled_req(self, method: str, uri: str, chatmedia: bool, **kwargs) -> requests.Response:
-        while self._is_running:
+    def __handled_req(self, method: str, uri: str, chatmedia: bool, **kwargs) -> requests.Response:
+        while self.__is_running_getter():
             if chatmedia:
                 headers = {
                     'User-Agent': USER_AGENT,
                     'SendBird': f'Android,31,3.0.168,{SB_ai}',
                     'SB-User-Agent': SB_User_Agent,
-                    'Session-Key': self.session_key_getter()
+                    'Session-Key': self.__session_key_getter()
                 }
             else:
                 headers = {
                     'User-Agent': MOBILE_USERAGENT,
-                    'Authorization': f'Bearer {self._reddit_auth.api_token}',
+                    'Authorization': f'Bearer {self.__reddit_auth.api_token}',
                     'Content-Type': 'application/json',
                 }
-            response = self._req_sesh.request(method, uri, headers=headers, **kwargs)
-            if response.status_code == 401 and self._reddit_auth.is_reauthable:
-                new_access_token = self._reddit_auth.refresh_api_token()
+            response = self.__req_sesh.request(method, uri, headers=headers, **kwargs)
+            if response.status_code == 401 and self.__reddit_auth.is_reauthable:
+                new_access_token = self.__reddit_auth.refresh_api_token()
                 headers.update({'Authorization': f'Bearer {new_access_token}'})
                 continue
             elif response.status_code != 200:
-                raise logging.error(response.json())
+                raise Exception(logging.error(response.text))
             else:
                 return response
         raise Exception("Cannot do that without running the bot first")
 
-    def send_reaction(self, reaction_icon_key, msg_id, channel_url):
+    def send_reaction(self, reaction_icon_key: Reaction, msg_id: Union[str, int], channel_url: str) -> None:
         data = json.dumps({
             "id": "7628b2213978",
             "variables": {
                 "channelSendbirdId": channel_url,
                 "messageSendbirdId": str(msg_id),
-                "reactionIconKey": reaction_icon_key,
+                "reactionIconKey": reaction_icon_key.value,
                 "type": "ADD"
             }
         })
-        self._handled_req(method='POST', uri=GQL_REDDIT, chatmedia=False, data=data)
+        self.__handled_req(method='POST', uri=GQL_REDDIT, chatmedia=False, data=data)
 
-    def delete_reaction(self, reaction_icon_key, msg_id, channel_url):
+    def delete_reaction(self, reaction_icon_key: Reaction, msg_id: Union[str, int], channel_url: str) -> None:
         data = json.dumps({
             "id": "7628b2213978",
             "variables": {
                 "channelSendbirdId": channel_url,
                 "messageSendbirdId": msg_id,
-                "reactionIconKey": reaction_icon_key,
+                "reactionIconKey": reaction_icon_key.value,
                 "type": "DELETE"
             }
         })
-        self._handled_req(method='POST', uri=GQL_REDDIT, chatmedia=False, data=data)
+        self.__handled_req(method='POST', uri=GQL_REDDIT, chatmedia=False, data=data)
 
-    def rename_channel(self, name, channel_url):
+    def rename_channel(self, name: str, channel_url: str) -> Channel:
         data = json.dumps({'name': name})
-        response = self._handled_req(method='PUT', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
-                                     chatmedia=True,
-                                     data=data)
+        response = self.__handled_req(method='PUT', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
+                                      chatmedia=True,
+                                      data=data)
         return Channel(response.json())
 
-    def delete_message(self, channel_url, msg_id):
-        self._handled_req(method='DELETE',
-                          uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages/{msg_id}",
-                          chatmedia=True)
+    def delete_message(self, channel_url: str, msg_id: int) -> None:
+        self.__handled_req(method='DELETE',
+                           uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages/{msg_id}",
+                           chatmedia=True)
 
-    def kick_user(self, channel_url, user_id, duration):
+    def kick_user(self, channel_url: str, user_id: str, duration: int) -> None:
         data = json.dumps({
             'channel_url': channel_url,
             'user_id': user_id,
             'duration': duration
         })
-        self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/channel/kick/user',
-                          chatmedia=False,
-                          data=data)
+        self.__handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/channel/kick/user',
+                           chatmedia=False,
+                           data=data)
 
-    def invite_user(self, channel_url, nicknames):
+    def invite_user_to_channel(self, channel_url: str, nicknames: Union[str, List[str]]) -> None:
         if isinstance(nicknames, str):
             nicknames = [nicknames]
         users = []
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
         data = json.dumps({'users': users})
-        self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite',
-                          chatmedia=False,
-                          data=data)
+        self.__handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels/{channel_url}/invite',
+                           chatmedia=False,
+                           data=data)
 
     def accept_chat_invite(self, channel_url):
         data = json.dumps({
-            'user_id': self._reddit_auth.user_id
+            'user_id': self.__reddit_auth.user_id
         })
-        response = self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept',
-                                     chatmedia=True, data=data)
+        response = self.__handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/accept',
+                                      chatmedia=True, data=data)
         return Channel(response.json())
 
-    def get_channels(self, limit, order, show_member, show_read_receipt, show_empty, member_state_filter, super_mode,
-                     public_mode, unread_filter, hidden_mode, show_frozen):
+    def get_channels(self, limit: int = 100, order: str = "latest_last_message", show_member: bool = True,
+                     show_read_receipt: bool = True, show_empty: bool = True, member_state_filter: str = "joined_only",
+                     super_mode: str = "all", public_mode: str = "all", unread_filter: str = "all",
+                     hidden_mode: str = "unhidden_only", show_frozen: bool = True,
+                     # custom_types: str = 'direct,group'
+                     ) -> List[Channel]:
         params = {
             'limit': limit,
             'order': order,
@@ -134,12 +136,14 @@ class Tools:
             'hidden_mode': hidden_mode,
             'show_frozen': show_frozen,
         }
-        response = self._handled_req(method='GET',
-                                     uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self._reddit_auth.user_id}/my_group_channels',
-                                     chatmedia=True, params=params)
+        response = self.__handled_req(method='GET',
+                                      uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self.__reddit_auth.user_id}/my_group_channels',
+                                      chatmedia=True, params=params)
         return [Channel(channel) for channel in response.json()['channels']]
 
-    def get_members(self, channel_url, next_token, limit, order, member_state_filter, nickname_startswith):
+    def get_members(self, channel_url: str, next_token: str = None, limit: int = 20,
+                    order: str = "member_nickname_alphabetical", member_state_filter: str = "all",
+                    nickname_startswith: str = '') -> Members:
         params = {
             'token': next_token,
             'limit': limit,
@@ -151,52 +155,53 @@ class Tools:
             'show_delivery_receipt': 'true',
             'nickname_startswith': nickname_startswith
         }
-        response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/members',
-                                     chatmedia=True, params=params)
+        response = self.__handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/members',
+                                      chatmedia=True, params=params)
         return Members(response.json())
 
-    def get_banned_members(self, channel_url, limit):
-        params = {
-            'limit': limit
-        }
-        response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/ban',
-                                     chatmedia=True, params=params)
+    def get_banned_members(self, channel_url, limit: int = 100) -> BannedUsers:
+        params = {'limit': limit}
+        response = self.__handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/ban',
+                                      chatmedia=True, params=params)
         return BannedUsers(response.json())
 
-    def leave_chat(self, channel_url):
+    def leave_chat(self, channel_url: str) -> None:
         data = json.dumps({
-            'user_id': self._reddit_auth.user_id
+            'user_id': self.__reddit_auth.user_id
         })
-        self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/leave',
-                          chatmedia=True, data=data)
+        self.__handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/leave',
+                           chatmedia=True, data=data)
 
-    def create_channel(self, nicknames, group_name, own_name):
-        users = [{"user_id": self._reddit_auth.user_id, "nickname": own_name}]
+    def create_channel(self, nicknames: List[str], group_name: str) -> Channel:
+        # users = [{"user_id": self.__reddit_auth.user_id, "nickname": self.own_name}]
+        users = []
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
         data = json.dumps({
             'users': users,
             'name': group_name
         })
-        response = self._handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels',
-                                     chatmedia=False,
-                                     data=data)
+        response = self.__handled_req(method='POST', uri=f'{S_REDDIT}/api/v1/sendbird/group_channels',
+                                      chatmedia=False,
+                                      data=data)
         return Channel(response.json())
 
-    def hide_chat(self, channel_url, hide_previous_messages, allow_auto_unhide):
+    def hide_chat(self, channel_url: str, hide_previous_messages: bool = False, allow_auto_unhide: bool = True) -> None:
         data = json.dumps({
-            'user_id': self._reddit_auth.user_id,
+            'user_id': self.__reddit_auth.user_id,
             'hide_previous_messages': hide_previous_messages,
             'allow_auto_unhide': allow_auto_unhide
         })
-        self._handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
-                          chatmedia=True, data=data)
+        self.__handled_req(method='PUT', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
+                           chatmedia=True, data=data)
 
-    def unhide_chat(self, channel_url):
-        self._handled_req(method='DELETE', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
-                          chatmedia=True)
+    def unhide_chat(self, channel_url: str) -> None:
+        self.__handled_req(method='DELETE', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/hide',
+                           chatmedia=True)
 
-    def get_older_messages(self, channel_url, message_ts, custom_types, prev_limit, next_limit, reverse):
+    def get_older_messages(self, channel_url: str, message_ts: Union[int, str] = 9007199254740991,
+                           custom_types: str = '*', prev_limit: int = 40, next_limit: int = 0,
+                           reverse: bool = True) -> List[Message]:
         params = {
             'is_sdk': 'true',
             'prev_limit': prev_limit,
@@ -211,33 +216,33 @@ class Tools:
             'include_replies': 'false',
             'include_parent_message_text': 'false'
         }
-
-        response = self._handled_req(method='GET', uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
-                                     chatmedia=True, params=params)
+        response = self.__handled_req(method='GET',
+                                      uri=f'{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/messages',
+                                      chatmedia=True, params=params)
         return [Message(msg) for msg in response.json()['messages']]
 
-    def mute_user(self, channel_url, user_id, duration, description):
+    def mute_user(self, channel_url: str, user_id: str, duration: int, description: str) -> None:
         data = json.dumps({
             'user_id': user_id,
             'seconds': duration,
             'description': description
         })
-        self._handled_req(method='POST', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/mute",
-                          chatmedia=True, data=data)
+        self.__handled_req(method='POST', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/mute",
+                           chatmedia=True, data=data)
 
-    def unmute_user(self, channel_url, user_id):
-        self._handled_req(method='DELETE', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/mute/{user_id}",
-                          chatmedia=True)
+    def unmute_user(self, channel_url: str, user_id: str) -> None:
+        self.__handled_req(method='DELETE', uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/mute/{user_id}",
+                           chatmedia=True)
 
-    def set_channel_frozen_status(self, channel_url, is_frozen):
+    def set_channel_frozen_status(self, channel_url: str, is_frozen: bool) -> None:
         data = json.dumps({
             'freeze': is_frozen,
         })
-        self._handled_req(method='PUT',
-                          uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/freeze",
-                          chatmedia=True, data=data)
+        self.__handled_req(method='PUT',
+                           uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}/freeze",
+                           chatmedia=True, data=data)
 
-    def delete_channel(self, channel_url):
-        self._handled_req(method='DELETE',
-                          uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
-                          chatmedia=True)
+    def delete_channel(self, channel_url: str) -> None:
+        self.__handled_req(method='DELETE',
+                           uri=f"{SB_PROXY_CHATMEDIA}/v3/group_channels/{channel_url}",
+                           chatmedia=True)

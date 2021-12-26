@@ -47,5 +47,5 @@ def configure_loggers():
     return logger
 
 
-def print_chat_(resp, channelid_sub_pairs):
+def chat_printer(resp, channelid_sub_pairs):
     print(f"{resp.user.name}@{channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
