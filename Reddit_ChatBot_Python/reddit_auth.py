@@ -1,6 +1,7 @@
 import requests
 import uuid
 from ._utils.consts import *
+from ._utils._exceptions import WrongCreds
 import abc
 
 
@@ -66,7 +67,7 @@ class PasswordAuth(_RedditAuthBase):
         else:
             self._reddit_session = self._do_login()
             if self._reddit_session is None:
-                raise Exception("Wrong username or password")
+                raise WrongCreds("Wrong username or password")
             self.api_token = self._get_api_token()
 
         return super(PasswordAuth, self).authenticate()

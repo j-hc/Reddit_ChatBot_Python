@@ -1,5 +1,6 @@
 import requests
 from .._utils.consts import *
+from .._utils._exceptions import APIException, BotNotRunning
 import json
 from .models import Channel, Message, Members, BannedUsers
 from typing import Callable, Optional, Union, List
@@ -46,10 +47,10 @@ class Tools:
                 headers.update({'Authorization': f'Bearer {new_access_token}'})
                 continue
             elif response.status_code != 200:
-                raise Exception(logging.error(response.text))
+                raise APIException(logging.error(response.text))
             else:
                 return response
-        raise Exception("Cannot do that without running the bot first")
+        raise BotNotRunning("Cannot do that without running the bot first")
 
     def send_reaction(self, reaction_icon_key: Reaction, msg_id: Union[str, int], channel_url: str) -> None:
         data = json.dumps({

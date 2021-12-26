@@ -8,6 +8,7 @@ from ._api.iconkeys import Snoo
 from typing import Dict, List, Optional, Callable
 from ._utils.frame_model import FrameType, FrameModel
 from ._events import Events
+from ._utils._exceptions import WrongCreds, HookException
 
 
 _hook = Callable[[FrameModel], Optional[bool]]
@@ -62,8 +63,8 @@ class ChatBot(Tools):
             limited_to_users = []
         try:
             response.format(nickname="")
-        except KeyError as e:
-            raise Exception("You need to set a {nickname} key in welcome message!") from e
+        except KeyError:
+            raise HookException("You need to set a {nickname} key in welcome message!")
 
         def hook(resp: FrameModel) -> Optional[bool]:
             sent_message = resp.message.lower() if lower_the_input else resp.message
@@ -84,7 +85,7 @@ class ChatBot(Tools):
         try:
             message.format(nickname="", inviter="")
         except KeyError as e:
-            raise Exception("Keys should be {nickname} and {inviter}") from e
+            raise HookException("Keys should be {nickname} and {inviter}")
 
         def hook(resp: FrameModel) -> Optional[bool]:
             if self.__WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
@@ -102,7 +103,7 @@ class ChatBot(Tools):
         try:
             message.format(nickname="")
         except KeyError as e:
-            raise Exception("Key should be {nickname}") from e
+            raise HookException("Key should be {nickname}")
 
         def hook(resp: FrameModel) -> Optional[bool]:
             if self.__WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
