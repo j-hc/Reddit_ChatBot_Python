@@ -8,7 +8,7 @@ from ._api.iconkeys import Snoo
 from typing import Dict, List, Optional, Callable
 from ._utils.frame_model import FrameType, FrameModel
 from ._events import Events
-from ._utils._exceptions import WrongCreds, HookException
+from ._utils._exceptions import HookException
 
 
 _hook = Callable[[FrameModel], Optional[bool]]
@@ -26,8 +26,7 @@ class ChatBot(Tools):
             sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
 
         self.__WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
-        super().__init__(authentication, self.__WebSocketClient.session_key_getter, self._is_running,
-                         self.__WebSocketClient.own_name)
+        super().__init__(authentication, self.__WebSocketClient.session_key_getter, self._is_running)
         self.__WebSocketClient.get_current_channels = self.get_channels
 
         self.event = Events(self.__WebSocketClient)
@@ -42,6 +41,9 @@ class ChatBot(Tools):
 
     def get_own_name(self) -> str:
         return self.__WebSocketClient.own_name
+
+    def get_own_userid(self) -> str:
+        return self.__WebSocketClient.user_id
 
     def get_chatroom_name_id_pairs(self) -> Dict[str, str]:
         return self.__WebSocketClient.channelid_sub_pairs

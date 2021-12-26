@@ -11,7 +11,7 @@ from ._utils.consts import *
 class WebSockClient:
     def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, log_websocket_frames=False,
                  other_logging=True):
-        self._user_id = user_id
+        self.user_id = user_id
 
         self.channelid_sub_pairs = {}
         self.RateLimiter = RateLimiter
@@ -20,7 +20,7 @@ class WebSockClient:
         self.logger.disabled = not other_logging
         websocket.enableTrace(enable_trace)
 
-        self.ws = self._get_ws_app(get_ws_url(self._user_id, access_token))
+        self.ws = self._get_ws_app(get_ws_url(self.user_id, access_token))
 
         self.req_id = int(time.time() * 1000)
         self.own_name = None
@@ -49,7 +49,7 @@ class WebSockClient:
         return ws
 
     def update_ws_app_urls_access_token(self, access_token):
-        self.ws.url = get_ws_url(self._user_id, access_token)
+        self.ws.url = get_ws_url(self.user_id, access_token)
 
     def on_message(self, _, message):
         resp = get_frame_data(message)
@@ -90,12 +90,12 @@ class WebSockClient:
                                                           # custom_types='direct,group',
                                                           )
         self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
-                                                          own_user_id=self._user_id)
+                                                          own_user_id=self.user_id)
 
     def add_channelid_sub_pair(self, channel):
         self.current_channels.append(channel)
         self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
-                                                          own_user_id=self._user_id)
+                                                          own_user_id=self.user_id)
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:

@@ -18,9 +18,7 @@ def _get_user_id(username):
 
 
 class Tools:
-    def __init__(self, reddit_auth, session_key_getter: Callable[[], str], is_running_getter: Callable[[], bool],
-                 own_name: str):
-        self.own_name = own_name
+    def __init__(self, reddit_auth, session_key_getter: Callable[[], str], is_running_getter: Callable[[], bool]):
         self.__reddit_auth = reddit_auth
         self.__req_sesh = requests.Session()
         self.__session_key_getter: Optional[Callable[[], str]] = session_key_getter
@@ -174,7 +172,6 @@ class Tools:
                            chatmedia=True, data=data)
 
     def create_channel(self, nicknames: List[str], group_name: str) -> Channel:
-        # users = [{"user_id": self.__reddit_auth.user_id, "nickname": self.own_name}]
         users = []
         for nickname in nicknames:
             users.append({'user_id': _get_user_id(nickname), 'nickname': nickname})
