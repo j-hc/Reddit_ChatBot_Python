@@ -27,6 +27,15 @@ class Events:
 
         return wrap(func)
 
+    def on_image(self, func: _hook = None, run_parralel=False):
+        def wrap(func):
+            return self.on_any(func, FrameType.MEDI, run_parralel)
+
+        if func is None:
+            return wrap
+
+        return wrap(func)
+
     def on_broadcast(self, func: _hook = None, run_parralel=False):
         def wrap(func):
             return self.on_any(func, FrameType.BRDM, run_parralel)
