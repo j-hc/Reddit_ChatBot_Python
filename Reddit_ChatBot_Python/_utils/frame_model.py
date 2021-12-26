@@ -35,13 +35,9 @@ def get_frame_data(data):
     data_j = convert_to_framemodel(data_r)
     type_f = FrameType[data[:4]]
 
-    # some presets
-    if type_f == FrameType.MESG and data_j.message == "":
-        wfdata = convert_to_framemodel(data_j.data)
-        try:
-            data_j.message = wfdata.v1.snoomoji
-        except AttributeError:
-            pass
+    if type_f == FrameType.MESG:
+        data_j.data = convert_to_framemodel(data_j.data)
+
     data_j.type_f = type_f
 
     return data_j

@@ -48,4 +48,11 @@ def configure_loggers():
 
 
 def chat_printer(resp, channelid_sub_pairs):
-    print(f"{resp.user.name}@{channelid_sub_pairs.get(resp.channel_url)}: {resp.message}")
+    if resp.message == "":
+        try:
+            msg = resp.data.v1.snoomoji
+        except AttributeError:
+            msg = resp.message
+    else:
+        msg = resp.message
+    print(f"{resp.user.name}@{channelid_sub_pairs.get(resp.channel_url)}: {msg}")

@@ -26,7 +26,7 @@ class ChatBot(Tools):
             sb_access_token, user_id = reddit_authentication['sb_access_token'], reddit_authentication['user_id']
 
         self.__WebSocketClient = WebSockClient(access_token=sb_access_token, user_id=user_id, **kwargs)
-        super().__init__(authentication, self.__WebSocketClient.session_key_getter, self._is_running)
+        super().__init__(self.__r_authentication, self.__WebSocketClient.session_key_getter, self._is_running)
         self.__WebSocketClient.get_current_channels = self.get_channels
 
         self.event = Events(self.__WebSocketClient)
@@ -86,7 +86,7 @@ class ChatBot(Tools):
             limited_to_channels = []
         try:
             message.format(nickname="", inviter="")
-        except KeyError as e:
+        except KeyError:
             raise HookException("Keys should be {nickname} and {inviter}")
 
         def hook(resp: FrameModel) -> Optional[bool]:
@@ -104,7 +104,7 @@ class ChatBot(Tools):
             limited_to_channels = []
         try:
             message.format(nickname="")
-        except KeyError as e:
+        except KeyError:
             raise HookException("Key should be {nickname}")
 
         def hook(resp: FrameModel) -> Optional[bool]:
