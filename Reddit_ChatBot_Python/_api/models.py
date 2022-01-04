@@ -36,7 +36,7 @@ class Channel:
         self.read_receipt: Dict[str] = in_data.get('read_receipt')
         self.member_state: MemberState = MemberState[in_data.get('member_state')]
         self.freeze: Optional[bool] = in_data.get('freeze')
-        self.created_by: User = User(in_data.get('created_by'))
+        self.created_by: Optional[User] = User(in_data['created_by']) if in_data.get('created_by') is not None else None
         self.is_hidden: Optional[bool] = in_data.get('is_hidden')
         self.is_push_enabled: Optional[bool] = in_data.get('is_push_enabled')
         self.joined_ts: Optional[int] = in_data.get('joined_ts')

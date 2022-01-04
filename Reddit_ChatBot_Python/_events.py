@@ -89,10 +89,9 @@ class Events:
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:
                     _ = resp.data.inviter
-                    invte = [invitee.nickname for invitee in resp.data.invitees]
+                    if not any([invitee.nickname == self.__WebSocketClient.own_name for invitee in resp.data.invitees]):
+                        return
                 except AttributeError:
-                    return
-                if not (len(invte) == 1 and invte[0] == self.__WebSocketClient.own_name):
                     return
                 return func(resp)
 
@@ -151,10 +150,11 @@ class Events:
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:
                     _ = resp.data.nickname
+                    if resp.cat != 10900:
+                        return
                 except AttributeError:
                     return
-                if resp.cat != 10900:
-                    return
+
                 return func(resp)
 
             return self.on_any(hook, FrameType.SYEV, run_parallel)
