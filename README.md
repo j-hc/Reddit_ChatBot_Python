@@ -78,7 +78,12 @@ The event of connecting to the chats for the first time. Executed only once.
 ```python
 @chatbot.event.on_invitation
 ```
-The event of receving a chat invitation whether direct or group.
+The event of the bot receving a chat invitation whether direct or group.
+
+```python
+@chatbot.event.on_invitation_of_other
+```
+The event of another user receving an invitation for a group chat the bot is in.
 
 ```python
 @chatbot.event.on_message_deleted
