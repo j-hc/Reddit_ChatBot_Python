@@ -102,6 +102,25 @@ class Events:
 
         return wrap(func)
 
+    def on_invitation_of_other(self, func: _hook = None, run_parallel=False):
+        def wrap(func):
+            def hook(resp: FrameModel) -> Optional[bool]:
+                try:
+                    _ = resp.data.inviter
+                    if resp.cat != 10020:
+                        return
+                except AttributeError:
+                    return
+
+                return func(resp)
+
+            return self.on_any(hook, FrameType.SYEV, run_parallel)
+
+        if func is None:
+            return wrap
+
+        return wrap(func)
+
     def on_message_deleted(self, func: _hook = None, run_parallel=False):
         def wrap(func):
             return self.on_any(func, FrameType.DELM, run_parallel)
