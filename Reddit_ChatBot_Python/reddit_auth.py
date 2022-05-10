@@ -1,7 +1,11 @@
 import requests
 import uuid
 from ._utils.consts import *
-from ._utils._exceptions import WrongCreds
+<<<<<<< HEAD
+from ._utils.exceptions import WrongCreds
+=======
+from ._utils.exceptions import WrongCreds, APIException
+>>>>>>> e1f8aed (some formatting)
 import abc
 
 
@@ -81,7 +85,11 @@ class PasswordAuth(_RedditAuthBase):
         }
         data = '{"scopes":["*"]}'
         response = requests.post(f'{ACCOUNTS_REDDIT}/api/access_token', headers=headers, cookies=cookies, data=data)
-        return response.json()['access_token']
+        try:
+            access_token = response.json()['access_token']
+        except KeyError:
+            raise APIException(response.text)
+        return access_token
 
     def _do_login(self):
         headers = {

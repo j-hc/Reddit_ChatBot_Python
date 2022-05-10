@@ -8,8 +8,7 @@ from ._api.iconkeys import Snoo
 from typing import Dict, List, Optional, Callable
 from ._utils.frame_model import FrameType, FrameModel
 from ._events import Events
-from ._utils._exceptions import HookException
-
+from ._utils.exceptions import HookException
 
 _hook = Callable[[FrameModel], Optional[bool]]
 

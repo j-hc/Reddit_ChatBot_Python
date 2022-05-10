@@ -1,5 +1,3 @@
-
-
 class ChatBotException(Exception):
     pass
 

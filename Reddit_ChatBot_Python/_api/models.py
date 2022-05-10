@@ -42,7 +42,8 @@ class Channel:
         self.joined_ts: Optional[int] = in_data.get('joined_ts')
         self.is_created: Optional[bool] = in_data.get('is_created')
         self.member_count: Optional[int] = in_data.get('member_count')
-        self.last_message: Optional[Message] = Message(in_data['last_message']) if in_data.get('last_message') is not None else None
+        self.last_message: Optional[Message] = Message(in_data['last_message']) if in_data.get(
+            'last_message') is not None else None
         self.user_last_read: Optional[int] = in_data.get('user_last_read')
         self.unread_mention_count: Optional[int] = in_data.get('unread_mention_count')
         self.channel_url: str = in_data.get('channel_url')
