@@ -7,3 +7,4 @@ a.txt
 test*.py
 __pycache__
 *.pkl
+scripts

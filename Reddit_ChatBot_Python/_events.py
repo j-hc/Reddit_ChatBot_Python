@@ -10,13 +10,20 @@ class Events:
         self.__ready_executed = False
 
     def on_any(self, func: _hook = None, frame_type: FrameType = FrameType.MESG, run_parallel=False):
-        def hook(resp: FrameModel):
-            if resp.type_f == frame_type:
-                return func(resp)
-        if run_parallel:
-            self.__WebSocketClient.parralel_hooks.append(hook)
-        else:
-            self.__WebSocketClient.after_message_hooks.append(hook)
+        def wrap(func):
+            def hook(resp: FrameModel):
+                if resp.type_f == frame_type:
+                    return func(resp)
+
+            if run_parallel:
+                self.__WebSocketClient.parralel_hooks.append(hook)
+            else:
+                self.__WebSocketClient.after_message_hooks.append(hook)
+
+        if func is None:
+            return wrap
+
+        return wrap(func)
 
     def on_reaction(self, func: _hook = None, run_parralel=False):
         def wrap(func):
