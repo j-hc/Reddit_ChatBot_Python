@@ -1,11 +1,7 @@
 import requests
 import uuid
 from ._utils.consts import *
-<<<<<<< HEAD
-from ._utils.exceptions import WrongCreds
-=======
 from ._utils.exceptions import WrongCreds, APIException
->>>>>>> e1f8aed (some formatting)
 import abc
 
 

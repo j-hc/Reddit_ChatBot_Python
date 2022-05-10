@@ -170,6 +170,7 @@ class ChatBot(Tools):
 
     def close(self) -> None:
         self.__WebSocketClient.ws.close()
+        self.__is_running = True
 
     def leave_chat(self, channel_url: str) -> None:
         super().leave_chat(channel_url)
