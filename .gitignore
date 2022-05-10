@@ -8,3 +8,4 @@ test*.py
 __pycache__
 *.pkl
 scripts
+.mypy_cache
