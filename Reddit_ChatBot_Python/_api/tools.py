@@ -49,6 +49,17 @@ class Tools:
                 return response
         raise BotNotRunning("Cannot do that without running the bot first")
 
+    def _get_invite_link(self, custom_type: str, expires_at: Optional[str] = None, max_joiners: int = 5,
+                         channel_url: Optional[str] = None) -> dict:
+        data = json.dumps({
+            'id': 'd5d2819a6186',
+            'variables': {
+                'input': {'channelSendbirdId': channel_url, 'customType': custom_type, 'expiresAt': expires_at,
+                          'maxJoiners': max_joiners}}
+        })
+        response = self.__handled_req(method='POST', uri=GQL_REDDIT, chatmedia=False, data=data)
+        return response.json()
+
     def send_reaction(self, reaction_icon_key: Reaction, msg_id: Union[str, int], channel_url: str) -> None:
         data = json.dumps({
             "id": "7628b2213978",
@@ -63,12 +74,12 @@ class Tools:
 
     def delete_reaction(self, reaction_icon_key: Reaction, msg_id: Union[str, int], channel_url: str) -> None:
         data = json.dumps({
-            "id": "7628b2213978",
-            "variables": {
-                "channelSendbirdId": channel_url,
-                "messageSendbirdId": msg_id,
-                "reactionIconKey": reaction_icon_key.value,
-                "type": "DELETE"
+            'id': '7628b2213978',
+            'variables': {
+                'channelSendbirdId': channel_url,
+                'messageSendbirdId': msg_id,
+                'reactionIconKey': reaction_icon_key.value,
+                'type': 'DELETE'
             }
         })
         self.__handled_req(method='POST', uri=GQL_REDDIT, chatmedia=False, data=data)

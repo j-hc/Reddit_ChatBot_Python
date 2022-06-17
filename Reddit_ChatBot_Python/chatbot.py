@@ -182,6 +182,15 @@ class ChatBot(Tools):
     def get_chat_invites(self) -> List[Channel]:
         return self.get_channels(member_state_filter="invited_only")
 
+    # example expires at: 2023-01-01T23:00:00.000Z
+    def get_own_invite_link(self, expires_at: Optional[str] = None, max_joiners: int = 5) -> str:
+        return super()._get_invite_link(expires_at=expires_at, max_joiners=max_joiners, custom_type='DIRECT',
+                                        channel_url=None)['data']['createChatChannelInviteLink']['inviteUrl']
+
+    def get_invite_link(self, channel_url: str, expires_at: Optional[str] = None, max_joiners: int = 5):
+        return super()._get_invite_link(expires_at=expires_at, max_joiners=max_joiners, custom_type='GROUP',
+                                        channel_url=channel_url)['data']['createChatChannelInviteLink']['inviteUrl']
+
     def create_channel(self, nicknames: List[str], group_name: str) -> Channel:
         nicknames.append(self.__WebSocketClient.own_name)
         channel = super().create_channel(nicknames, group_name)
