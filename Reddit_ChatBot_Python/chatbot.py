@@ -14,7 +14,7 @@ _hook = Callable[[FrameModel], Optional[bool]]
 
 
 class ChatBot(Tools):
-    def __init__(self, authentication: _RedditAuthBase, store_session: bool = True, log_error_frames=True,
+    def __init__(self, authentication: _RedditAuthBase, store_session: bool = True, log_error_frames: bool = True,
                  **kwargs):
         self.__r_authentication = authentication
         self._store_session = store_session
@@ -140,7 +140,7 @@ class ChatBot(Tools):
     def get_current_channels(self) -> List[Channel]:
         return self.__WebSocketClient.current_channels
 
-    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 500, disable_ssl_verification: bool = False,
+    def run_4ever(self, auto_reconnect: bool = True, max_retries: int = 64, disable_ssl_verification: bool = False,
                   **kwargs) -> None:
         if disable_ssl_verification:
             import ssl
@@ -170,7 +170,6 @@ class ChatBot(Tools):
 
     def close(self) -> None:
         self.__WebSocketClient.ws.close()
-        self.__is_running = True
 
     def leave_chat(self, channel_url: str) -> None:
         super().leave_chat(channel_url)

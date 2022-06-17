@@ -2,7 +2,6 @@ import requests
 import uuid
 from ._utils.consts import *
 from ._utils.exceptions import WrongCreds, APIException
-import abc
 
 
 class _RedditAuthBase:
@@ -16,9 +15,8 @@ class _RedditAuthBase:
     def is_reauthable(self):
         return self._reddit_session is not None and self.api_token is not None
 
-    @abc.abstractmethod
     def _get_repr_pkl(self):
-        pass
+        raise NotImplementedError("unreachable")
 
     def authenticate(self):
         self._get_userid_sb_token()
@@ -35,9 +33,7 @@ class _RedditAuthBase:
         self.user_id = 't2_' + user_id_j['id']
 
     def refresh_api_token(self):
-        cookies = {
-            'reddit_session': self._reddit_session,
-        }
+        cookies = {'reddit_session': self._reddit_session}
         headers = {
             'User-Agent': WEB_USERAGENT,
             'Authorization': f'Bearer {self.api_token}',

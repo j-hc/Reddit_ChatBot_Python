@@ -3,14 +3,14 @@ import websocket
 from ._utils.rate_limiter import RateLimiter
 import time
 from ._utils.frame_model import get_frame_data, FrameType
-from _thread import start_new_thread
 from ._utils.ws_utils import get_ws_url, chat_printer, configure_loggers, pair_channel_and_names
 from ._utils.consts import *
+from multiprocessing.pool import ThreadPool
 
 
 class WebSockClient:
     def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, log_websocket_frames=False,
-                 other_logging=True):
+                 other_logging=True, pool_threads_amount=16):
         self.user_id = user_id
 
         self.channelid_sub_pairs = {}
@@ -35,6 +35,8 @@ class WebSockClient:
 
         self.after_message_hooks = []
         self.parralel_hooks = []
+
+        self.thread_pool = ThreadPool(processes=pool_threads_amount)
 
     def session_key_getter(self):
         return self.__session_key
@@ -62,9 +64,14 @@ class WebSockClient:
             self._logi(resp)
 
         for func in self.parralel_hooks:
-            start_new_thread(func, (resp,))
+            self.thread_pool.apply_async(func, (resp,))
 
-        start_new_thread(self._response_loop, (resp,))
+        self.thread_pool.apply_async(self._response_loop, (resp,))
+
+    def _response_loop(self, resp):
+        for func in self.after_message_hooks:
+            if func(resp):
+                break
 
     def _logi(self, resp):
         try:
@@ -96,11 +103,6 @@ class WebSockClient:
         self.current_channels.append(channel)
         self.channelid_sub_pairs = pair_channel_and_names(channels=self.current_channels,
                                                           own_user_id=self.user_id)
-
-    def _response_loop(self, resp):
-        for func in self.after_message_hooks:
-            if func(resp):
-                break
 
     def ws_send_message(self, text, channel_url):
         if self.RateLimiter.is_enabled and self.RateLimiter.check():
