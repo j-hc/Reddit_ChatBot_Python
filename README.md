@@ -1,9 +1,10 @@
 Reddit Chatbot
 ---------------
 
-a fully featured, event-driven chatbot library for reddit chatrooms in python!
+a fully featured, event-driven chatbot library for reddit chatrooms!
 
-works either with reddit username & password or the api token (not a regular one you get from your registered app as it's not fully scoped)
+works either with reddit username & password or the api token (not a regular one you get from your registered app as
+it's not fully scoped)
 
 
 Installation
@@ -25,6 +26,7 @@ by writing your function with the corresponding event's decorator.
 For creating an instance of RedditAuthenticaton, there are two options
 
 Recommended way is to create a PasswordAuth:
+
 ```python
 from Reddit_ChatBot_Python import RedditAuthentication
 
@@ -34,6 +36,7 @@ reddit_authentication = RedditAuthentication.PasswordAuth(reddit_username="",
 ```
 
 or you can go with your self-obtained api key. (not the one you get from your registered app)
+
 ```python
 from Reddit_ChatBot_Python import RedditAuthentication
 
@@ -43,6 +46,7 @@ reddit_authentication = RedditAuthentication.TokenAuth(token="")
 ---
 
 then instantiating the chatbot with the reddit_authentication passed in
+
 ```python
 from Reddit_ChatBot_Python import ChatBot
 
@@ -52,11 +56,11 @@ chatbot = ChatBot(print_chat=True,
                   authentication=reddit_authentication
                   )
 ```
+
 ```print_chat``` is for ```print```ing the chat messages on console
 
-```store_session``` when set to True, creates a pickle file storing reddit_authentication on
-the same directory the main script was called in. Speeds up the websocket connection process but
-not necessary.
+```store_session``` when set to True, creates a session file storing the reddit_authentication on
+the same directory the main script was called at. Speeds up the inital connection.
 
 ```log_websocket_frames``` logs the non-parsed websocket frames on the console
 
@@ -65,64 +69,77 @@ not necessary.
 ---
 
 The events:
+
 ```python
 @chatbot.event.on_message
 ```
+
 The event of receving a regular chat message.
 
 ```python
 @chatbot.event.on_ready
 ```
+
 The event of connecting to the chats for the first time. Executed only once.
 
 ```python
 @chatbot.event.on_invitation
 ```
+
 The event of the bot receving a chat invitation whether direct or group.
 
 ```python
 @chatbot.event.on_invitation_of_other
 ```
+
 The event of another user receving an invitation for a group chat the bot is in.
 
 ```python
 @chatbot.event.on_message_deleted
 ```
+
 The event of a user deleting their message.
 
 ```python
 @chatbot.event.on_user_joined
 ```
+
 The event of a user joining to a chat the bot is in.
 
 ```python
 @chatbot.event.on_user_left
 ```
+
 The event of a user leaving a chat the bot is in.
 
 ```python
 @chatbot.event.on_user_typing
 ```
+
 The event of a user typing.
 
 ```python
 @chatbot.event.on_user_read
 ```
+
 The event of a user reading a message.
 
 ```python
 @chatbot.event.on_broadcast
 ```
+
 The event of receiving a broadcast like upon user join
 
 ```python
 @chatbot.event.on_reaction
 ```
+
 The event of a user sending a reaction
 
 ---
 
 All events receives a parsed frame as an argument. They are handled like this.:
+
 ```python
 @chatbot.event.on_message
 def greet(resp):
@@ -137,12 +154,13 @@ def greet(resp):
 
 - ```resp.channel_url``` is the url of the channel we want to send the message to (resp.channel_url in this case
   which is the channel in which the "Hi!" message was sent.)
-  
+
 The argument ```resp``` carries more data than just the user and the message string. The Instances of resp for
-all event are listed below.
+some events are listed below.
 
 ---
 All there is left is starting the chatbot:
+
 ```python
 chatbot.run_4ever(auto_reconnect=True)
 ```
@@ -152,14 +170,14 @@ chatbot.run_4ever(auto_reconnect=True)
 Instances of Frames ("resp" object of the events)
 ------------------
 
-You access stuff like this with the dot operator:
+How fields are accessed:
 
     message = resp.message
     nickname = resp.user.name
 
 <details>
   <summary>Instance of regular chat message Frame - event.on_message</summary>
-  
+
 ```json
 {
   "msg_id": 1000000,
@@ -186,12 +204,13 @@ You access stuff like this with the dot operator:
   }
 }
 ```
+
 </details>
 
 
 <details>
   <summary>Instance of Invitation Frame - event.on_invitation</summary>
-  
+
 ```json
 {
   "unread_cnt": {
@@ -229,12 +248,13 @@ You access stuff like this with the dot operator:
   "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000"
 }
 ```
+
 </details>
 
 
 <details>
   <summary>Instance of User Joined Frame - event.on_user_joined</summary>
-  
+
 ```json
 {
   "is_super": false,
@@ -270,12 +290,13 @@ You access stuff like this with the dot operator:
   "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000"
 }
 ```
+
 </details>
 
 
 <details>
   <summary>Instance of User Left Frame - event.on_user_left</summary>
-  
+
 ```json
 {
   "channel_type": "group",
@@ -352,7 +373,6 @@ You access stuff like this with the dot operator:
     "nickname": "nickanme of user who left the group",
     "profile_url": "",
     "metadata": {
-      
     }
   },
   "ts": 1614265517558,
@@ -360,12 +380,13 @@ You access stuff like this with the dot operator:
   "cat": 10001
 }
 ```
+
 </details>
 
 
 <details>
   <summary>Instance of Deleted Message Frame - event.on_message_deleted</summary>
-  
+
 ```json
 {
   "is_super": false,
@@ -377,11 +398,12 @@ You access stuff like this with the dot operator:
   "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000"
 }
 ```
+
 </details>
 
 <details>
   <summary>Instance of User Typing Frame - event.on_user_typing</summary>
-  
+
 ```json
 {
   "is_super": false,
@@ -391,7 +413,6 @@ You access stuff like this with the dot operator:
     "nickname": "xxxx",
     "profile_url": "",
     "metadata": {
-      
     }
   },
   "ts": 1617897296948,
@@ -403,6 +424,7 @@ You access stuff like this with the dot operator:
   "channel_url": "sendbird_group_channel_000000000_0000000000000000000000000000000000000000"
 }
 ```
+
 </details>
 
 Complete Example
@@ -499,7 +521,7 @@ def report_channels(_):
         print(channel.name)
 
 
-# reading last 130 messages from a channel
+# reading message history from a channel
 @chatbot.event.on_ready
 def report_channels(_):
     channels = chatbot.get_channels()
@@ -510,27 +532,33 @@ def report_channels(_):
 
     last_hundred_messages = chatbot.get_older_messages(channel_url=my_channel.channel_url,
                                                        prev_limit=100)
-    remaining_thirty = chatbot.get_older_messages(channel_url=my_channel.channel_url,
-                                                  message_ts=last_hundred_messages[-1].created_at,
-                                                  prev_limit=30)
+
+    last_created_at = last_hundred_messages[-1].created_at
+    while True:
+        messages = chatbot.get_older_messages(channel_url=my_channel.channel_url,
+                                              message_ts=last_created_at,
+                                              prev_limit=30)
+        last_created_at = messages[-1].created_at
 
 
 # starting a direct chat
 @chatbot.event.on_ready
-def dm(_):
+def dm_chat(_):
     dm_channel = chatbot.create_direct_channel("someuseridk")
     chatbot.send_message("Hey what's up?", dm_channel.channel_url)
 
 
 # starting a group chat
 @chatbot.event.on_ready
-def dm(_):
-    dm_channel = chatbot.create_channel(nicknames=["user1", "user2"], group_name="my group")
-    chatbot.send_message("Hey guys what's up?", dm_channel.channel_url)
-    chatbot.invite_user_to_channel(dm_channel.channel_url, nicknames=["someotheruser"])
+def gorup_chat(_):
+    group_channel = chatbot.create_channel(nicknames=["user1", "user2"], group_name="my group")
+    chatbot.send_message("Hey guys what's up?", group_channel.channel_url)
+    chatbot.invite_user_to_channel(group_channel.channel_url, nicknames=["someotheruser"])
+    invite_link = chatbot.get_invite_link(group_channel.channel_url)
+    chatbot.send_message(group_channel.channel_url, f"this is our invite link: {invite_link}")
 
 
-# wanna check invitations on start? i got you
+# wanna check invitations on start?
 @chatbot.event.on_ready
 def check_invites(_):
     invites = chatbot.get_chat_invites()
@@ -543,38 +571,4 @@ def check_invites(_):
 # and finally, run forever...
 chatbot.run_4ever(auto_reconnect=True)
 # set auto_reconnect to True so as to re-connect in case remote server shuts down the connection after some period of time
-```
-
-
-Some other fun stuff you can do with this..
--------------------------------------------------------
-
-**Save chatroom messages to a text file (or even in an sql database or some other sht)**
-
-```python
-messages_f_handle = open('reddit-chat-msgs.txt', 'w')
-
-@chatbot.event.on_message
-def save_chat_messages_into_a_txt_file(resp):
-    chatroom_name_id_pairs = chatbot.get_chatroom_name_id_pairs()
-    message = resp.message
-    nickname = resp.user.name
-    chatroom_name = chatroom_name_id_pairs.get(resp.channel_url)
-    formatted_msg = f"{nickname} said {message} in {chatroom_name}"
-    messages_f_handle.write(formatted_msg)
-    messages_f_handle.flush()
-```
-
-**Catch deleted messages**
-
-```python
-latest_messages = {}
-
-@chatbot.event.on_message
-def save_msg_ids(resp):
-    latest_messages.update({resp.msg_id: resp.message})
-
-@chatbot.event.on_message_deleted
-def catch_deleted_messages(resp):
-    chatbot.send_message(f"this message was deleted: {latest_messages.get(resp.msg_id)}", resp.channel_url)
 ```
