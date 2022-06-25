@@ -1,4 +1,4 @@
-from .ws_client import WebSockClient
+from ._ws_client import WebSockClient
 import pickle
 from .reddit_auth import _RedditAuthBase
 from websocket import WebSocketConnectionClosedException
@@ -73,7 +73,7 @@ class ChatBot(Tools):
                     and (exclude_itself and resp.user.name != self.__WebSocketClient.own_name) \
                     and ((must_be_equal and sent_message == input_) or (not must_be_equal and input_ in sent_message)) \
                     and (self.__WebSocketClient.channelid_sub_pairs.get(
-                resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
+                        resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                 response_prepped = response.format(nickname=resp.user.name)
                 self.__WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
                 return True

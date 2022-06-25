@@ -87,11 +87,14 @@ class PasswordAuth(_RedditAuthBase):
         headers = {
             'User-Agent': WEB_USERAGENT,
             'Accept': 'application/json, text/javascript, */*',
+            'Accept-Encoding': 'gzip, deflate, br',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'X-Requested-With': 'XMLHttpRequest',
             'Sec-Fetch-Dest': 'empty',
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',
+            'Referer': 'https://old.reddit.com/login',
+            'Origin': 'https://old.reddit.com',
         }
         data = {
             'op': 'login',
