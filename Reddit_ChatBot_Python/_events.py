@@ -6,7 +6,7 @@ _hook = Callable[[FrameModel], Optional[bool]]
 
 class Events:
     def __init__(self, ws_client):
-        self.__WebSocketClient = ws_client
+        self.ws_client = self.ws_client
         self.__ready_executed = False
 
     def on_any(self, func: Optional[_hook] = None, frame_type: FrameType = FrameType.MESG, run_parallel=False):
@@ -16,9 +16,9 @@ class Events:
                     return func(resp)
 
             if run_parallel:
-                self.__WebSocketClient.parralel_hooks.append(hook)
+                self.ws_client.parralel_hooks.append(hook)
             else:
-                self.__WebSocketClient.after_message_hooks.append(hook)
+                self.ws_client.after_message_hooks.append(hook)
 
         if func is None:
             return wrap
@@ -96,7 +96,7 @@ class Events:
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:
                     _ = resp.data.inviter
-                    if not any([invitee.nickname == self.__WebSocketClient.own_name for invitee in resp.data.invitees]):
+                    if not any([invitee.nickname == self.ws_client.own_name for invitee in resp.data.invitees]):
                         return
                 except AttributeError:
                     return

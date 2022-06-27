@@ -75,7 +75,7 @@ class ChatBot(Tools):
                     and (self.__WebSocketClient.channelid_sub_pairs.get(
                         resp.channel_url) in limited_to_channels or not bool(limited_to_channels)):
                 response_prepped = response.format(nickname=resp.user.name)
-                self.__WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
+                self.send_message(response_prepped, resp.channel_url)
                 return True
 
         self.event.on_message(func=hook)
@@ -93,7 +93,7 @@ class ChatBot(Tools):
                     not bool(limited_to_channels):
                 response_prepped = message.format(nickname=resp.data.users[0].nickname,
                                                   inviter=resp.data.users[0].inviter.nickname)
-                self.__WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
+                self.send_message(response_prepped, resp.channel_url)
                 return True
 
         self.event.on_user_joined(hook)
@@ -110,7 +110,7 @@ class ChatBot(Tools):
             if self.__WebSocketClient.channelid_sub_pairs.get(resp.channel_url) in limited_to_channels or \
                     not bool(limited_to_channels):
                 response_prepped = message.format(nickname=resp.data.nickname)
-                self.__WebSocketClient.ws_send_message(response_prepped, resp.channel_url)
+                self.send_message(response_prepped, resp.channel_url)
                 return True
 
         self.event.on_user_left(hook)
