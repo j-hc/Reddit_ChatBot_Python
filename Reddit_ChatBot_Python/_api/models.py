@@ -2,9 +2,6 @@ from typing import Dict, Optional, List
 from enum import Enum
 
 
-# AUTO GENERATED
-
-
 class CustomType(str, Enum):
     group = 'group'
     direct = 'direct'

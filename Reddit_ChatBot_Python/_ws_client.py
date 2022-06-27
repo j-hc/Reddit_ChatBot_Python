@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable
 import websocket
 from ._utils.rate_limiter import RateLimiter
 import time
@@ -30,7 +30,7 @@ class WebSockClient:
         self.is_logi_err = False
         self.__session_key = None
 
-        self.get_current_channels: Optional[Callable] = None
+        self.get_current_channels: Callable = None
         self.current_channels = None
 
         self.after_message_hooks = []

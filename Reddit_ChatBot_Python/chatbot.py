@@ -153,8 +153,8 @@ class ChatBot(Tools):
             self.__WebSocketClient.ws.run_forever(ping_interval=15, ping_timeout=5,
                                                   skip_utf8_validation=True,
                                                   sslopt=sslopt,
+                                                  ping_payload="{active:1}",
                                                   **kwargs,
-                                                  ping_payload="{active:1}"
                                                   )
             if self.__WebSocketClient.is_logi_err and self.__r_authentication.is_reauthable:
                 self.__WebSocketClient.logger.info("Re-Authenticating...")

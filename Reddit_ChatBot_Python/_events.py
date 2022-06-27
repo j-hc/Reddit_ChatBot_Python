@@ -9,7 +9,7 @@ class Events:
         self.__WebSocketClient = ws_client
         self.__ready_executed = False
 
-    def on_any(self, func: _hook = None, frame_type: FrameType = FrameType.MESG, run_parallel=False):
+    def on_any(self, func: Optional[_hook] = None, frame_type: FrameType = FrameType.MESG, run_parallel=False):
         def wrap(func):
             def hook(resp: FrameModel):
                 if resp.type_f == frame_type:
@@ -25,7 +25,7 @@ class Events:
 
         return wrap(func)
 
-    def on_reaction(self, func: _hook = None, run_parralel=False):
+    def on_reaction(self, func: Optional[_hook] = None, run_parralel=False):
         def wrap(func):
             return self.on_any(func, FrameType.MRCT, run_parralel)
 
@@ -34,7 +34,7 @@ class Events:
 
         return wrap(func)
 
-    def on_image(self, func: _hook = None, run_parralel=False):
+    def on_image(self, func: Optional[_hook] = None, run_parralel=False):
         def wrap(func):
             return self.on_any(func, FrameType.MEDI, run_parralel)
 
@@ -43,7 +43,7 @@ class Events:
 
         return wrap(func)
 
-    def on_broadcast(self, func: _hook = None, run_parralel=False):
+    def on_broadcast(self, func: Optional[_hook] = None, run_parralel=False):
         def wrap(func):
             return self.on_any(func, FrameType.BRDM, run_parralel)
 
@@ -52,7 +52,7 @@ class Events:
 
         return wrap(func)
 
-    def on_message(self, func: _hook = None, run_parallel=False):
+    def on_message(self, func: Optional[_hook] = None, run_parallel=False):
         def wrap(func):
             return self.on_any(func, FrameType.MESG, run_parallel)
 
@@ -61,7 +61,7 @@ class Events:
 
         return wrap(func)
 
-    def on_ready(self, func: _hook = None):
+    def on_ready(self, func: Optional[_hook] = None):
         def wrap(func):
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:
@@ -82,7 +82,7 @@ class Events:
 
         return wrap(func)
 
-    def on_user_read(self, func: _hook = None, run_parallel=False):
+    def on_user_read(self, func: Optional[_hook] = None, run_parallel=False):
         def wrap(func):
             return self.on_any(func, FrameType.READ, run_parallel)
 
@@ -91,7 +91,7 @@ class Events:
 
         return wrap(func)
 
-    def on_invitation(self, func: _hook = None, run_parallel=False):
+    def on_invitation(self, func: Optional[_hook] = None, run_parallel=False):
         def wrap(func):
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:
@@ -109,7 +109,7 @@ class Events:
 
         return wrap(func)
 
-    def on_invitation_of_other(self, func: _hook = None, run_parallel=False):
+    def on_invitation_of_other(self, func: Optional[_hook] = None, run_parallel=False):
         def wrap(func):
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:
@@ -128,7 +128,7 @@ class Events:
 
         return wrap(func)
 
-    def on_message_deleted(self, func: _hook = None, run_parallel=False):
+    def on_message_deleted(self, func: Optional[_hook] = None, run_parallel=False):
         def wrap(func):
             return self.on_any(func, FrameType.DELM, run_parallel)
 
@@ -137,7 +137,7 @@ class Events:
 
         return wrap(func)
 
-    def on_user_joined(self, func: _hook = None, run_parallel=False):
+    def on_user_joined(self, func: Optional[_hook] = None, run_parallel=False):
         def wrap(func):
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:
@@ -154,7 +154,7 @@ class Events:
 
         return wrap(func)
 
-    def on_user_left(self, func: _hook = None, run_parallel=False):
+    def on_user_left(self, func: Optional[_hook] = None, run_parallel=False):
         def wrap(func):
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:
@@ -171,7 +171,7 @@ class Events:
 
         return wrap(func)
 
-    def on_user_typing(self, func: _hook = None, run_parallel=False):
+    def on_user_typing(self, func: Optional[_hook] = None, run_parallel=False):
         def wrap(func):
             def hook(resp: FrameModel) -> Optional[bool]:
                 try:

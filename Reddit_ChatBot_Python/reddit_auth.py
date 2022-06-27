@@ -2,6 +2,7 @@ import requests
 import uuid
 from ._utils.consts import *
 from ._utils.exceptions import WrongCreds, APIException
+from typing import Optional
 
 
 class _RedditAuthBase:
@@ -49,7 +50,7 @@ class _RedditAuthBase:
 
 
 class PasswordAuth(_RedditAuthBase):
-    def __init__(self, reddit_username: str, reddit_password: str, twofa: str = None):
+    def __init__(self, reddit_username: str, reddit_password: str, twofa: Optional[str] = None):
         super().__init__()
         self.reddit_username = reddit_username
         self.reddit_password = reddit_password

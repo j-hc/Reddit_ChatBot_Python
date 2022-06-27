@@ -27,7 +27,7 @@ class FrameModel(SimpleNamespace):
 
 
 def convert_to_framemodel(d):
-    return json.loads(d, object_hook=lambda d: FrameModel(**d))
+    return json.loads(d, object_hook=lambda d: FrameModel(**d), strict=False)
 
 
 def get_frame_data(data):
