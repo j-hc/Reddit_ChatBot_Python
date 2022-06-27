@@ -1,6 +1,5 @@
 from typing import Callable
 import websocket
-from ._utils.rate_limiter import RateLimiter
 import time
 from ._utils.frame_model import get_frame_data, FrameType
 from ._utils.ws_utils import get_ws_url, chat_printer, configure_loggers, pair_channel_and_names
@@ -14,7 +13,6 @@ class WebSockClient:
         self.user_id = user_id
 
         self.channelid_sub_pairs = {}
-        self.RateLimiter = RateLimiter
 
         self.logger = configure_loggers()
         self.logger.disabled = not other_logging
@@ -105,15 +103,11 @@ class WebSockClient:
                                                           own_user_id=self.user_id)
 
     def ws_send_message(self, text, channel_url):
-        if self.RateLimiter.is_enabled and self.RateLimiter.check():
-            return
         payload = MESG_regular.format(channel_url=channel_url, text=text, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1
 
     def ws_send_snoomoji(self, snoomoji, channel_url):
-        if self.RateLimiter.is_enabled and self.RateLimiter.check():
-            return
         payload = MESG_snoo.format(channel_url=channel_url, snoomoji=snoomoji, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1

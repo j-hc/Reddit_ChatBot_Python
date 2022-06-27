@@ -212,14 +212,6 @@ class ChatBot(Tools):
         self.__WebSocketClient.update_channelid_sub_pair()
         return channel
 
-    def enable_rate_limiter(self, max_calls: float, period: float) -> None:
-        self.__WebSocketClient.RateLimiter.is_enabled = True
-        self.__WebSocketClient.RateLimiter.max_calls = max_calls
-        self.__WebSocketClient.RateLimiter.period = period
-
-    def disable_rate_limiter(self) -> None:
-        self.__WebSocketClient.RateLimiter.is_enabled = False
-
     def _load_session(self, pkl_name, force_reauth=False):
         def get_store_file_handle(pkl_name_, mode_):
             try:
