@@ -6,7 +6,7 @@ _hook = Callable[[FrameModel], Optional[bool]]
 
 class Events:
     def __init__(self, ws_client):
-        self.ws_client = self.ws_client
+        self.ws_client = ws_client
         self.__ready_executed = False
 
     def on_any(self, func: Optional[_hook] = None, frame_type: FrameType = FrameType.MESG, run_parallel=False):
