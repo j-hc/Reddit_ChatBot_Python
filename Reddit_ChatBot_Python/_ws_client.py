@@ -4,7 +4,7 @@ import time
 from ._utils.frame_model import get_frame_data, FrameType
 from ._utils.ws_utils import get_ws_url, chat_printer, configure_loggers, pair_channel_and_names
 from ._utils.consts import *
-from multiprocessing.pool import ThreadPool
+from _thread import start_new_thread
 
 
 class WebSockClient:
@@ -34,8 +34,6 @@ class WebSockClient:
         self.after_message_hooks = []
         self.parralel_hooks = []
 
-        self.thread_pool = ThreadPool(processes=pool_threads_amount)
-
     def session_key_getter(self):
         return self.__session_key
 
@@ -62,9 +60,9 @@ class WebSockClient:
             self._logi(resp)
 
         for func in self.parralel_hooks:
-            self.thread_pool.apply_async(func, (resp,))
+            start_new_thread(func, (resp,))
 
-        self.thread_pool.apply_async(self._response_loop, (resp,))
+        start_new_thread(self._response_loop, (resp,))
 
     def _response_loop(self, resp):
         for func in self.after_message_hooks:
