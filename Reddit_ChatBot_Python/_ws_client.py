@@ -3,6 +3,7 @@ import websocket
 import time
 from ._utils.frame_model import get_frame_data, FrameType
 from ._utils.ws_utils import get_ws_url, chat_printer, configure_loggers, pair_channel_and_names
+from ._utils.ws_utils import mesg_gif, mesg_snoo, mesg_text, mesg_img, tpst, tpen
 from ._utils.consts import *
 from _thread import start_new_thread
 
@@ -101,30 +102,30 @@ class WebSockClient:
                                                           own_user_id=self.user_id)
 
     def ws_send_message(self, text, channel_url):
-        payload = MESG_regular.format(channel_url=channel_url, text=text, req_id=self.req_id)
+        payload = mesg_text(channel_url=channel_url, text=text, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1
 
     def ws_send_snoomoji(self, snoomoji, channel_url):
-        payload = MESG_snoo.format(channel_url=channel_url, snoomoji=snoomoji, req_id=self.req_id)
+        payload = mesg_snoo(channel_url=channel_url, snoomoji=snoomoji, req_id=self.req_id)
         self.ws.send(payload)
         self.req_id += 1
 
     def ws_send_gif(self, gif_url, channel_url, height, width):
-        payload = MESG_gif.format(gif_url=gif_url, channel_url=channel_url, height=height, width=width)
+        payload = mesg_gif(gif_url=gif_url, channel_url=channel_url, height=height, width=width)
         self.ws.send(payload)
 
     def ws_send_img(self, img_url, channel_url, height, width, mimetype):
-        payload = MESG_img.format(img_url=img_url, channel_url=channel_url, height=height,
-                                  width=width, mimetype=mimetype)
+        payload = mesg_img(img_url=img_url, channel_url=channel_url, height=height,
+                           width=width, mimetype=mimetype)
         self.ws.send(payload)
 
     def ws_send_typing_indicator(self, channel_url):
-        payload = TPST.format(channel_url=channel_url, time=int(time.time() * 1000))
+        payload = tpst(channel_url=channel_url)
         self.ws.send(payload)
 
     def ws_stop_typing_indicator(self, channel_url):
-        payload = TPEN.format(channel_url=channel_url, time=int(time.time() * 1000))
+        payload = tpen(channel_url=channel_url)
         self.ws.send(payload)
 
     def on_error(self, _, error):

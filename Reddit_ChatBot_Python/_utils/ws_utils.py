@@ -1,8 +1,46 @@
+import json
 from urllib.parse import urlencode
 from .consts import SB_USER_AGENT, SB_AI
 from .._api.models import Channel, CustomType
-from typing import List
+from typing import List, Optional
 import logging
+import time
+
+
+def mesg(channel_url: str, message, req_id: Optional[str], data: dict) -> dict:
+    data = json.dumps({"v1": data}, separators=(',', ':'))
+    mesg = json.dumps({"channel_url": channel_url, "message": message, "data": data, "mention_type": "users", "req_id": req_id}, separators=(',', ':'))
+    return f'MESG{mesg}\n'
+
+
+def mesg_text(channel_url: str, text: str, req_id: str) -> str:
+    data = {"message_body": text, "embed_data": {}, "highlights": []}
+    return mesg(channel_url=channel_url, message=text, req_id=req_id, data=data)
+
+
+def mesg_snoo(channel_url: str, snoomoji: str, req_id: str) -> str:
+    data = {"embed_data": {"site_name": "Reddit"}, "snoomoji": snoomoji}
+    return mesg(channel_url=channel_url, message="", req_id=req_id, data=data)
+
+
+def mesg_gif(channel_url: str, gif_url: str,  height: int, width: int) -> str:
+    data = {"highlights": [], "gif": {"height": height, "url": gif_url, "width": width}}
+    return mesg(channel_url=channel_url, message="", req_id=None, data=data)
+
+
+def mesg_img(channel_url: str, img_url: str,  height: int, width: int, mimetype) -> str:
+    data = {"highlights": [], "image": {"phase": "done", "height": height, "width": width, "url": img_url, "mimetype": mimetype}}
+    return mesg(channel_url=channel_url, message="", req_id=None, data=data)
+
+
+def tpst(channel_url: str) -> str:
+    tpst = json.dumps({"channel_url": channel_url, "time": int(time.time() * 1000), "req_id": ""}, separators=(',', ':'))
+    return f'TPST{tpst}\n'
+
+
+def tpen(channel_url: str) -> str:
+    tpen = json.dumps({"channel_url": channel_url, "time": int(time.time() * 1000), "req_id": ""}, separators=(',', ':'))
+    return f'TPEN{tpen}\n'
 
 
 def get_ws_url(user_id: str, access_token: str):
