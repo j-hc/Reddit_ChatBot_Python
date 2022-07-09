@@ -1,5 +1,5 @@
 from urllib.parse import urlencode
-from .consts import SB_User_Agent, SB_ai
+from .consts import SB_USER_AGENT, SB_AI
 from .._api.models import Channel, CustomType
 from typing import List
 import logging
@@ -13,8 +13,8 @@ def get_ws_url(user_id: str, access_token: str):
         "p": "Android",
         "pv": 30,
         "sv": "3.0.144",
-        "ai": SB_ai,
-        "SB-User-Agent": SB_User_Agent,
+        "ai": SB_AI,
+        "SB-User-Agent": SB_USER_AGENT,
         "active": "1"
     }
     return f"{socket_base}/?{urlencode(ws_params)}"

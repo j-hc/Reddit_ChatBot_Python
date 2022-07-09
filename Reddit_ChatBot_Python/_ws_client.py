@@ -9,7 +9,7 @@ from _thread import start_new_thread
 
 class WebSockClient:
     def __init__(self, access_token, user_id, enable_trace=False, print_chat=True, log_websocket_frames=False,
-                 other_logging=True, pool_threads_amount=16):
+                 other_logging=True):
         self.user_id = user_id
 
         self.channelid_sub_pairs = {}

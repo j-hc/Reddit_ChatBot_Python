@@ -28,8 +28,8 @@ class Tools:
             if chatmedia:
                 headers = {
                     'User-Agent': USER_AGENT,
-                    'SendBird': f'Android,31,3.0.168,{SB_ai}',
-                    'SB-User-Agent': SB_User_Agent,
+                    'SendBird': SB_HEADER,
+                    'SB-User-Agent': SB_USER_AGENT,
                     'Session-Key': self.__session_key_getter()
                 }
             else:
