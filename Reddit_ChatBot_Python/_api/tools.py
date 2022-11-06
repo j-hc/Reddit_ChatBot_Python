@@ -125,7 +125,7 @@ class Tools:
                                       chatmedia=True, data=data)
         return Channel(response.json())
 
-    def get_channels(self, limit: int = 100, order: str = "latest_last_message", show_member: bool = True,
+    def get_channels(self, token: str = None, limit: int = 100, order: str = "latest_last_message", show_member: bool = True,
                      show_read_receipt: bool = True, show_empty: bool = True, member_state_filter: str = "joined_only",
                      super_mode: str = "all", public_mode: str = "all", unread_filter: str = "all",
                      hidden_mode: str = "unhidden_only", show_frozen: bool = True,
@@ -145,6 +145,8 @@ class Tools:
             'hidden_mode': hidden_mode,
             'show_frozen': show_frozen,
         }
+        if token:
+            params['token'] = token
         response = self.__handled_req(method='GET',
                                       uri=f'{SB_PROXY_CHATMEDIA}/v3/users/{self.__reddit_auth.user_id}/my_group_channels',
                                       chatmedia=True, params=params)
