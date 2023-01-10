@@ -1,5 +1,5 @@
 MOBILE_USERAGENT = 'Reddit/Version 2022.25.1/Build 516394/Android 12'
-WEB_USERAGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0'
+WEB_USERAGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
 OAUTH_CLIENT_ID_B64 = "b2hYcG9xclpZdWIxa2c6"
 USER_AGENT = 'Jand/3.0.173'
 SB_USER_AGENT = 'Android/c3.0.173'

@@ -26,7 +26,13 @@ class _RedditAuthBase:
     def _get_userid_sb_token(self):
         headers = {
             'User-Agent': MOBILE_USERAGENT,
-            'Authorization': f'Bearer {self.api_token}'
+            'Referer': 'https://www.reddit.com/',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': f'Bearer {self.api_token}',
+            'Origin': 'https://www.reddit.com',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-site',
         }
         sb_token_j = requests.get(f'{S_REDDIT}/api/v1/sendbird/me', headers=headers).json()
         self.sb_access_token = sb_token_j['sb_access_token']
@@ -63,8 +69,6 @@ class PasswordAuth(_RedditAuthBase):
             self.refresh_api_token()
         else:
             self._reddit_session = self._do_login()
-            if self._reddit_session is None:
-                raise WrongCreds("Wrong username or password")
             self.api_token = self._get_api_token()
 
         return super(PasswordAuth, self).authenticate()
@@ -89,13 +93,13 @@ class PasswordAuth(_RedditAuthBase):
             'User-Agent': WEB_USERAGENT,
             'Accept': 'application/json, text/javascript, */*',
             'Accept-Encoding': 'gzip, deflate, br',
+            'Referer': 'https://old.reddit.com/login',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://old.reddit.com',
             'Sec-Fetch-Dest': 'empty',
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',
-            'Referer': 'https://old.reddit.com/login',
-            'Origin': 'https://old.reddit.com',
         }
         data = {
             'op': 'login',
@@ -105,6 +109,8 @@ class PasswordAuth(_RedditAuthBase):
         }
         response = requests.post(f'{WWW_REDDIT}/api/login/{self.reddit_username}', headers=headers, data=data)
         reddit_session = response.cookies.get("reddit_session")
+        if reddit_session is None:
+            raise WrongCreds("Wrong username or password")
         return reddit_session
 
     def _get_repr_pkl(self):
