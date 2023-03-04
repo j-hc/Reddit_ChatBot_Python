@@ -1,3 +1,6 @@
+## **I'm mostly done with this library and will not work on it unless I receive a donation.**
+**You can consider donating here if you want me to keep developing this: https://www.buymeacoffee.com/prxm**
+
 Reddit Chatbot
 ---------------
 
