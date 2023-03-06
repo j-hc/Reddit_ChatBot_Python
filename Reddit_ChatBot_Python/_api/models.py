@@ -45,7 +45,7 @@ class Channel:
         self.unread_mention_count: Optional[int] = in_data.get('unread_mention_count')
         self.channel_url: str = in_data.get('channel_url')
         self.operators: Optional[List] = in_data.get('operators')
-        self.channel: _Channel = _Channel(in_data.get('channel'))
+        self.channel: _Channel = _Channel(in_data)
         self.unread_message_count: Optional[int] = in_data.get('unread_message_count')
         self.cover_url: Optional[str] = in_data.get('cover_url')
         self.members: List[User] = [User(n) for n in in_data.get('members')]
